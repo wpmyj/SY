@@ -53,6 +53,8 @@
 #define MAX_STRING_NUM						(32)
 #define EPSINON								(0.00001f)				//浮点数不存在绝对的0，只能取近似值
 #define PIC_BUFF_SIZE						(4*1024)				//用于图片等大容量共享缓存
+
+
 /*
 *********************************************************************************************************
 *                              				Exported types
@@ -273,6 +275,9 @@ typedef struct tagIO_OPERATE_TypeDef {
 *                              				Exported macro
 *********************************************************************************************************
 */
+#define ARRAY_SIZE(x) 						(sizeof(x) / sizeof((x)[0])) 
+
+
 __STATIC_INLINE void ExchangeData_UINT16( void *data1, void *data2 )
 {
 	uint16_t *data1Ptr = (uint16_t *)data1;

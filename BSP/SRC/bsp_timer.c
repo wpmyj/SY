@@ -228,7 +228,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	}
 }
 
-#if 0
+#if 1
 /*
 *********************************************************************************************************
 * Function Name : bsp_DelayUS

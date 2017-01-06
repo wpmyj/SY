@@ -29,7 +29,7 @@
 */
 #define GUI_ID_DIALOG0     					(GUI_ID_USER + 0x00)
 
-#define GUI_DIALOG_WIDTH					320
+#define GUI_DIALOG_WIDTH					550
 #define GUI_DIALOG_HEIGHT					150
 #define GUI_DIALOG_START_X					(30)
 #define GUI_DIALOG_START_Y					(30)
@@ -50,31 +50,54 @@
 static const GUI_WIDGET_CREATE_INFO _aDialogCreate[] = {
 	{ FRAMEWIN_CreateIndirect, "Framewin", GUI_ID_DIALOG0, 
 		GUI_DIALOG_START_X, GUI_DIALOG_START_Y, GUI_DIALOG_WIDTH, GUI_DIALOG_HEIGHT, 
-		0, 0x0, 0 },
+		FRAMEWIN_CF_MOVEABLE, 0, 0 },
 	{ TEXT_CreateIndirect, "Text", GUI_ID_TEXT0, 
-		10, 20, 36, 24, 
-		TEXT_CF_LEFT, 0x0, 0 },
+		10, 20, 84, 32, 
+		0, 0x0, 0 },
 	{ SPINBOX_CreateIndirect, "Spinbox", GUI_ID_SPINBOX0,
-		50, 20, 48, 24, 
-		TEXT_CF_HCENTER | TEXT_CF_VCENTER, 0x0, 0 },
+		94, 20, 84, 32, 
+		0, 0x0, 0 },
+	
 	{ TEXT_CreateIndirect, "Text", GUI_ID_TEXT1, 
-		120, 20, 36, 24, 
-		TEXT_CF_LEFT, 0x0, 0 },
+		178, 20, 84, 32, 
+		0, 0x0, 0 },
 	{ SPINBOX_CreateIndirect, "Spinbox", GUI_ID_SPINBOX1, 
-		160, 20, 48, 24,  
-		TEXT_CF_HCENTER | TEXT_CF_VCENTER, 0x0, 0 },
+		262, 20, 84, 32,  
+		0, 0x0, 0 },
+	
 	{ TEXT_CreateIndirect, "Text", GUI_ID_TEXT2, 
-		230, 20, 36, 24, 
-		TEXT_CF_LEFT, 0x0, 0 },
+		346, 20, 84, 32, 
+		0, 0x0, 0 },
 	{ SPINBOX_CreateIndirect, "Spinbox", GUI_ID_SPINBOX2,
-		270, 20, 48, 24, 
-		TEXT_CF_HCENTER | TEXT_CF_VCENTER, 0x0, 0 },
+		430, 20, 84, 32, 
+		0, 0x0, 0 },
+	
+	{ TEXT_CreateIndirect, "Text", GUI_ID_TEXT3, 
+		10, 60, 84, 32, 
+		0, 0x0, 0 },
+	{ SPINBOX_CreateIndirect, "Spinbox", GUI_ID_SPINBOX3,
+		94, 60, 84, 32, 
+		0, 0x0, 0 },
+	
+	{ TEXT_CreateIndirect, "Text", GUI_ID_TEXT4, 
+		178, 60, 84, 32, 
+		0, 0x0, 0 },
+	{ SPINBOX_CreateIndirect, "Spinbox", GUI_ID_SPINBOX4, 
+		262, 60, 84, 32,  
+		0, 0x0, 0 },
+	
+	{ TEXT_CreateIndirect, "Text", GUI_ID_TEXT5, 
+		346, 60, 84, 32, 
+		0, 0x0, 0 },
+	{ SPINBOX_CreateIndirect, "Spinbox", GUI_ID_SPINBOX5,
+		430, 60, 84, 32, 
+		0, 0x0, 0 },
 };
 
 static const char * _aLang[][SUPPORT_LANGUAGE_NUMS] = {
 	{
 		"时间日期设置",
-		"Time Data Set",
+		"Time Date Set",
 	},	//1
 	{
 		"年",
@@ -88,7 +111,18 @@ static const char * _aLang[][SUPPORT_LANGUAGE_NUMS] = {
 		"日",
 		"Day",
 	},	//4
-	
+	{
+		"时",
+		"Hour",
+	},	//5
+	{
+		"分",
+		"Minute",
+	},	//6
+	{
+		"秒",
+		"Second",
+	},	//7
 };
 
 /*
@@ -149,7 +183,7 @@ static const char *_GetLang(uint32_t Index)
 static void WindowsConstructor(WM_MESSAGE *pMsg) 
 {
 	WM_HWIN hWin = pMsg->hWin;
-	WM_SelectWindow(hWin);
+	WM_SetFocus(hWin);
 	
 	ECHO(DEBUG_APP_WINDOWS, "[APP] 构造 <时间日期> 窗口");
 }
@@ -238,23 +272,88 @@ static void DialogConstructor(WM_MESSAGE *pMsg)
 {
 	WM_HWIN hWin = pMsg->hWin;
 	
+	tTime date = {0};
+	ReadSystemDate(&date);
+	tTime time = {0};
+	ReadSystemTime(&time);
+	
 	FRAMEWIN_SetFont(hWin, FRAME_FONT);
 	FRAMEWIN_SetTitleHeight(hWin, DIALOG_TITLE_HEIGHT);
 	FRAMEWIN_SetTextAlign(hWin, GUI_TA_HCENTER | GUI_TA_VCENTER);
 	FRAMEWIN_SetText(hWin, _GetLang(1));
 	
-	WM_HWIN hChild = WM_GetDialogItem(hWin, GUI_ID_TEXT0);			
+	WM_HWIN hChild;
+	hChild = WM_GetDialogItem(hWin, GUI_ID_TEXT0);	
+	TEXT_SetTextAlign(hChild, TEXT_CF_HCENTER | TEXT_CF_VCENTER);
 	TEXT_SetFont(hChild, FRAME_TEXT_FONT);
 	TEXT_SetText(hChild, _GetLang(2));
 	
-	hChild = WM_GetDialogItem(hWin, GUI_ID_TEXT1);			
+	hChild = WM_GetDialogItem(hWin, GUI_ID_TEXT1);	
+	TEXT_SetTextAlign(hChild, TEXT_CF_HCENTER | TEXT_CF_VCENTER);
 	TEXT_SetFont(hChild, FRAME_TEXT_FONT);
 	TEXT_SetText(hChild, _GetLang(3));
 
-	hChild = WM_GetDialogItem(hWin, GUI_ID_TEXT2);			
+	hChild = WM_GetDialogItem(hWin, GUI_ID_TEXT2);
+	TEXT_SetTextAlign(hChild, TEXT_CF_HCENTER | TEXT_CF_VCENTER);
 	TEXT_SetFont(hChild, FRAME_TEXT_FONT);	
 	TEXT_SetText(hChild, _GetLang(4));
 	
+	hChild = WM_GetDialogItem(hWin, GUI_ID_TEXT3);
+	TEXT_SetTextAlign(hChild, TEXT_CF_HCENTER | TEXT_CF_VCENTER);
+	TEXT_SetFont(hChild, FRAME_TEXT_FONT);	
+	TEXT_SetText(hChild, _GetLang(5));
+	
+	hChild = WM_GetDialogItem(hWin, GUI_ID_TEXT4);
+	TEXT_SetTextAlign(hChild, TEXT_CF_HCENTER | TEXT_CF_VCENTER);
+	TEXT_SetFont(hChild, FRAME_TEXT_FONT);	
+	TEXT_SetText(hChild, _GetLang(6));
+	
+	hChild = WM_GetDialogItem(hWin, GUI_ID_TEXT5);
+	TEXT_SetTextAlign(hChild, TEXT_CF_HCENTER | TEXT_CF_VCENTER);
+	TEXT_SetFont(hChild, FRAME_TEXT_FONT);	
+	TEXT_SetText(hChild, _GetLang(7));
+	
+	hChild = WM_GetDialogItem(hWin, GUI_ID_SPINBOX0);	
+	SPINBOX_SetFont(hChild, FRAME_SPINBOX_FONT);
+	SPINBOX_SetStep(hChild, 1);
+	SPINBOX_SetRange(hChild, 2000, 2050);
+	SPINBOX_SetValue(hChild, date.usYear);
+	
+	hChild = WM_GetDialogItem(hWin, GUI_ID_SPINBOX1);	
+	SPINBOX_SetFont(hChild, FRAME_SPINBOX_FONT);
+	SPINBOX_SetStep(hChild, 1);
+	SPINBOX_SetRange(hChild, 1, 12);
+	SPINBOX_SetValue(hChild, date.ucMon);
+	
+	hChild = WM_GetDialogItem(hWin, GUI_ID_SPINBOX2);	
+	SPINBOX_SetFont(hChild, FRAME_SPINBOX_FONT);
+	SPINBOX_SetStep(hChild, 1);
+	{
+		uint8_t days = GetMonthDays(date.usYear, date.ucMon);
+		
+		SPINBOX_SetRange(hChild, 1, days);
+	}
+	SPINBOX_SetValue(hChild, date.ucMday);
+	
+	hChild = WM_GetDialogItem(hWin, GUI_ID_SPINBOX3);	
+	SPINBOX_SetFont(hChild, FRAME_SPINBOX_FONT);
+	SPINBOX_SetStep(hChild, 1);
+	SPINBOX_SetRange(hChild, 0, 23);
+	SPINBOX_SetValue(hChild, time.ucHour);
+	
+	hChild = WM_GetDialogItem(hWin, GUI_ID_SPINBOX4);	
+	SPINBOX_SetFont(hChild, FRAME_SPINBOX_FONT);
+	SPINBOX_SetStep(hChild, 1);
+	SPINBOX_SetRange(hChild, 0, 59);
+	SPINBOX_SetValue(hChild, time.ucMin);
+	
+	hChild = WM_GetDialogItem(hWin, GUI_ID_SPINBOX5);	
+	SPINBOX_SetFont(hChild, FRAME_SPINBOX_FONT);
+	SPINBOX_SetStep(hChild, 1);
+	SPINBOX_SetRange(hChild, 0, 59);
+	SPINBOX_SetValue(hChild, time.ucSec);
+	
+	WM_SetFocus(hWin);
 }
 
 /*
@@ -289,14 +388,24 @@ static void _cbDialog(WM_MESSAGE *pMsg)
 			{
 				case GUI_KEY_UP:
 				{
-					
+
 					break;				
 				}
 				case GUI_KEY_DOWN:	
 				{	
-					
+
 					break;				
 				}
+				case GUI_KEY_LEFT:
+				{
+					GUI_SendKeyMsg(GUI_KEY_BACKTAB, true);
+					break;
+				}	
+				case GUI_KEY_RIGHT:
+				{
+					GUI_SendKeyMsg(GUI_KEY_TAB, true);
+					break;
+				}			
 				case GUI_KEY_ENTER:
 				{									
 					GUI_EndDialog(hWin, 0);					
@@ -305,6 +414,7 @@ static void _cbDialog(WM_MESSAGE *pMsg)
 				case GUI_KEY_ESCAPE:
 				{
 					GUI_EndDialog(hWin, 1);	
+					App_MenuTaskCreate();
 					break;
 				}
 				default:				
@@ -314,10 +424,46 @@ static void _cbDialog(WM_MESSAGE *pMsg)
 		}
 		case WM_NOTIFY_PARENT:
 		{
+			int NCode = pMsg->Data.v;
+			int Id;
+			
+			switch (NCode) 
+			{
+				case WM_NOTIFICATION_VALUE_CHANGED:
+					Id = WM_GetId(pMsg->hWinSrc);					
+					
+					switch (Id)
+					{
+						case GUI_ID_SPINBOX0:
+						case GUI_ID_SPINBOX1:
+						{
+							WM_HWIN hChild = WM_GetDialogItem(hWin, GUI_ID_SPINBOX0);							
+							int year = SPINBOX_GetValue(hChild);
+							hChild = WM_GetDialogItem(hWin, GUI_ID_SPINBOX1);							
+							int month = SPINBOX_GetValue(hChild);
+							{
+								uint8_t days = GetMonthDays(year, month);
+								
+								hChild = WM_GetDialogItem(hWin, GUI_ID_SPINBOX2);
+								SPINBOX_SetRange(hChild, 1, days);
+								int curDays = SPINBOX_GetValue(hChild);
+								if (curDays > days)
+								{
+									SPINBOX_SetValue(hChild, days);
+								}
+							}							
+							break;
+						}
+						default:
+							break;
+					}		
+					break;
+			}
 			break;
 		}
 		case WM_SET_FOCUS:
-		{			
+		{		
+			
 			break;
 		}
 		default:

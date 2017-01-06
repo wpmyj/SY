@@ -217,7 +217,7 @@ uint8_t RemoveStrChar( char *str, const char c )
 */
 bool FloatIsEqual(float fp1, float fp2)
 {
-	if( fabs( fp1 - fp2 ) < EPSINON ) 
+	if( fabs( fabs(fp1) - fabs(fp2) ) < EPSINON ) 
 	{
 		return true;
 	}
@@ -517,9 +517,12 @@ void RepeatExecuteTaskCycle( CYCLE_TASK_TypeDef *cycleTaskPtr )
 		}
 		case STATUS_CYCLE_TASK_ON:
 		{
-			if (cycleTaskPtr->onDevice_CallBack)
+			if (cycleTaskPtr->onCount == 0)
 			{
-				cycleTaskPtr->onDevice_CallBack(cycleTaskPtr->devicePtr);
+				if (cycleTaskPtr->onDevice_CallBack)
+				{
+					cycleTaskPtr->onDevice_CallBack(cycleTaskPtr->devicePtr);
+				}
 			}
 			
 			cycleTaskPtr->onCount++;
@@ -532,9 +535,12 @@ void RepeatExecuteTaskCycle( CYCLE_TASK_TypeDef *cycleTaskPtr )
 		}
 		case STATUS_CYCLE_TASK_OFF:
 		{
-			if (cycleTaskPtr->offDevice_CallBack)
+			if (cycleTaskPtr->offCount == 0)
 			{
-				cycleTaskPtr->offDevice_CallBack(cycleTaskPtr->devicePtr);
+				if (cycleTaskPtr->offDevice_CallBack)
+				{
+					cycleTaskPtr->offDevice_CallBack(cycleTaskPtr->devicePtr);
+				}
 			}
 			
 			cycleTaskPtr->offCount++;

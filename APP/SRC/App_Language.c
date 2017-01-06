@@ -54,7 +54,7 @@ enum {
 static const GUI_WIDGET_CREATE_INFO _aDialogCreate[] = {
 	{ FRAMEWIN_CreateIndirect, "语言选择", GUI_ID_DIALOG0, 
 		GUI_DIALOG_START_X, GUI_DIALOG_START_Y, GUI_DIALOG_WIDTH, GUI_DIALOG_HEIGHT, 
-		FRAMEWIN_CF_MOVEABLE },
+		FRAMEWIN_CF_MOVEABLE, 0, 0 },
 	
 	{ RADIO_CreateIndirect, "Radio", GUI_ID_RADIO0,
 		10, 20, 0, 0, 
@@ -143,7 +143,7 @@ static const char *_GetLang(uint32_t Index)
 static void WindowsConstructor(WM_MESSAGE *pMsg) 
 {
 	WM_HWIN hWin = pMsg->hWin;
-	WM_SelectWindow(hWin);
+	WM_SetFocus(hWin);
 	
 	ECHO(DEBUG_APP_WINDOWS, "[APP] 构造 <语言选择> 窗口");
 }
@@ -242,6 +242,8 @@ static void DialogConstructor(WM_MESSAGE *pMsg)
 	
 	hChild = WM_GetDialogItem(hWin, GUI_ID_TEXT1);			
 	TEXT_SetFont(hChild, FRAME_TEXT_FONT);	
+	
+	WM_SetFocus(hWin);
 }
 
 /*

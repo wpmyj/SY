@@ -134,6 +134,20 @@
 
 /*
 *********************************************************************************************************
+*                              				¿ò¼ÜSPINBOX¿Ø¼þ
+*********************************************************************************************************
+*/
+#define FRAME_SPINBOX_BKCOLOR0     			FRAME_BKCOLOR          	/* Disabled  */    	
+#define FRAME_SPINBOX_BKCOLOR1    			FRAME_BKCOLOR           /* Enabled  */	
+#define FRAME_SPINBOX_BKCOLOR2     			FRAME_BKCOLOR           /* Cursor */
+#define FRAME_SPINBOX_COLOR0       			GUI_BLACK              	/* Disabled  */  
+#define FRAME_SPINBOX_COLOR1       			GUI_BLACK				/* Enabled  */	
+#define FRAME_SPINBOX_COLOR2       			GUI_BLACK				/* Cursor */
+#define FRAME_SPINBOX_FONT         			(&GUI_FontSongTi_24X24)
+#define FRAME_SPINBOX_EFFECT       			(&WIDGET_Effect_3D2L)
+
+/*
+*********************************************************************************************************
 *                              				Exported types
 *********************************************************************************************************
 */
