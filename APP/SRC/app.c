@@ -21,7 +21,7 @@
 */
 #include "app.h"
 #include "App_Menu.h"
-#include "App_Language.h"
+#include "version.h"
 
 /*
 *********************************************************************************************************
@@ -70,6 +70,26 @@ void APP_DebugViewTaskCreate( void );
 */
 /*
 *********************************************************************************************************
+* Function Name : PrintControllerInfo
+* Description	: 打印控制器信息
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+static void PrintControllerInfo(void)
+{
+	ECHO(DEBUG_BSP_INIT, "\r\n========== [控制器信息] ==========");
+	ECHO(DEBUG_BSP_INIT, "[系统型号] %s", SYSTEM_MODEL);
+	ECHO(DEBUG_BSP_INIT, "[PCB 版本] %s", PCB_VERSION);
+	ECHO(DEBUG_BSP_INIT, "[固件版本] %s", SOFT_VERSION);
+	ECHO(DEBUG_BSP_INIT, "[开 发 者] %s", DEVELOPER_NAME);
+	ECHO(DEBUG_BSP_INIT, "[发行日期] %s", RELEASE_DATE);
+	ECHO(DEBUG_BSP_INIT,"");
+}
+
+/*
+*********************************************************************************************************
 * Function Name : APP_Init
 * Description	: APP初始化
 * Input			: None
@@ -81,7 +101,7 @@ void APP_Init( void )
 {
 	ECHO(DEBUG_APP_INIT, "==================== APP ====================");
 	
-	
+	PrintControllerInfo();
 	
 	ECHO(DEBUG_APP_INIT, "==================== END ====================\r\n");
 }
@@ -148,6 +168,9 @@ static void NotifyFlashFontProgress_CallBack( uint8_t fontSize, uint8_t progress
 */
 static void AppTaskCreate(void)
 {
+	/* 设置桌面回调函数 */
+	WM_SetCallback(WM_HBKWIN, _cbDesktop);
+	
 	App_MenuTaskCreate();
 }
 
@@ -183,16 +206,6 @@ void MainTask(void)
 	
 	/* 更新字库 */
 	UpdateFlashFontTask(NotifyFlashFontProgress_CallBack);
-
-	/* 设置桌面回调函数 */
-	WM_SetCallback(WM_HBKWIN, _cbDesktop);
-	
-	/* 显示游标 */
-#if 0
-	GUI_CURSOR_Show();
-	GUI_CURSOR_SetPosition(0,0);
-	GUI_CURSOR_Select(&GUI_CursorArrowLI);
-#endif	
 
 	/* 创建任务 */
 	AppTaskCreate();

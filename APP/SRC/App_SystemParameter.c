@@ -212,7 +212,6 @@ static void Constructor(WM_MESSAGE* pMsg)
 	
 
 	WM_SendMessageNoPara(hWin, WM_SET_FOCUS);
-	WM_SelectWindow(hWin);
 	
 	ECHO(DEBUG_APP_WINDOWS, "[APP] 构造 <系统参数设置> 窗口");
 }

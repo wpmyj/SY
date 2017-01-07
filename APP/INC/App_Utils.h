@@ -46,6 +46,7 @@
 #define MSG_USER_PAD_DELETE       			(WM_USER + 3)
 #define MSG_USER_PAD_CLEAR       			(WM_USER + 4)
 #define MSG_USER_UPDATE       				(WM_USER + 5)
+#define MSG_USER_ESC       					(WM_USER + 6)
 
 #define ERROR_WIDGET_ID						(-1)
 
@@ -99,6 +100,11 @@ void _DrawDownRect(const WIDGET_EFFECT* pEffect, int x0, int y0, int x1, int y1)
 void _DrawUpRectEx(const WIDGET_EFFECT* pEffect, const GUI_RECT* pRect);
 void _DrawUpRect(const WIDGET_EFFECT* pEffect, int x0, int y0, int x1, int y1);
 WM_HWIN _CreateFrame(WM_CALLBACK* cb);
+void _PaintFrame(void);
+
+LANGUAGE_TYPE_TypeDef GetLanguageType( void );
+void SetLanguageType( LANGUAGE_TYPE_TypeDef type);
+
 WM_HWIN _CreateButton(WM_HWIN hParent, 
 						const WIDGET_EFFECT* pEffect,
 						const char* pText, 
@@ -136,11 +142,10 @@ WM_HWIN _CreateRadio(WM_HWIN hParent,
 					int w, 
 					int h);					
 
-void _PaintFrame(void);
-LANGUAGE_TYPE_TypeDef GetLanguageType( void );
-void SetLanguageType( LANGUAGE_TYPE_TypeDef type);
-void MoveWindows(WM_HWIN sourceWindows, WM_HWIN targetWindows);
-WM_HWIN GetLastUsedWindows(void);
+
+					
+
+
 
 #endif
 /************************ (C) COPYRIGHT STMicroelectronics **********END OF FILE*************************/

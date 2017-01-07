@@ -52,7 +52,6 @@
 *********************************************************************************************************
 */
 static LANGUAGE_TYPE_TypeDef g_languageType = LANG_CHINESE;
-static WM_HWIN g_lastWindowsHandle = 0;
 
 /*
 *********************************************************************************************************
@@ -153,8 +152,59 @@ WM_HWIN _CreateFrame(WM_CALLBACK* cb)
 	x = FRAME_BORDER + MAIN_BORDER;
 	y = FRAME_BORDER + MAIN_TITLE_HEIGHT;
 	
-	return WM_CreateWindowAsChild(x, y, FRAME_WIDTH, FRAME_HEIGHT, \
+	WM_HWIN hFrame = WM_CreateWindowAsChild(x, y, FRAME_WIDTH, FRAME_HEIGHT, \
 				WM_HBKWIN, WM_CF_SHOW, cb, 0);
+	
+	return hFrame;
+}
+
+/*
+*********************************************************************************************************
+* Function Name : _PaintFrame
+* Description	: 绘制框架
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+void _PaintFrame(void)
+{
+	GUI_RECT r;
+	WM_GetClientRect(&r);
+	
+	GUI_SetBkColor(FRAME_BKCOLOR);
+	GUI_SetColor(FRAME_TEXTCOLOR);
+	GUI_SetFont(FRAME_FONT);
+	GUI_SetTextMode(GUI_TM_TRANS);
+	GUI_ClearRectEx(&r);
+}
+
+/*
+*********************************************************************************************************
+* Function Name : GetLanguageType
+* Description	: 获取语言类型
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+LANGUAGE_TYPE_TypeDef GetLanguageType( void )
+{
+	return g_languageType;
+}
+
+/*
+*********************************************************************************************************
+* Function Name : SetLanguageType
+* Description	: 设置语言类型
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+void SetLanguageType( LANGUAGE_TYPE_TypeDef type)
+{
+	g_languageType = type;
 }
 
 /*
@@ -289,83 +339,8 @@ WM_HWIN _CreateRadio(WM_HWIN hParent,
 	return hRadio;
 }
 
-/*
-*********************************************************************************************************
-* Function Name : _PaintFrame
-* Description	: 绘制框架
-* Input			: None
-* Output		: None
-* Return		: None
-*********************************************************************************************************
-*/
-void _PaintFrame(void)
-{
-	GUI_RECT r;
-	WM_GetClientRect(&r);
-	
-	GUI_SetBkColor(FRAME_BKCOLOR);
-	GUI_SetColor(FRAME_TEXTCOLOR);
-	GUI_SetFont(FRAME_FONT);
-	GUI_SetTextMode(GUI_TM_TRANS);
-	GUI_ClearRectEx(&r);
-}
 
-/*
-*********************************************************************************************************
-* Function Name : GetLanguageType
-* Description	: 获取语言类型
-* Input			: None
-* Output		: None
-* Return		: None
-*********************************************************************************************************
-*/
-LANGUAGE_TYPE_TypeDef GetLanguageType( void )
-{
-	return g_languageType;
-}
 
-/*
-*********************************************************************************************************
-* Function Name : SetLanguageType
-* Description	: 设置语言类型
-* Input			: None
-* Output		: None
-* Return		: None
-*********************************************************************************************************
-*/
-void SetLanguageType( LANGUAGE_TYPE_TypeDef type)
-{
-	g_languageType = type;
-}
-
-/*
-*********************************************************************************************************
-* Function Name : MoveWindows
-* Description	: 移动窗口
-* Input			: None
-* Output		: None
-* Return		: None
-*********************************************************************************************************
-*/
-void MoveWindows(WM_HWIN sourceWindows, WM_HWIN targetWindows)
-{
-	g_lastWindowsHandle = sourceWindows;
-	WM_SelectWindow(targetWindows);
-}
-
-/*
-*********************************************************************************************************
-* Function Name : GetLastUsedWindows
-* Description	: 获取上一次使用的窗口
-* Input			: None
-* Output		: None
-* Return		: None
-*********************************************************************************************************
-*/
-WM_HWIN GetLastUsedWindows(void)
-{
-	return g_lastWindowsHandle;
-}
 
 
 

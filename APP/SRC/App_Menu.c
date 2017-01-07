@@ -226,7 +226,6 @@ static void Constructor(WM_MESSAGE* pMsg)
 	}
 
 	WM_SendMessageNoPara(hWin, WM_SET_FOCUS);
-	WM_SelectWindow(hWin);
 	
 	ECHO(DEBUG_APP_WINDOWS, "[APP] 构造 <菜单> 窗口");
 }
@@ -241,7 +240,7 @@ static void Constructor(WM_MESSAGE* pMsg)
 *********************************************************************************************************
 */
 static void Destructor(WM_MESSAGE* pMsg) 
-{
+{	
 	{
 		LIST_HANDLE_TypeDef *handle = GetFocusListHandle();
 		if (handle)
@@ -250,8 +249,6 @@ static void Destructor(WM_MESSAGE* pMsg)
 		}
 	}
 	
-	WM_DeleteWindow(pMsg->hWin);
-	
 	LIST_HANDLE_TypeDef *handle;
 	list_for_each_entry(handle, &this->handleHead, LIST_HANDLE_TypeDef, list)
 	{
@@ -259,6 +256,8 @@ static void Destructor(WM_MESSAGE* pMsg)
 	}
 	
 	delete(this);
+	
+	WM_DeleteWindow(pMsg->hWin);
 	
 	ECHO(DEBUG_APP_WINDOWS, "[APP] 析构 <菜单> 窗口");
 }

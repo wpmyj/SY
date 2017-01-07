@@ -217,36 +217,23 @@ static void _cbDesktop(WM_MESSAGE *pMsg)
 {
 	WM_HWIN hWin = pMsg->hWin;
 	(void)hWin;
-	static bool deleteFlag = false;
 	
 	switch (pMsg->MsgId) 
 	{
 		case WM_CREATE:	
-			deleteFlag = false;
 			WindowsConstructor(pMsg);
 			break;
 		case WM_PAINT:
 			_PaintFrame();
 			break;
-		case WM_KEY:
+		case MSG_USER_ESC:
 		{
+			WindowsDestructor(pMsg);
+			App_MenuTaskCreate();
 			break;
 		}		
 		case WM_NOTIFY_PARENT:
 		{
-			int NCode = pMsg->Data.v;
-			
-			/* 该命令会收到多次，只需要执行一次 */	
-			if (NCode == WM_NOTIFICATION_CHILD_DELETED)
-			{
-				if (deleteFlag == false)
-				{
-					deleteFlag = true;
-					
-					WindowsDestructor(pMsg);
-					App_MenuTaskCreate();
-				}
-			}
 			break;
 		}
 		case WM_SET_FOCUS:
@@ -352,8 +339,6 @@ static void DialogConstructor(WM_MESSAGE *pMsg)
 	SPINBOX_SetStep(hChild, 1);
 	SPINBOX_SetRange(hChild, 0, 59);
 	SPINBOX_SetValue(hChild, time.ucSec);
-	
-	WM_SetFocus(hWin);
 }
 
 /*
@@ -407,14 +392,9 @@ static void _cbDialog(WM_MESSAGE *pMsg)
 					break;
 				}			
 				case GUI_KEY_ENTER:
-				{									
-					GUI_EndDialog(hWin, 0);					
-					break;
-				}
 				case GUI_KEY_ESCAPE:
-				{
-					GUI_EndDialog(hWin, 1);	
-					App_MenuTaskCreate();
+				{									
+					WM_SendMessageNoPara(WM_GetParent(hWin), MSG_USER_ESC);
 					break;
 				}
 				default:				

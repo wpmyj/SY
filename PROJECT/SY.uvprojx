@@ -333,7 +333,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER, STM32F407xx,ARM_MATH_CM4</Define>
+              <Define>USE_HAL_DRIVER, STM32F407xx,</Define>
               <Undefine></Undefine>
               <IncludePath>..\APP\INC;..\BSP\INC;..\UTILS\INC;..\KERNEL\INC;..\FWLIB\STM32F4xx_HAL_Driver\Inc;..\FWLIB\CMSIS\Device\ST\STM32F4xx\Include;..\FWLIB\CMSIS\Include;..\USER\INC;..\FWLIB\FatFs-0.12b\src;..\FWLIB\FatFs-0.12b\drivers;..\FWLIB\STM32_USB_Host_Library\Drivers;..\FWLIB\lwip-1.4.1\src\include;..\FWLIB\lwip-1.4.1\system;..\FWLIB\lwip-1.4.1\usr\INC;..\FWLIB\STM32_USB_Host_Library\Class\MSC\Inc;..\FWLIB\STM32_USB_Host_Library\Core\Inc;..\FWLIB\STM32_USB_Host_Library\Usr;..\FWLIB\STemWinLibrary532\inc;..\FWLIB\STemWinLibrary532\Usr;..\FWLIB\uCosIII-3.04.05\uC-BSP;..\FWLIB\uCosIII-3.04.05\uC-CPU;..\FWLIB\uCosIII-3.04.05\uC-CPU\ARM-Cortex-M4\RealView;..\FWLIB\uCosIII-3.04.05\uC-LIB;..\FWLIB\uCosIII-3.04.05\uC-LIB\Ports\ARM-Cortex-M4\RealView;..\FWLIB\uCosIII-3.04.05\uCOS-III\Ports\ARM-Cortex-M4\Generic\RealView;..\FWLIB\uCosIII-3.04.05\uCOS-III\Source;..\FWLIB\uCosIII-3.04.05\uC-Usr;..\FWLIB\DSP_LIB\Include;..\FWLIB\STM32_USB_Host_Library\Class\HID\Inc</IncludePath>
             </VariousControls>
@@ -545,14 +545,14 @@
               <FilePath>..\APP\SRC\App_SystemParameter.c</FilePath>
             </File>
             <File>
-              <FileName>App_Language.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\APP\SRC\App_Language.c</FilePath>
-            </File>
-            <File>
               <FileName>App_TimeDate.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\APP\SRC\App_TimeDate.c</FilePath>
+            </File>
+            <File>
+              <FileName>App_Language.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\SRC\App_Language.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1200,9 +1200,9 @@
           <GroupName>emWin/Lib</GroupName>
           <Files>
             <File>
-              <FileName>STemWin532_CM4_OS_Keil_ot.lib</FileName>
+              <FileName>STemWin532_CM4_OS_Keil.lib</FileName>
               <FileType>4</FileType>
-              <FilePath>..\FWLIB\STemWinLibrary532\Lib\STemWin532_CM4_OS_Keil_ot.lib</FilePath>
+              <FilePath>..\FWLIB\STemWinLibrary532\Lib\STemWin532_CM4_OS_Keil.lib</FilePath>
             </File>
           </Files>
         </Group>
@@ -1643,6 +1643,25 @@
               <FileName>arm_cortexM4lf_math.lib</FileName>
               <FileType>4</FileType>
               <FilePath>..\FWLIB\DSP_LIB\arm_cortexM4lf_math.lib</FilePath>
+              <FileOption>
+                <CommonProperty>
+                  <UseCPPCompiler>2</UseCPPCompiler>
+                  <RVCTCodeConst>0</RVCTCodeConst>
+                  <RVCTZI>0</RVCTZI>
+                  <RVCTOtherData>0</RVCTOtherData>
+                  <ModuleSelection>0</ModuleSelection>
+                  <IncludeInBuild>0</IncludeInBuild>
+                  <AlwaysBuild>2</AlwaysBuild>
+                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
+                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
+                  <PublicsOnly>2</PublicsOnly>
+                  <StopOnExitCode>11</StopOnExitCode>
+                  <CustomArgument></CustomArgument>
+                  <IncludeLibraryModules></IncludeLibraryModules>
+                  <ComprImg>1</ComprImg>
+                </CommonProperty>
+                <FileArmAds/>
+              </FileOption>
             </File>
           </Files>
         </Group>

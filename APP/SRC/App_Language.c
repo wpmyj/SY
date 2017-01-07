@@ -35,16 +35,17 @@
 
 #define GUI_ID_DIALOG0						(GUI_ID_USER + 0x00)
 
-enum {
-	LANGUAGE_CH_INDEX = 0,
-	LANGUAGE_EN_INDEX,
-};
+
 
 /*
 *********************************************************************************************************
 *                              				Private typedef
 *********************************************************************************************************
 */
+enum LANGUAGE_INDEX {
+	LANGUAGE_CH_INDEX = 0,
+	LANGUAGE_EN_INDEX,
+};
 
 /*
 *********************************************************************************************************
@@ -52,7 +53,7 @@ enum {
 *********************************************************************************************************
 */
 static const GUI_WIDGET_CREATE_INFO _aDialogCreate[] = {
-	{ FRAMEWIN_CreateIndirect, "语言选择", GUI_ID_DIALOG0, 
+	{ FRAMEWIN_CreateIndirect, "Framewin", GUI_ID_DIALOG0,
 		GUI_DIALOG_START_X, GUI_DIALOG_START_Y, GUI_DIALOG_WIDTH, GUI_DIALOG_HEIGHT, 
 		FRAMEWIN_CF_MOVEABLE, 0, 0 },
 	
@@ -60,13 +61,13 @@ static const GUI_WIDGET_CREATE_INFO _aDialogCreate[] = {
 		10, 20, 0, 0, 
 		0, 0x2402, 0 },
 	
-	{ TEXT_CreateIndirect, "简体中文", GUI_ID_TEXT0,
+	{ TEXT_CreateIndirect, "Text", GUI_ID_TEXT0,
 		30, 15, 150, 24, 
-		TEXT_CF_LEFT, 0, 0 },
+		0x0, 0, 0 },
 	
-	{ TEXT_CreateIndirect, "English", GUI_ID_TEXT1,  
+	{ TEXT_CreateIndirect, "Text", GUI_ID_TEXT1,  
 		30, (15+35), 150, 24,
-		TEXT_CF_LEFT, 0, 0 },
+		0x0, 0, 0 },
 };
 
 static const char * _aLang[][SUPPORT_LANGUAGE_NUMS] = {
@@ -177,42 +178,21 @@ static void _cbDesktop(WM_MESSAGE *pMsg)
 {
 	WM_HWIN hWin = pMsg->hWin;
 	(void)hWin;
-	static bool deleteFlag = false;
 	
 	switch (pMsg->MsgId) 
 	{
 		case WM_CREATE:	
-			deleteFlag = false;
 			WindowsConstructor(pMsg);
 			break;
 		case WM_PAINT:
 			_PaintFrame();
 			break;
-		case WM_KEY:
+		case MSG_USER_ESC:
 		{
+			WindowsDestructor(pMsg);
+			App_MenuTaskCreate();
 			break;
 		}		
-		case WM_NOTIFY_PARENT:
-		{
-			int NCode = pMsg->Data.v;
-			
-			/* 该命令会收到多次，只需要执行一次 */	
-			if (NCode == WM_NOTIFICATION_CHILD_DELETED)
-			{
-				if (deleteFlag == false)
-				{
-					deleteFlag = true;
-					
-					WindowsDestructor(pMsg);
-					App_MenuTaskCreate();
-				}
-			}
-			break;
-		}
-		case WM_SET_FOCUS:
-		{			
-			break;
-		}
 		default:
 			WM_DefaultProc(pMsg);
 			break;
@@ -237,13 +217,15 @@ static void DialogConstructor(WM_MESSAGE *pMsg)
 	FRAMEWIN_SetTextAlign(hWin, GUI_TA_HCENTER | GUI_TA_VCENTER);
 	FRAMEWIN_SetText(hWin, _GetLang(1));
 	
-	WM_HWIN hChild = WM_GetDialogItem(hWin, GUI_ID_TEXT0);			
+	WM_HWIN hChild = WM_GetDialogItem(hWin, GUI_ID_TEXT0);	
+	TEXT_SetTextAlign(hChild, TEXT_CF_LEFT);
 	TEXT_SetFont(hChild, FRAME_TEXT_FONT);
+	TEXT_SetText(hChild, _GetLang(2));
 	
-	hChild = WM_GetDialogItem(hWin, GUI_ID_TEXT1);			
+	hChild = WM_GetDialogItem(hWin, GUI_ID_TEXT1);	
+	TEXT_SetTextAlign(hChild, TEXT_CF_LEFT);
 	TEXT_SetFont(hChild, FRAME_TEXT_FONT);	
-	
-	WM_SetFocus(hWin);
+	TEXT_SetText(hChild, _GetLang(3));
 }
 
 /*
@@ -263,12 +245,6 @@ static void _cbDialog(WM_MESSAGE *pMsg)
 	{
 		case WM_INIT_DIALOG:	
 			DialogConstructor(pMsg);
-			break;
-		case WM_CREATE:
-		{
-			break;
-		}
-		case WM_PAINT:
 			break;
 		case WM_KEY:
 		{
@@ -300,25 +276,17 @@ static void _cbDialog(WM_MESSAGE *pMsg)
 						default:
 							return;
 					}					
-					GUI_EndDialog(hWin, 0);					
+					WM_SendMessageNoPara(WM_GetParent(hWin), MSG_USER_ESC);					
 					break;
 				}
 				case GUI_KEY_ESCAPE:
 				{
-					GUI_EndDialog(hWin, 1);	
+					WM_SendMessageNoPara(WM_GetParent(hWin), MSG_USER_ESC);
 					break;
 				}
 				default:				
 					break;
 			}
-			break;
-		}
-		case WM_NOTIFY_PARENT:
-		{
-			break;
-		}
-		case WM_SET_FOCUS:
-		{			
 			break;
 		}
 		default:

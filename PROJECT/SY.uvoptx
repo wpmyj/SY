@@ -581,8 +581,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\APP\SRC\App_Language.c</PathWithFileName>
-      <FilenameWithoutPath>App_Language.c</FilenameWithoutPath>
+      <PathWithFileName>..\APP\SRC\App_TimeDate.c</PathWithFileName>
+      <FilenameWithoutPath>App_TimeDate.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -593,8 +593,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\APP\SRC\App_TimeDate.c</PathWithFileName>
-      <FilenameWithoutPath>App_TimeDate.c</FilenameWithoutPath>
+      <PathWithFileName>..\APP\SRC\App_Language.c</PathWithFileName>
+      <FilenameWithoutPath>App_Language.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -670,7 +670,7 @@
 
   <Group>
     <GroupName>BSP</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -2073,8 +2073,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\FWLIB\STemWinLibrary532\Lib\STemWin532_CM4_OS_Keil_ot.lib</PathWithFileName>
-      <FilenameWithoutPath>STemWin532_CM4_OS_Keil_ot.lib</FilenameWithoutPath>
+      <PathWithFileName>..\FWLIB\STemWinLibrary532\Lib\STemWin532_CM4_OS_Keil.lib</PathWithFileName>
+      <FilenameWithoutPath>STemWin532_CM4_OS_Keil.lib</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -3458,7 +3458,7 @@
 
   <Group>
     <GroupName>TEST</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
