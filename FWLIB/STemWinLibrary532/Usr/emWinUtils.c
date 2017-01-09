@@ -374,27 +374,65 @@ static int GIF_GetData(void * p, const U8 ** ppData, unsigned NumBytesReq, U32 O
 *	返 回 值: 无
 *********************************************************************************************************
 */
-void ShowGIFEx(uint16_t x, uint16_t y, const char * sFilename) 
-{	
+void ShowGIFEx(uint16_t x, uint16_t y, const char * sFilename)
+{
+	uint16_t i = 0;
+	uint32_t t0, t1;
 	FIL file;
-	GUI_GIF_IMAGE_INFO InfoGif;
+	FRESULT result;
+	GUI_GIF_INFO InfoGif;
+	GUI_GIF_IMAGE_INFO ImagInfoGif;
 
 	/* 打开文件 */		
-	FRESULT result = f_open(&file, sFilename, FA_OPEN_EXISTING | FA_READ | FA_OPEN_ALWAYS);
+	result = f_open(&file, sFilename, FA_OPEN_EXISTING | FA_READ | FA_OPEN_ALWAYS);
 	if (result != FR_OK)
 	{
 		return;
 	}
-
+   
 	/* 获取GIF图片信息 */
-	GUI_GIF_GetImageInfoEx(GIF_GetData, &file, &InfoGif, 0 );
-	GUI_GIF_DrawSubEx(GIF_GetData, 
-					  &file, 
-					  x,
-					  y, 
-					  0);
+   GUI_GIF_GetInfoEx(GIF_GetData, &file,&InfoGif);
+	
+   while(1)
+   {
+	    /* 变量用来设置当前播放的帧数，InfoGif.NumImages是GIF图片总的帧数 */
+		if(i < InfoGif.NumImages)
+	    {
+			/* 获取当前帧GIF图片信息，注意第4个参数是从0开始计数的 */
+			GUI_GIF_GetImageInfoEx(GIF_GetData, &file, &ImagInfoGif, i);
+			
+			/* 如果此帧延迟时间是0，默认是延迟100ms */
+			if(ImagInfoGif.Delay == 0)
+			{
+				GUI_Delay(100);
+			}
+			else
+			{
+				t0 = GUI_GetTime();
+				
+				/* 解码并显示此帧GIF图片，注意第5个参数是从0开始计数的 */
+				GUI_GIF_DrawSubEx(GIF_GetData, 
+								  &file, 
+								  x,
+								  y, 
+								  i++);
+				
+				/* 获取本次解码和显示消耗的时间 */
+				t1 = GUI_GetTime() - t0;
+				
+				/* 如果GIF的解码和显示的时间超时就不做延迟 */
+				if (t1 < ImagInfoGif.Delay * 10) 
+				{
+					GUI_Delay(ImagInfoGif.Delay * 10 - t1);
+				}
+			}			  
+	    }
+	    else
+	    {
+	        i = 0;
+	    }
+	}
 
-	f_close(&file);
 }
 
 /*
@@ -456,7 +494,7 @@ bool ShowPNGEx(uint16_t usPOSX, uint16_t usPOSY, const char * sFilename)
 	int32_t ret;
 	
 	/* 打开文件 */		
-	FRESULT result = f_open(&file, sFilename, FA_OPEN_EXISTING | FA_READ | FA_OPEN_ALWAYS);
+	FRESULT result = f_open(&file, sFilename, FA_OPEN_EXISTING | FA_READ);
 	if (result != FR_OK)
 	{
 		return false;

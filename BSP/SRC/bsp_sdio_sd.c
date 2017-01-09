@@ -36,6 +36,8 @@
 
 #define SD_DATATIMEOUT           			((uint32_t)100000000)
 
+#define USE_SD_DMA							0x00U
+
 /* DMA definitions for SD DMA transfer */
 #define __DMAx_TxRx_CLK_ENABLE           	__DMA2_CLK_ENABLE
 #define SD_DMAx_Tx_CHANNEL                	DMA_CHANNEL_4
@@ -165,9 +167,11 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd)
 		/* Enable SDIO clock */
 		__SDIO_CLK_ENABLE();
 
+	#if (USE_SD_DMA)	
 		/* Enable DMA2 clocks */
 		__DMAx_TxRx_CLK_ENABLE();
-
+	#endif
+		
 		/* Enable GPIOs clock */
 		__GPIOC_CLK_ENABLE();
 		__GPIOD_CLK_ENABLE();
@@ -200,6 +204,7 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd)
 		HAL_GPIO_Init(SD_DETECT_GPIO_PORT, &GPIO_Init_Structure);
 	#endif
 	
+	#if (USE_SD_DMA)
 		dmaRxHandle.Instance = SD_DMAx_Rx_STREAM;
 		
 		/* Configure DMA Rx parameters */
@@ -261,6 +266,7 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd)
 		/* NVIC configuration for DMA transfer complete interrupt */
 		HAL_NVIC_SetPriority(SD_DMAx_Tx_IRQn, 1, 0);
 		HAL_NVIC_EnableIRQ(SD_DMAx_Tx_IRQn);
+	#endif
 	}
 }
 

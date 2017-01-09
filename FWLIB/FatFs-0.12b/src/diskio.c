@@ -44,7 +44,14 @@ DSTATUS disk_initialize (
 	if(disk.is_initialized[pdrv] == 0)
 	{ 
 		disk.is_initialized[pdrv] = 1;
+		
+		OS_ERR err;
+		
+		OSSchedLock(&err);
+		
 		stat = disk.drv[pdrv]->disk_initialize(disk.lun[pdrv]);
+		
+		OSSchedUnlock(&err);
 	}
 	
 	return stat;
@@ -63,7 +70,16 @@ DRESULT disk_read (
 	UINT count		/* Number of sectors to read */
 )
 {
-	return disk.drv[pdrv]->disk_read(disk.lun[pdrv], buff, sector, count); 
+	DRESULT ret;
+	OS_ERR err;
+	
+	OSSchedLock(&err);
+	
+	ret = disk.drv[pdrv]->disk_read(disk.lun[pdrv], buff, sector, count);
+
+	OSSchedUnlock(&err);
+	
+	return ret;
 }
 
 
@@ -79,7 +95,16 @@ DRESULT disk_write (
 	UINT count			/* Number of sectors to write */
 )
 {
-	return disk.drv[pdrv]->disk_write(disk.lun[pdrv], buff, sector, count);
+	DRESULT ret;
+	OS_ERR err;
+	
+	OSSchedLock(&err);
+	
+	ret = disk.drv[pdrv]->disk_write(disk.lun[pdrv], buff, sector, count);
+	
+	OSSchedUnlock(&err);
+	
+	return ret;
 }
 
 
@@ -94,7 +119,16 @@ DRESULT disk_ioctl (
 	void *buff		/* Buffer to send/receive control data */
 )
 {
-	return disk.drv[pdrv]->disk_ioctl(disk.lun[pdrv], cmd, buff);
+	DRESULT ret;
+	OS_ERR err;
+	
+	OSSchedLock(&err);
+	
+	ret = disk.drv[pdrv]->disk_ioctl(disk.lun[pdrv], cmd, buff);
+	
+	OSSchedUnlock(&err);
+	
+	return ret;
 }
 
 /**

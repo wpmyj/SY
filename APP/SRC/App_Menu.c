@@ -290,7 +290,7 @@ static void _cbCallback(WM_MESSAGE* pMsg)
 			switch (key)
 			{
 				case GUI_KEY_UP:
-				{
+				{					
 					LIST_HANDLE_TypeDef *handle = GetFocusListHandle();
 					if (handle)
 					{

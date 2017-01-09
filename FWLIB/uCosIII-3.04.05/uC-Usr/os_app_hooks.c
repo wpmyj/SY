@@ -249,6 +249,6 @@ void  App_OS_TaskSwHook (void)
 
 void  App_OS_TimeTickHook (void)
 {
-    HAL_IncTick();                                              /* STM32CubeF4 library function call.                   */
+    HAL_IncTick();                                             
 	HAL_SYSTICK_IRQHandler();
 }

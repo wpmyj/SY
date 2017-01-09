@@ -249,10 +249,19 @@ __weak void AppTaskIO(void *p_arg)
 */
 void System_Init( void )
 {
-	HAL_Init();
-
 	OS_ERR   err;
+	
+	HAL_Init();
+	
+	SystemClock_Config();										/* Initialize RCC functions                             */
+
+	CPU_Init();                                                 /* Initialize the uC/CPU services                       */
+	
+	Mem_Init();                                                 /* Initialize Memory Management Module                  */
+    Math_Init();                                                /* Initialize Mathematical Module                       */
+	
 	OSInit(&err);                                               /* Init uC/OS-III.  */
+	App_OS_SetAllHooks();
 	
 	OSTaskCreate((OS_TCB       *)&AppTaskStartTCB,         		/* 创建启动任务 */
                  (CPU_CHAR     *)"App Task Start",
@@ -296,15 +305,6 @@ static void AppTaskStart(void *p_arg)
 	(void)p_arg;
 	OS_ERR err;
 	
-	CPU_Init();                                                 /* Initialize the uC/CPU services                       */
-	App_OS_SetAllHooks();
-	
-	/**
-	 *	启动时钟的最后阶段，会使能滴答定时器，
-	 *	启动条件是：OSRunning != 0
-	 *	因此，必须放在OSInit()后面调用。
-	 */
-	SystemClock_Config();										/* Initialize RCC functions                             */
 	BSP_Init();													/* Initialize BSP functions                             */
 	KERNEL_Init();												/* Initialize KERNEL functions                          */
 	APP_Init();													/* Initialize APP functions                             */

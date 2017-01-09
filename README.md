@@ -95,6 +95,11 @@
 		解决：
 		1. 将库文件`STemWin532_CM4_OS_Keil_ot.lib` 替换为 `STemWin532_CM4_OS_Keil.lib` 不带优化的库。
 		2. 在 窗体上新建对话框后，不要在`WM_INIT_DIALOG`中使用`WM_SetFocus(hWin);`
+		
+	+ 问题：SD卡初始化失败？
+	> 原因：emWin切换任务，导致SD卡读写数据被打断。
+	> 解决：在fatfs的接口函数中，使用 `OSSchedLock()` ，防止任务切换。主要应用在 `disk_initialize()`、
+		`disk_read()`、`disk_write()`中。
 
 + LCD
 

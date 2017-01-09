@@ -69,6 +69,7 @@ static CRC_HandleTypeDef hcrc;
 */
 static void bsp_InitCRC( void );
 void LCD_DebugViewTask( void );
+void BSP_Tick_Init (void);
 
 /*
 *********************************************************************************************************
@@ -86,6 +87,8 @@ void LCD_DebugViewTask( void );
 */
 void BSP_Init( void )
 {
+	BSP_Tick_Init();
+	
 	bsp_InitCOM();
 	bsp_InitTimer();
 	bsp_InitI2C_Bus();
@@ -348,7 +351,7 @@ void BSP_Tick_Init (void)
 HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
 {
     if (OSRunning > 0u) {                                       /*Check if multi-tasking has started.                   */
-        BSP_Tick_Init();
+        ;
     }
 
     return (HAL_OK);

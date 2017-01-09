@@ -206,7 +206,7 @@ void MainTask(void)
 	
 	/* 更新字库 */
 	UpdateFlashFontTask(NotifyFlashFontProgress_CallBack);
-
+	
 	/* 创建任务 */
 	AppTaskCreate();
 	
