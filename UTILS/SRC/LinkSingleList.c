@@ -2,9 +2,9 @@
 *********************************************************************************************************
 * @file    	LinkSingleList.c
 * @author  	SY
-* @version 	V1.0.0
-* @date    	2016-9-8 15:55:25
-* @IDE	 	V4.70.0.0
+* @version 	V1.1.0
+* @date    	2017-1-9 08:50:46
+* @IDE	 	Keil V5.22.0.0
 * @Chip    	STM32F407VE
 * @brief   	单向链表源文件
 *********************************************************************************************************
@@ -13,6 +13,12 @@
 *   链表中的数据是以节点来表示的，每个节点由两部分构成：一个是数据域，存储数据值。
 *	另一个是指针域，存储指向下一个节点的指针。
 * 
+* ---------------------------------------------------------
+* 版本：V1.1.0 	修改人：SY		修改日期：2017-1-9 08:50:46
+* 
+* 1、增加线程安全操作。
+* -------------------------------------------------------------------------------------------------------	
+*
 *********************************************************************************************************
 */
 
@@ -79,7 +85,7 @@
 LINK_SINGLE_LIST_TypeDef *CreateLinkSingleList( void )
 {
 	/* 创建头节点，头指针由外部提供 */
-	LINK_SINGLE_LIST_TypeDef *pHead = (LINK_SINGLE_LIST_TypeDef *)calloc(1,sizeof(LINK_SINGLE_LIST_TypeDef));
+	LINK_SINGLE_LIST_TypeDef *pHead = (LINK_SINGLE_LIST_TypeDef *)new(sizeof(LINK_SINGLE_LIST_TypeDef));
 	if (pHead == NULL)
 	{
 		return NULL;
@@ -130,6 +136,12 @@ uint32_t GetLinkSingleListLenth( LINK_SINGLE_LIST_TypeDef *pHead )
 {
 	uint32_t lenth = 0;
 	
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif
+	
 	if (pHead != NULL)
 	{
 		LINK_SINGLE_LIST_TypeDef *pNode = pHead;
@@ -140,6 +152,10 @@ uint32_t GetLinkSingleListLenth( LINK_SINGLE_LIST_TypeDef *pHead )
 			pNode = pNode->next;
 		}
 	}
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 	
 	return lenth;
 }
@@ -155,6 +171,12 @@ uint32_t GetLinkSingleListLenth( LINK_SINGLE_LIST_TypeDef *pHead )
 */
 void ClearLinkSingleList( LINK_SINGLE_LIST_TypeDef *pHead )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif	
+	
 	if (pHead != NULL)
 	{
 		while (pHead->next != NULL)
@@ -165,14 +187,18 @@ void ClearLinkSingleList( LINK_SINGLE_LIST_TypeDef *pHead )
 			
 			if (oldNode->data != NULL)
 			{
-				free(oldNode->data);
+				delete(oldNode->data);
 				oldNode->data = NULL;
 			}
 			
-			free(oldNode);
+			delete(oldNode);
 			oldNode = NULL;				
 		}
 	}
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 }
 
 /*
@@ -187,16 +213,26 @@ void ClearLinkSingleList( LINK_SINGLE_LIST_TypeDef *pHead )
 void DestoryLinkSingleList( LINK_SINGLE_LIST_TypeDef **pHead )
 {
 	LINK_SINGLE_LIST_TypeDef *this = *pHead;
+
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif
 	
 	if (this != NULL)
 	{
 		ClearLinkSingleList(this);
 		
 		/* 释放栈顶节点 */
-		free(this);
+		delete(this);
 		
 		*pHead = NULL;
 	}
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 }
 
 /*
@@ -211,8 +247,18 @@ void DestoryLinkSingleList( LINK_SINGLE_LIST_TypeDef **pHead )
 DATA_STRUCT_STATUS_ENUM InsertLinkSingleList( LINK_SINGLE_LIST_TypeDef *pHead, void *dataIn, uint32_t dataSize,\
 		void *matchData, bool (*match_CallBack)( void *nodeData, void *matchData ) )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif	
+
 	if (pHead == NULL)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_UNDEFINED;
 	}
 	
@@ -232,21 +278,33 @@ DATA_STRUCT_STATUS_ENUM InsertLinkSingleList( LINK_SINGLE_LIST_TypeDef *pHead, v
 	}
 	
 	/* 增加新节点 */
-	LINK_SINGLE_LIST_TypeDef *pNode = (LINK_SINGLE_LIST_TypeDef *)calloc(1,sizeof(LINK_SINGLE_LIST_TypeDef));
+	LINK_SINGLE_LIST_TypeDef *pNode = (LINK_SINGLE_LIST_TypeDef *)new(sizeof(LINK_SINGLE_LIST_TypeDef));
 	if (pNode == NULL)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif
+		
 		return STATUS_DATA_STRUCT_FALSE;
 	}
 	pNode->next = prevNode->next;	
 	prevNode->next = pNode;
 	
 	/* 存储用户数据 */
-	pNode->data = (void *)calloc(1,dataSize);
+	pNode->data = (void *)new(dataSize);
 	if (pNode->data == NULL)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif
+		
 		return STATUS_DATA_STRUCT_FALSE;
 	}	
 	memcpy(pNode->data,dataIn,dataSize);
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 	
 	return STATUS_DATA_STRUCT_TRUE;
 }
@@ -263,8 +321,18 @@ DATA_STRUCT_STATUS_ENUM InsertLinkSingleList( LINK_SINGLE_LIST_TypeDef *pHead, v
 DATA_STRUCT_STATUS_ENUM DeleteLinkSingleList( LINK_SINGLE_LIST_TypeDef *pHead,\
 		void *matchData, bool (*match_CallBack)( void *nodeData, void *matchData ) )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif
+
 	if (pHead == NULL)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_UNDEFINED;
 	}
 	
@@ -287,6 +355,10 @@ DATA_STRUCT_STATUS_ENUM DeleteLinkSingleList( LINK_SINGLE_LIST_TypeDef *pHead,\
 	
 	if (isFind == false)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif
+		
 		return STATUS_DATA_STRUCT_FALSE;
 	}
 	
@@ -296,11 +368,15 @@ DATA_STRUCT_STATUS_ENUM DeleteLinkSingleList( LINK_SINGLE_LIST_TypeDef *pHead,\
 
 	if (oldNode->data != NULL)
 	{
-		free(oldNode->data);
+		delete(oldNode->data);
 		oldNode->data = NULL;
 	}
-	free(oldNode);
+	delete(oldNode);
 	oldNode = NULL;
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 	
 	return STATUS_DATA_STRUCT_TRUE;
 }
@@ -316,9 +392,19 @@ DATA_STRUCT_STATUS_ENUM DeleteLinkSingleList( LINK_SINGLE_LIST_TypeDef *pHead,\
 */
 DATA_STRUCT_STATUS_ENUM PushLinkSingleList( LINK_SINGLE_LIST_TypeDef *pHead, void *dataIn, uint32_t dataSize,\
 		void *matchData, bool (*match_CallBack)( void *nodeData, void *matchData ) )
-{
+{	
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif
+	
 	if (pHead == NULL)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_UNDEFINED;
 	}
 	
@@ -337,6 +423,10 @@ DATA_STRUCT_STATUS_ENUM PushLinkSingleList( LINK_SINGLE_LIST_TypeDef *pHead, voi
 
 	if (isFind == false)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif		
+		
 		return STATUS_DATA_STRUCT_FALSE;
 	}	
 	
@@ -346,6 +436,10 @@ DATA_STRUCT_STATUS_ENUM PushLinkSingleList( LINK_SINGLE_LIST_TypeDef *pHead, voi
 		memcpy(pNode->data,dataIn,dataSize);
 		isDataOK = STATUS_DATA_STRUCT_TRUE;
 	}
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif	
 	
 	return isDataOK;
 }
@@ -362,8 +456,18 @@ DATA_STRUCT_STATUS_ENUM PushLinkSingleList( LINK_SINGLE_LIST_TypeDef *pHead, voi
 DATA_STRUCT_STATUS_ENUM PopLinkSingleList( LINK_SINGLE_LIST_TypeDef *pHead, void *dataOut, uint32_t dataSize,\
 		void *matchData, bool (*match_CallBack)( void *nodeData, void *matchData ) )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif	
+
 	if (pHead == NULL)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_UNDEFINED;
 	}
 	
@@ -382,6 +486,10 @@ DATA_STRUCT_STATUS_ENUM PopLinkSingleList( LINK_SINGLE_LIST_TypeDef *pHead, void
 
 	if (isFind == false)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif		
+		
 		return STATUS_DATA_STRUCT_FALSE;
 	}	
 	
@@ -391,6 +499,10 @@ DATA_STRUCT_STATUS_ENUM PopLinkSingleList( LINK_SINGLE_LIST_TypeDef *pHead, void
 		memcpy(dataOut,pNode->data,dataSize);
 		isDataOK = STATUS_DATA_STRUCT_TRUE;
 	}
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif	
 	
 	return isDataOK;
 }
@@ -406,13 +518,27 @@ DATA_STRUCT_STATUS_ENUM PopLinkSingleList( LINK_SINGLE_LIST_TypeDef *pHead, void
 */
 DATA_STRUCT_STATUS_ENUM ReverseLinkSingleList( LINK_SINGLE_LIST_TypeDef *pHead )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif	
+	
 	if (pHead == NULL)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_UNDEFINED;
 	}
 	
 	if (pHead->next == NULL)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_TRUE;
 	}
 	
@@ -431,6 +557,10 @@ DATA_STRUCT_STATUS_ENUM ReverseLinkSingleList( LINK_SINGLE_LIST_TypeDef *pHead )
 		pNode2 = pNode2->next;
 	}
 	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
+	
 	return STATUS_DATA_STRUCT_TRUE;
 }
 
@@ -448,8 +578,18 @@ DATA_STRUCT_STATUS_ENUM TraverseLinkSingleList( LINK_SINGLE_LIST_TypeDef *pHead,
 {
 	LINK_SINGLE_LIST_TypeDef *pNode = pHead;
 	
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif
+	
 	if (pHead == NULL)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_UNDEFINED;
 	}
 	
@@ -458,10 +598,18 @@ DATA_STRUCT_STATUS_ENUM TraverseLinkSingleList( LINK_SINGLE_LIST_TypeDef *pHead,
 		pNode = pNode->next;
 		if (pNode->data == NULL)
 		{
+		#if (OS_EN)
+			CPU_CRITICAL_EXIT();
+		#endif
+			
 			return STATUS_DATA_STRUCT_FALSE;
 		}
 		show_CallBack(pNode->data);
 	}
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 	
 	return STATUS_DATA_STRUCT_TRUE;
 }

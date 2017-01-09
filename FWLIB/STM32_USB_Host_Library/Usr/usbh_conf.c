@@ -492,7 +492,7 @@ void  USBH_Delay (uint32_t Delay)
 
 void OTG_HS_IRQHandler(void)
 {
- #if (uCOS_EN)	
+ #if (OS_EN)	
 	CPU_SR_ALLOC();
 	
 	CPU_CRITICAL_ENTER();
@@ -502,7 +502,7 @@ void OTG_HS_IRQHandler(void)
 	
 	HAL_HCD_IRQHandler(&hhcd_USB_OTG_HS);
 
-#if (uCOS_EN)
+#if (OS_EN)
 	OSIntExit();
 #endif		
 }

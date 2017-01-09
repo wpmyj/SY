@@ -2,9 +2,9 @@
 *********************************************************************************************************
 * @file    	SeqListHash.c
 * @author  	SY
-* @version 	V1.0.0
-* @date    	2016-9-13 15:26:08
-* @IDE	 	V4.70.0.0
+* @version 	V1.1.0
+* @date    	2017-1-9 08:50:46
+* @IDE	 	Keil V5.22.0.0
 * @Chip    	STM32F407VE
 * @brief   	顺序哈希表源文件
 *********************************************************************************************************
@@ -24,6 +24,11 @@
 *			2）di = 1^2, -1^2, 2^2, -2^2...k^2,-k^2(k<=M/2)，称为二次探测再散列。
 *			3）di取随机序列,称为随机探测
 *
+* ---------------------------------------------------------
+* 版本：V1.1.0 	修改人：SY		修改日期：2017-1-9 08:50:46
+* 
+* 1、增加线程安全操作。
+* -------------------------------------------------------------------------------------------------------	
 * 
 *********************************************************************************************************
 */
@@ -113,14 +118,28 @@ STATUS_HASH_ENUM SearchSeqListHashTable( SEQ_LIST_HASH_TABLE_TypeDef *hashPtr, v
 		bool (*matchHashKey_CallBack)( SEQ_LIST_HASH_TABLE_NODE_TypeDef *base, uint32_t hashKey, void *keyPtr ),\
 		bool (*nextHashKey_CallBack)( SEQ_LIST_HASH_TABLE_TypeDef *hashPtr, uint32_t *hashKeyPtr ) )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif	
+
 	if ((getHashKey_CallBack == NULL) || (matchHashKey_CallBack == NULL) || \
 		(nextHashKey_CallBack == NULL))
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_HASH_UNDEFINED;
 	}
 	
 	if (getHashKey_CallBack(hashPtr, keyPtr, hashKeyPtr) == false)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_HASH_UNDEFINED;
 	}
 		
@@ -131,14 +150,26 @@ STATUS_HASH_ENUM SearchSeqListHashTable( SEQ_LIST_HASH_TABLE_TypeDef *hashPtr, v
 		/* 表中无记录 */
 		if (nodePtr->key == NULL)
 		{
+		#if (OS_EN)
+			CPU_CRITICAL_EXIT();
+		#endif	
+			
 			return STATUS_HASH_FALSE;
 		}
 		else if (matchHashKey_CallBack(hashPtr->basePtr, *hashKeyPtr, keyPtr) == true)
 		{
+		#if (OS_EN)
+			CPU_CRITICAL_EXIT();
+		#endif		
+			
 			return STATUS_HASH_TRUE;
 		}
 		else if (nextHashKey_CallBack(hashPtr, hashKeyPtr) == false)
 		{
+		#if (OS_EN)
+			CPU_CRITICAL_EXIT();
+		#endif		
+			
 			return STATUS_HASH_UNDEFINED;
 		}
 	}
@@ -164,9 +195,19 @@ STATUS_HASH_ENUM InsertSeqListHashTable( SEQ_LIST_HASH_TABLE_TypeDef *hashPtr, v
 		void (*insertHashValue_CallBack)( SEQ_LIST_HASH_TABLE_NODE_TypeDef *base, uint32_t hashKey, \
 			void *keyPtr, void *valuePtr ))
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif		
+	
 	if ((getHashKey_CallBack == NULL) || (matchHashKey_CallBack == NULL) ||\
 		(nextHashKey_CallBack == NULL) || (insertHashValue_CallBack == NULL))
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_HASH_UNDEFINED;
 	}
 	
@@ -180,12 +221,21 @@ STATUS_HASH_ENUM InsertSeqListHashTable( SEQ_LIST_HASH_TABLE_TypeDef *hashPtr, v
 	{
 		case STATUS_HASH_FALSE:
 			insertHashValue_CallBack(hashPtr->basePtr, hashKey, keyPtr, valuePtr);
+		#if (OS_EN)
+			CPU_CRITICAL_EXIT();
+		#endif
 			return STATUS_HASH_TRUE;
 		
 		case STATUS_HASH_TRUE:
+		#if (OS_EN)
+			CPU_CRITICAL_EXIT();
+		#endif
 			return STATUS_HASH_FALSE;
 		
 		default:
+		#if (OS_EN)
+			CPU_CRITICAL_EXIT();
+		#endif
 			return STATUS_HASH_UNDEFINED;
 	}
 }
@@ -207,15 +257,29 @@ STATUS_HASH_ENUM DeleteSeqListHashTable( SEQ_LIST_HASH_TABLE_TypeDef *hashPtr, v
 		bool (*nextHashKey_CallBack)( SEQ_LIST_HASH_TABLE_TypeDef *hashPtr, uint32_t *hashKeyPtr ),\
 		void (*deleteHashValue_CallBack)( SEQ_LIST_HASH_TABLE_NODE_TypeDef *base, uint32_t hashKey))
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif	
+	
 	if ((getHashKey_CallBack == NULL) || (matchHashKey_CallBack == NULL) || \
 		(nextHashKey_CallBack == NULL) || (deleteHashValue_CallBack == NULL))
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_HASH_UNDEFINED;
 	}
 	
 	uint32_t hashKey = 0;
 	if (getHashKey_CallBack(hashPtr, keyPtr, &hashKey) == false)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_HASH_UNDEFINED;
 	}
 		
@@ -225,10 +289,18 @@ STATUS_HASH_ENUM DeleteSeqListHashTable( SEQ_LIST_HASH_TABLE_TypeDef *hashPtr, v
 		{
 			deleteHashValue_CallBack(hashPtr->basePtr, hashKey);
 			
+		#if (OS_EN)
+			CPU_CRITICAL_EXIT();
+		#endif
+			
 			return STATUS_HASH_TRUE;
 		}
 		else if (nextHashKey_CallBack(hashPtr, &hashKey) == false)
 		{
+		#if (OS_EN)
+			CPU_CRITICAL_EXIT();
+		#endif	
+			
 			return STATUS_HASH_FALSE;
 		}
 	}

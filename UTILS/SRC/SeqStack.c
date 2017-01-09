@@ -2,9 +2,9 @@
 *********************************************************************************************************
 * @file    	SeqStack.c
 * @author  	SY
-* @version 	V1.0.1
-* @date    	2016-9-12 13:30:32
-* @IDE	 	V4.70.0.0
+* @version 	V1.1.0
+* @date    	2017-1-9 08:50:46
+* @IDE	 	Keil V5.22.0.0
 * @Chip    	STM32F407VE
 * @brief   	顺序堆栈源文件
 *********************************************************************************************************
@@ -16,6 +16,11 @@
 * 
 * 1、增加顺序堆栈的遍历。
 * -------------------------------------------------------------------------------------------------------
+* ---------------------------------------------------------
+* 版本：V1.1.0 	修改人：SY		修改日期：2017-1-9 08:50:46
+* 
+* 1、增加线程安全操作。
+* -------------------------------------------------------------------------------------------------------	
 *	
 * 
 *********************************************************************************************************
@@ -155,7 +160,17 @@ uint32_t GetSeqStackLenth( SEQ_STACK_TypeDef *stackPtr )
 */
 void ClearSeqStack( SEQ_STACK_TypeDef *stackPtr )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif
+	
 	stackPtr->top = 0;
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 }
 
 /*
@@ -170,13 +185,27 @@ void ClearSeqStack( SEQ_STACK_TypeDef *stackPtr )
 DATA_STRUCT_STATUS_ENUM PushSeqStack( SEQ_STACK_TypeDef *stackPtr, void *dataIn,\
 		void (*push_CallBack)( void *base, uint32_t offset, void *data ) )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif	
+
 	if (SeqStackIsFull(stackPtr) == STATUS_DATA_STRUCT_TRUE)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_FALSE;
 	}
 	
 	push_CallBack(stackPtr->basePtr, stackPtr->top, dataIn);
 	stackPtr->top++;
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 	
 	return STATUS_DATA_STRUCT_TRUE;
 }
@@ -193,14 +222,28 @@ DATA_STRUCT_STATUS_ENUM PushSeqStack( SEQ_STACK_TypeDef *stackPtr, void *dataIn,
 DATA_STRUCT_STATUS_ENUM PopSeqStack( SEQ_STACK_TypeDef *stackPtr, void *dataOut,\
 		void (*pop_CallBack)( void *base, uint32_t offset, void *data ) )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif
+	
 	if (SeqStackIsEmpty(stackPtr) == STATUS_DATA_STRUCT_TRUE)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_FALSE;
 	}
 	
 	stackPtr->top--;
 	pop_CallBack(stackPtr->basePtr, stackPtr->top, dataOut);
 
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif	
+	
 	return STATUS_DATA_STRUCT_TRUE;
 }
 
@@ -235,6 +278,12 @@ void TraverseSeqStack( SEQ_STACK_TypeDef *stackPtr, void *dataOut,\
 		void (*show_CallBack)( void *dataOut ) )
 {
 	SEQ_STACK_TypeDef stack = *stackPtr;
+
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif
 	
 	while ( PopSeqStack(&stack, dataOut, pop_CallBack) == STATUS_DATA_STRUCT_TRUE)
 	{
@@ -243,6 +292,10 @@ void TraverseSeqStack( SEQ_STACK_TypeDef *stackPtr, void *dataOut,\
 			show_CallBack(dataOut);
 		}
 	}
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics **********END OF FILE*************************/

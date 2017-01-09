@@ -2,9 +2,9 @@
 *********************************************************************************************************
 * @file    	SeqList.c
 * @author  	SY
-* @version 	V1.0.1
-* @date    	2016-9-12 15:26:11
-* @IDE	 	V4.70.0.0
+* @version 	V1.1.0
+* @date    	2017-1-9 08:50:46
+* @IDE	 	Keil V5.22.0.0
 * @Chip    	STM32F407VE
 * @brief   	顺序线性表源文件
 *********************************************************************************************************
@@ -21,6 +21,12 @@
 * 
 * 1、增加顺序线性表的遍历。
 * -------------------------------------------------------------------------------------------------------	
+* ---------------------------------------------------------
+* 版本：V1.1.0 	修改人：SY		修改日期：2017-1-9 08:50:46
+* 
+* 1、增加线程安全操作。
+* -------------------------------------------------------------------------------------------------------	
+*
 *
 * 
 *********************************************************************************************************
@@ -160,7 +166,17 @@ uint32_t GetSeqListLenth( SEQ_LIST_TypeDef *listPtr )
 */
 void ClearSeqList( SEQ_LIST_TypeDef *listPtr )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif
+	
 	listPtr->index = 0;
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 }
 
 /*
@@ -175,12 +191,26 @@ void ClearSeqList( SEQ_LIST_TypeDef *listPtr )
 DATA_STRUCT_STATUS_ENUM PushSeqList( SEQ_LIST_TypeDef *listPtr, void *dataIn, uint32_t pos,\
 		void (*push_CallBack)( void *base, uint32_t pos, void *dataIn ) )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif
+	
 	if (pos >= listPtr->index)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif
+		
 		return STATUS_DATA_STRUCT_FALSE;
 	}
 	
 	push_CallBack(listPtr->basePtr, pos, dataIn);
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 	
 	return STATUS_DATA_STRUCT_TRUE;
 }
@@ -197,12 +227,26 @@ DATA_STRUCT_STATUS_ENUM PushSeqList( SEQ_LIST_TypeDef *listPtr, void *dataIn, ui
 DATA_STRUCT_STATUS_ENUM PopSeqList( SEQ_LIST_TypeDef *listPtr, void *dataOut, uint32_t pos,\
 		void (*pop_CallBack)( void *base, uint32_t pos, void *dataOut ) )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif	
+	
 	if (pos >= listPtr->index)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+	
 		return STATUS_DATA_STRUCT_FALSE;
 	}
 
 	pop_CallBack(listPtr->basePtr, pos, dataOut);
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 
 	return STATUS_DATA_STRUCT_TRUE;
 }
@@ -220,8 +264,19 @@ DATA_STRUCT_STATUS_ENUM InsertSeqList( SEQ_LIST_TypeDef *listPtr, void *dataIn, 
 		void (*push_CallBack)( void *base, uint32_t pos, void *dataIn ),\
 		void (*copy_CallBack)( void *base, uint32_t targetPos, uint32_t sourcePos ) )
 {
+	
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif
+	
 	if (SeqListIsFull(listPtr) == STATUS_DATA_STRUCT_TRUE)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif
+		
 		return STATUS_DATA_STRUCT_FALSE;
 	}
 	
@@ -236,6 +291,10 @@ DATA_STRUCT_STATUS_ENUM InsertSeqList( SEQ_LIST_TypeDef *listPtr, void *dataIn, 
 	}
 	push_CallBack(listPtr->basePtr, pos, dataIn);
 	listPtr->index++;
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 	
 	return STATUS_DATA_STRUCT_TRUE;
 }
@@ -252,8 +311,19 @@ DATA_STRUCT_STATUS_ENUM InsertSeqList( SEQ_LIST_TypeDef *listPtr, void *dataIn, 
 DATA_STRUCT_STATUS_ENUM DeleteSeqList( SEQ_LIST_TypeDef *listPtr, uint32_t pos,\
 		void (*copy_CallBack)( void *base, uint32_t targetPos, uint32_t sourcePos ) )
 {
+	
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif
+	
 	if (pos >= listPtr->index)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif
+		
 		return STATUS_DATA_STRUCT_FALSE;
 	}
 
@@ -263,6 +333,10 @@ DATA_STRUCT_STATUS_ENUM DeleteSeqList( SEQ_LIST_TypeDef *listPtr, uint32_t pos,\
 		copy_CallBack(listPtr->basePtr, i, i+1);
 	}
 
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif	
+	
 	return STATUS_DATA_STRUCT_TRUE;
 }
 
@@ -281,6 +355,12 @@ void TraverseSeqList( SEQ_LIST_TypeDef *listPtr, void *dataOut,\
 {
 	SEQ_LIST_TypeDef list = *listPtr;
 	uint32_t posIndex = 0;
+
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif
 	
 	while (PopSeqList(&list, dataOut, posIndex++, pop_CallBack) == STATUS_DATA_STRUCT_TRUE)
 	{
@@ -289,6 +369,10 @@ void TraverseSeqList( SEQ_LIST_TypeDef *listPtr, void *dataOut,\
 			show_CallBack(dataOut);
 		}
 	}
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics **********END OF FILE*************************/

@@ -444,6 +444,11 @@
               <FileType>5</FileType>
               <FilePath>..\UTILS\INC\list.h</FilePath>
             </File>
+            <File>
+              <FileName>os_inc.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\FWLIB\uCosIII-3.04.05\uC-Usr\os_inc.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

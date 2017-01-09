@@ -2,15 +2,21 @@
 *********************************************************************************************************
 * @file    	LinkStack.c
 * @author  	SY
-* @version 	V1.0.0
-* @date    	2016-9-2 10:16:49
-* @IDE	 	V4.70.0.0
+* @version 	V1.1.0
+* @date    	2017-1-9 08:50:46
+* @IDE	 	Keil V5.22.0.0
 * @Chip    	STM32F407VE
 * @brief   	链式堆栈源文件
 *********************************************************************************************************
 * @attention
 *	栈是限制在一段进行插入操作和删除操作的线性表（俗称堆栈），允许进行操作的一端称为“栈顶”，
 *	另一固定端称为“栈底”，当栈中没有元素称为“空栈”。特点：先进后出（FILO）。
+*
+* ---------------------------------------------------------
+* 版本：V1.1.0 	修改人：SY		修改日期：2017-1-9 08:50:46
+* 
+* 1、增加线程安全操作。
+* -------------------------------------------------------------------------------------------------------	
 *
 * 
 *********************************************************************************************************
@@ -79,7 +85,7 @@
 LINK_STACK_TypeDef *CreateLinkStack( void )
 {
 	/* 生成栈顶节点 */
-	LINK_STACK_TypeDef *top = (LINK_STACK_TypeDef *)calloc(1,sizeof(LINK_STACK_TypeDef));
+	LINK_STACK_TypeDef *top = (LINK_STACK_TypeDef *)new(sizeof(LINK_STACK_TypeDef));
 	if (top == NULL)
 	{
 		return NULL;
@@ -128,6 +134,12 @@ DATA_STRUCT_STATUS_ENUM LinkStackIsEmpty( LINK_STACK_TypeDef *top )
 */
 void ClearLinkStack( LINK_STACK_TypeDef *top )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif	
+	
 	if (top != NULL)
 	{
 		LINK_STACK_TypeDef *oldNode = NULL;
@@ -140,14 +152,18 @@ void ClearLinkStack( LINK_STACK_TypeDef *top )
 			
 			if (oldNode->data != NULL)
 			{
-				free(oldNode->data);
+				delete(oldNode->data);
 				oldNode->data = NULL;
 			}
 			
-			free(oldNode);
+			delete(oldNode);
 			oldNode = NULL;				
 		}
 	}
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 }
 
 /*
@@ -163,15 +179,25 @@ void DestoryLinkStack( LINK_STACK_TypeDef **top )
 {
 	LINK_STACK_TypeDef *this = *top;
 	
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif
+	
 	if (this != NULL)
 	{
 		ClearLinkStack(this);
 		
 		/* 释放栈顶节点 */
-		free(this);
+		delete(this);
 		
 		*top = NULL;
 	}
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 }
 
 /*
@@ -185,27 +211,49 @@ void DestoryLinkStack( LINK_STACK_TypeDef **top )
 */
 DATA_STRUCT_STATUS_ENUM PushLinkStack( LINK_STACK_TypeDef *top, void *dataIn, uint32_t dataSize )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif	
+	
 	if (top == NULL)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_UNDEFINED;
 	}
 	
 	/* 增加新节点 */
-	LINK_STACK_TypeDef *pNode = (LINK_STACK_TypeDef *)calloc(1,sizeof(LINK_STACK_TypeDef));
+	LINK_STACK_TypeDef *pNode = (LINK_STACK_TypeDef *)new(sizeof(LINK_STACK_TypeDef));
 	if (pNode == NULL)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_FALSE;
 	}
 	pNode->next = top->next;	
 	top->next = pNode;
 	
 	/* 存储用户数据 */
-	pNode->data = (void *)calloc(1,dataSize);
+	pNode->data = (void *)new(dataSize);
 	if (pNode->data == NULL)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_FALSE;
 	}	
 	memcpy(pNode->data,dataIn,dataSize);
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 	
 	return STATUS_DATA_STRUCT_TRUE;
 }
@@ -221,13 +269,27 @@ DATA_STRUCT_STATUS_ENUM PushLinkStack( LINK_STACK_TypeDef *top, void *dataIn, ui
 */
 DATA_STRUCT_STATUS_ENUM PopLinkStack( LINK_STACK_TypeDef *top, void *dataOut, uint32_t dataSize )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif
+	
 	if (top == NULL)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif
+		
 		return STATUS_DATA_STRUCT_UNDEFINED;
 	}
 	
 	if (LinkStackIsEmpty(top) == STATUS_DATA_STRUCT_TRUE)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif
+		
 		return STATUS_DATA_STRUCT_FALSE;
 	}
 	
@@ -239,13 +301,17 @@ DATA_STRUCT_STATUS_ENUM PopLinkStack( LINK_STACK_TypeDef *top, void *dataOut, ui
 	if (oldNode->data != NULL)
 	{
 		memcpy(dataOut,oldNode->data,dataSize);
-		free(oldNode->data);
+		delete(oldNode->data);
 		oldNode->data = NULL;
 		isDataOK = STATUS_DATA_STRUCT_TRUE;
 	}
 	
-	free(oldNode);
+	delete(oldNode);
 	oldNode = NULL;
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 	
 	return isDataOK;
 }
@@ -261,13 +327,27 @@ DATA_STRUCT_STATUS_ENUM PopLinkStack( LINK_STACK_TypeDef *top, void *dataOut, ui
 */
 DATA_STRUCT_STATUS_ENUM GetLinkStackElement( LINK_STACK_TypeDef *top, void *dataOut, uint32_t dataSize )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif
+	
 	if (top == NULL)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_UNDEFINED;
 	}
 	
 	if (LinkStackIsEmpty(top) == STATUS_DATA_STRUCT_TRUE)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_FALSE;
 	}
 	
@@ -278,6 +358,10 @@ DATA_STRUCT_STATUS_ENUM GetLinkStackElement( LINK_STACK_TypeDef *top, void *data
 		memcpy(dataOut,oldNode->data,dataSize);
 		isDataOK = STATUS_DATA_STRUCT_TRUE;
 	}
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 	
 	return isDataOK;
 }
@@ -297,6 +381,12 @@ void TraverseLinkStack( LINK_STACK_TypeDef *top, void *dataOut, uint32_t dataSiz
 	LINK_STACK_TypeDef stack = *top;
 	LINK_STACK_TypeDef *pNode = stack.next;
 	
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif
+	
 	while (pNode != NULL)
 	{
 		memcpy(dataOut,pNode->data,dataSize);
@@ -308,6 +398,10 @@ void TraverseLinkStack( LINK_STACK_TypeDef *top, void *dataOut, uint32_t dataSiz
 		
 		pNode = pNode->next;
 	}
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics **********END OF FILE*************************/

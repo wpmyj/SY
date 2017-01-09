@@ -2,9 +2,9 @@
 *********************************************************************************************************
 * @file    	SeqQueue.c
 * @author  	SY
-* @version 	V1.0.2
-* @date    	2016-9-12 09:11:43
-* @IDE	 	V4.70.0.0
+* @version 	V1.1.0
+* @date    	2017-1-9 08:50:46
+* @IDE	 	Keil V5.22.0.0
 * @Chip    	STM32F407VE
 * @brief   	顺序队列源文件
 *********************************************************************************************************
@@ -20,6 +20,12 @@
 * 
 * 1、增加顺序队列的遍历。
 * -------------------------------------------------------------------------------------------------------	
+* ---------------------------------------------------------
+* 版本：V1.1.0 	修改人：SY		修改日期：2017-1-9 08:50:46
+* 
+* 1、增加线程安全操作。
+* -------------------------------------------------------------------------------------------------------	
+*
 * 
 *********************************************************************************************************
 */
@@ -145,8 +151,18 @@ DATA_STRUCT_STATUS_ENUM SeqQueueIsEmpty( SEQUEUE_TypeDef *queuePtr )
 */
 void ClearSeqQueue( SEQUEUE_TypeDef *queuePtr )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif
+	
 	queuePtr->front = 0;
 	queuePtr->rear = 0;
+
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 }
 
 /*
@@ -203,13 +219,27 @@ uint32_t GetSeqQueueLenth( SEQUEUE_TypeDef *queuePtr )
 DATA_STRUCT_STATUS_ENUM PushSeqQueue( SEQUEUE_TypeDef *queuePtr, void *dataIn,\
 		void (*push_CallBack)( void *base, uint32_t offset, void *data ) )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif	
+	
 	if (SeqQueueIsFull(queuePtr) == STATUS_DATA_STRUCT_TRUE)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_FALSE;
 	}
 	
 	push_CallBack(queuePtr->basePtr, queuePtr->rear, dataIn);
 	queuePtr->rear = (queuePtr->rear + 1) % queuePtr->maxLenth;
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 	
 	return STATUS_DATA_STRUCT_TRUE;
 }
@@ -226,13 +256,27 @@ DATA_STRUCT_STATUS_ENUM PushSeqQueue( SEQUEUE_TypeDef *queuePtr, void *dataIn,\
 DATA_STRUCT_STATUS_ENUM PopSeqQueue( SEQUEUE_TypeDef *queuePtr, void *dataOut,\
 		void (*pop_CallBack)( void *base, uint32_t offset, void *data ) )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif
+	
 	if (SeqQueueIsEmpty(queuePtr) == STATUS_DATA_STRUCT_TRUE)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif
+		
 		return STATUS_DATA_STRUCT_FALSE;
 	}
 	
 	pop_CallBack(queuePtr->basePtr, queuePtr->front, dataOut);
 	queuePtr->front = (queuePtr->front + 1) % queuePtr->maxLenth;
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 	
 	return STATUS_DATA_STRUCT_TRUE;
 }
@@ -297,6 +341,12 @@ void TraverseSeqQueue( SEQUEUE_TypeDef *queuePtr, void *dataOut,\
 		void (*show_CallBack)( void *dataOut ) )
 {
 	SEQUEUE_TypeDef queue = *queuePtr;
+
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif
 	
 	while ( PopSeqQueue(&queue, dataOut, pop_CallBack) == STATUS_DATA_STRUCT_TRUE)
 	{
@@ -305,6 +355,10 @@ void TraverseSeqQueue( SEQUEUE_TypeDef *queuePtr, void *dataOut,\
 			show_CallBack(dataOut);
 		}
 	}
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 }
 
 

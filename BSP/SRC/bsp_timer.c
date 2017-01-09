@@ -191,7 +191,7 @@ __STATIC_INLINE void bsp_SoftTimerDec(SOFT_TMR *_tmr)
 */
 void HEART_TIM_IRQHandler(void)
 {
-#if (uCOS_EN)
+#if (OS_EN)
 	CPU_SR_ALLOC();
 
     CPU_CRITICAL_ENTER();
@@ -201,7 +201,7 @@ void HEART_TIM_IRQHandler(void)
 	
 	HAL_TIM_IRQHandler(&g_HeartTimHandle);	
 
-#if (uCOS_EN)
+#if (OS_EN)
 	OSIntExit(); 
 #endif	
 } 

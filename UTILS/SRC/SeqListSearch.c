@@ -2,9 +2,9 @@
 *********************************************************************************************************
 * @file    	SeqListSearch.c
 * @author  	SY
-* @version 	V1.0.0
-* @date    	2016-9-12 15:56:05
-* @IDE	 	V4.70.0.0
+* @version 	V1.1.0
+* @date    	2017-1-9 08:50:46
+* @IDE	 	Keil V5.22.0.0
 * @Chip    	STM32F407VE
 * @brief   	顺序线性表查找算法源文件
 *********************************************************************************************************
@@ -15,6 +15,12 @@
 *		3、折半查找：键值可以是数字、字符串等类型，但必须有序，通过调整回调函数，支持顺序和逆序。
 *			通过操作数组索引值，比较目标键值与数组索引对应的表键值，如果目标键值等于表键值，则查找成功。
 *			否则，比较目标键值与表键值的大小关系，移动索引值，重新比较。
+*
+* ---------------------------------------------------------
+* 版本：V1.1.0 	修改人：SY		修改日期：2017-1-9 08:50:46
+* 
+* 1、增加线程安全操作。
+* -------------------------------------------------------------------------------------------------------	
 *
 *
 * 
@@ -100,8 +106,18 @@ bool InsertSeqListSearchingNode( SEQ_LIST_SEARCH_TypeDef *listPtr,\
 		uint32_t nodeIndex, void *key, void *value,\
 		void (*setNode_CallBack)( void *base, uint32_t nodeIndex, void *key, void *value ) )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif	
+	
 	if (nodeIndex >= listPtr->maxLenth)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return false;
 	}
 	
@@ -109,6 +125,10 @@ bool InsertSeqListSearchingNode( SEQ_LIST_SEARCH_TypeDef *listPtr,\
 	{
 		setNode_CallBack(listPtr->basePtr, nodeIndex, key, value);
 	}
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif	
 	
 	return true;
 }
@@ -126,6 +146,12 @@ void *SeqListSequenceSearching( SEQ_LIST_SEARCH_TypeDef *listPtr, void *findKey,
 		void *(*matchKey_CallBack)( void *base, uint32_t nodeIndex, void *findKey ) )
 {
 	uint32_t nodeIndex = 0;
+	
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif
 
 	while (nodeIndex < listPtr->maxLenth)
 	{
@@ -134,11 +160,19 @@ void *SeqListSequenceSearching( SEQ_LIST_SEARCH_TypeDef *listPtr, void *findKey,
 			void *value = matchKey_CallBack(listPtr->basePtr, nodeIndex, findKey);
 			if (value != NULL)
 			{
+			#if (OS_EN)
+				CPU_CRITICAL_EXIT();
+			#endif	
+				
 				return value;
 			}
 		}
 		nodeIndex++;
 	}
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 	
 	return NULL;
 }
@@ -155,8 +189,18 @@ void *SeqListSequenceSearching( SEQ_LIST_SEARCH_TypeDef *listPtr, void *findKey,
 bool SeqListBinSearching( SEQ_LIST_SEARCH_TypeDef *listPtr, void *findKey, uint32_t *keyIndex,\
 		int8_t (*equalKey_CallBack)( void *base, uint32_t nodeIndex, void *findKey ) )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif	
+	
 	if (equalKey_CallBack == NULL)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return NULL;
 	}
 	uint32_t low = 1;
@@ -178,9 +222,17 @@ bool SeqListBinSearching( SEQ_LIST_SEARCH_TypeDef *listPtr, void *findKey, uint3
 		{
 			*keyIndex = middle - 1;
 			
+		#if (OS_EN)
+			CPU_CRITICAL_EXIT();
+		#endif
+			
 			return true;
 		}
 	}
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 	
 	return false;
 }

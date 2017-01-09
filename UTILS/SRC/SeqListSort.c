@@ -2,9 +2,9 @@
 *********************************************************************************************************
 * @file    	SeqListSort.c
 * @author  	SY
-* @version 	V1.0.0
-* @date    	2016-9-18 11:09:31
-* @IDE	 	V4.70.0.0
+* @version 	V1.1.0
+* @date    	2017-1-9 08:50:46
+* @IDE	 	Keil V5.22.0.0
 * @Chip    	STM32F407VE
 * @brief   	顺序线性表排序源文件
 *********************************************************************************************************
@@ -23,7 +23,12 @@
 *				比基准值大。
 *			（2）使用递归调用方式，对左、右两部分线性表，重复执行步骤(1)，直至整个线性表有序。
 *			
+* ---------------------------------------------------------
+* 版本：V1.1.0 	修改人：SY		修改日期：2017-1-9 08:50:46
 * 
+* 1、增加线程安全操作。
+* -------------------------------------------------------------------------------------------------------	
+*
 *********************************************************************************************************
 */
 
@@ -92,13 +97,28 @@ DATA_STRUCT_STATUS_ENUM InsertSeqListSequenceSorting( SEQ_LIST_TypeDef *listPtr,
 		void (*push_CallBack)( void *base, uint32_t index, void *dataIn ),\
 		void (*copy_CallBack)( void *base, uint32_t targetIndex, uint32_t sourceIndex ) )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif
+
+
 	if ((comp_CallBack == NULL) || (push_CallBack == NULL) || (copy_CallBack == NULL))
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_UNDEFINED;
 	}
 	
 	if (SeqListIsFull(listPtr) == STATUS_DATA_STRUCT_TRUE)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_FALSE;
 	}
 	
@@ -122,6 +142,10 @@ DATA_STRUCT_STATUS_ENUM InsertSeqListSequenceSorting( SEQ_LIST_TypeDef *listPtr,
 	push_CallBack(listPtr->basePtr, insertIndex, dataIn);
 	listPtr->index++;
 	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
+	
 	return STATUS_DATA_STRUCT_TRUE;
 }
 
@@ -139,13 +163,27 @@ DATA_STRUCT_STATUS_ENUM InsertSeqListBinSorting( SEQ_LIST_TypeDef *listPtr, void
 		void (*push_CallBack)( void *base, uint32_t index, void *dataIn ),\
 		void (*copy_CallBack)( void *base, uint32_t targetIndex, uint32_t sourceIndex ) )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif	
+	
 	if ((equalKey_CallBack == NULL) || (push_CallBack == NULL) || (copy_CallBack == NULL))
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_UNDEFINED;
 	}
 	
 	if (SeqListIsFull(listPtr) == STATUS_DATA_STRUCT_TRUE)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_FALSE;
 	}
 	
@@ -178,6 +216,10 @@ DATA_STRUCT_STATUS_ENUM InsertSeqListBinSorting( SEQ_LIST_TypeDef *listPtr, void
 	push_CallBack(listPtr->basePtr, insertIndex, dataIn);
 	listPtr->index++;
 	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
+	
 	return STATUS_DATA_STRUCT_TRUE;
 }
 
@@ -194,13 +236,27 @@ DATA_STRUCT_STATUS_ENUM SeqListBubSorting( SEQ_LIST_TypeDef *listPtr,\
 		int8_t (*equalKey_CallBack)( void *base, uint32_t targetIndex, uint32_t sourceIndex ),\
 		void (*swap_CallBack)( void *base, uint32_t targetIndex, uint32_t sourceIndex ) )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif	
+	
 	if ((equalKey_CallBack == NULL) || (swap_CallBack == NULL))
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_UNDEFINED;
 	}
 	
 	if (SeqListIsEmpty(listPtr) == STATUS_DATA_STRUCT_TRUE)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_FALSE;
 	}
 	
@@ -216,6 +272,10 @@ DATA_STRUCT_STATUS_ENUM SeqListBubSorting( SEQ_LIST_TypeDef *listPtr,\
 			}
 		}
 	}
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif	
 	
 	return STATUS_DATA_STRUCT_TRUE;
 }
@@ -235,6 +295,12 @@ static void SeqListQuickSortingPartition( SEQ_LIST_TypeDef *listPtr, uint32_t lo
 		void (*push_CallBack)( void *base, uint32_t index, void *data ),\
 		void (*pop_CallBack)( void *base, uint32_t index, void *data ))
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif	
+	
 	SEQ_LIST_SORT_NODE_TypeDef referenceNode;
 	PopSeqList(listPtr, &referenceNode, low, pop_CallBack);
 	
@@ -265,6 +331,10 @@ static void SeqListQuickSortingPartition( SEQ_LIST_TypeDef *listPtr, uint32_t lo
 	
 	PushSeqList(listPtr, &referenceNode, low, push_CallBack);	
 	*middle = low;
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 }
 
 /*
@@ -283,6 +353,12 @@ static void __SeqListQuickSorting( SEQ_LIST_TypeDef *listPtr, uint32_t low, uint
 		void (*pop_CallBack)( void *base, uint32_t index, void *data ))
 {
 	uint32_t middle = 0;
+	
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif
 	
 	if (low < high)
 	{
@@ -306,6 +382,10 @@ static void __SeqListQuickSorting( SEQ_LIST_TypeDef *listPtr, uint32_t low, uint
 								push_CallBack,\
 								pop_CallBack);
 	}
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 }
 
 /*
@@ -323,14 +403,28 @@ DATA_STRUCT_STATUS_ENUM SeqListQuickSorting( SEQ_LIST_TypeDef *listPtr, uint32_t
 		void (*push_CallBack)( void *base, uint32_t index, void *data ),\
 		void (*pop_CallBack)( void *base, uint32_t index, void *data ))
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif	
+	
 	if ((equalKey_CallBack == NULL) || (copy_CallBack == NULL) ||\
 		(push_CallBack == NULL) || (pop_CallBack == NULL))
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_UNDEFINED;
 	}
 	
 	if (SeqListIsEmpty(listPtr) == STATUS_DATA_STRUCT_TRUE)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_FALSE;
 	}
 	
@@ -339,6 +433,10 @@ DATA_STRUCT_STATUS_ENUM SeqListQuickSorting( SEQ_LIST_TypeDef *listPtr, uint32_t
 								copy_CallBack,\
 								push_CallBack,\
 								pop_CallBack);
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 	
 	return STATUS_DATA_STRUCT_TRUE;
 }
@@ -359,6 +457,12 @@ void TraverseSeqListSorting( SEQ_LIST_TypeDef *listPtr, void *dataOut,\
 	SEQ_LIST_TypeDef list = *listPtr;
 	uint32_t posIndex = 0;
 	
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif
+	
 	while (PopSeqList(&list, dataOut, posIndex++, pop_CallBack) == STATUS_DATA_STRUCT_TRUE)
 	{
 		if (show_CallBack)
@@ -366,6 +470,10 @@ void TraverseSeqListSorting( SEQ_LIST_TypeDef *listPtr, void *dataOut,\
 			show_CallBack(dataOut);
 		}
 	}
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics **********END OF FILE*************************/

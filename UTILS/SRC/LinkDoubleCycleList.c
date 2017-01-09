@@ -2,9 +2,9 @@
 *********************************************************************************************************
 * @file    	LinkDoubleCycleList.c
 * @author  	SY
-* @version 	V1.0.0
-* @date    	2016-9-9 15:09:24
-* @IDE	 	V4.70.0.0
+* @version 	V1.1.0
+* @date    	2017-1-9 08:50:46
+* @IDE	 	Keil V5.22.0.0
 * @Chip    	STM32F407VE
 * @brief   	双向循环链表源文件
 *********************************************************************************************************
@@ -13,6 +13,12 @@
 *	所以，从双向链表中的任意一个结点开始，都可以很方便地访问它的前驱结点和后继结点。一般我们都构造
 *	双向循环链表。
 * 
+* ---------------------------------------------------------
+* 版本：V1.1.0 	修改人：SY		修改日期：2017-1-9 08:50:46
+* 
+* 1、增加线程安全操作。
+* -------------------------------------------------------------------------------------------------------	
+*
 *********************************************************************************************************
 */
 
@@ -79,7 +85,7 @@
 LINK_DOUBLE_CYCLE_LIST_TypeDef *CreateLinkDoubleCycleList( void )
 {
 	/* 创建头节点，头指针由外部提供 */
-	LINK_DOUBLE_CYCLE_LIST_TypeDef *pHead = (LINK_DOUBLE_CYCLE_LIST_TypeDef *)calloc(1,sizeof(LINK_DOUBLE_CYCLE_LIST_TypeDef));
+	LINK_DOUBLE_CYCLE_LIST_TypeDef *pHead = (LINK_DOUBLE_CYCLE_LIST_TypeDef *)new(sizeof(LINK_DOUBLE_CYCLE_LIST_TypeDef));
 	if (pHead == NULL)
 	{
 		return NULL;
@@ -103,18 +109,36 @@ LINK_DOUBLE_CYCLE_LIST_TypeDef *CreateLinkDoubleCycleList( void )
 */
 DATA_STRUCT_STATUS_ENUM LinkDoubleCycleListIsEmpty( LINK_DOUBLE_CYCLE_LIST_TypeDef *pHead )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif
+	
 	if (pHead == NULL)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_UNDEFINED;
 	}
 	
 	if ((pHead->prev == pHead) &&\
 		(pHead->next == pHead))
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif
+		
 		return STATUS_DATA_STRUCT_TRUE;
 	}
 	else
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif
+		
 		return STATUS_DATA_STRUCT_FALSE;
 	}
 }
@@ -132,6 +156,12 @@ uint32_t GetLinkDoubleCycleListLenth( LINK_DOUBLE_CYCLE_LIST_TypeDef *pHead )
 {
 	uint32_t lenth = 0;
 	
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif
+	
 	if (pHead != NULL)
 	{
 		LINK_DOUBLE_CYCLE_LIST_TypeDef *pNode = pHead;
@@ -142,6 +172,10 @@ uint32_t GetLinkDoubleCycleListLenth( LINK_DOUBLE_CYCLE_LIST_TypeDef *pHead )
 			pNode = pNode->next;
 		}
 	}
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 	
 	return lenth;
 }
@@ -157,6 +191,12 @@ uint32_t GetLinkDoubleCycleListLenth( LINK_DOUBLE_CYCLE_LIST_TypeDef *pHead )
 */
 void ClearLinkDoubleCycleList( LINK_DOUBLE_CYCLE_LIST_TypeDef *pHead )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif
+	
 	if (pHead != NULL)
 	{
 		while (pHead->next != pHead)
@@ -169,14 +209,18 @@ void ClearLinkDoubleCycleList( LINK_DOUBLE_CYCLE_LIST_TypeDef *pHead )
 			
 			if (oldNode->data != NULL)
 			{
-				free(oldNode->data);
+				delete(oldNode->data);
 				oldNode->data = NULL;
 			}
 			
-			free(oldNode);
+			delete(oldNode);
 			oldNode = NULL;				
 		}
 	}
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 }
 
 /*
@@ -192,12 +236,22 @@ void DestoryLinkDoubleCycleList( LINK_DOUBLE_CYCLE_LIST_TypeDef **pHead )
 {
 	LINK_DOUBLE_CYCLE_LIST_TypeDef *this = *pHead;
 	
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif
+	
 	if (this != NULL)
 	{
 		ClearLinkDoubleCycleList(this);
-		free(this);		
+		delete(this);		
 		*pHead = NULL;
 	}
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 }
 
 /*
@@ -212,8 +266,18 @@ void DestoryLinkDoubleCycleList( LINK_DOUBLE_CYCLE_LIST_TypeDef **pHead )
 DATA_STRUCT_STATUS_ENUM InsertLinkDoubleCycleList( LINK_DOUBLE_CYCLE_LIST_TypeDef *pHead, void *dataIn, uint32_t dataSize,\
 		void *matchData, bool (*match_CallBack)( void *nodeData, void *matchData ) )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif
+	
 	if (pHead == NULL)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif
+		
 		return STATUS_DATA_STRUCT_UNDEFINED;
 	}
 	
@@ -233,9 +297,13 @@ DATA_STRUCT_STATUS_ENUM InsertLinkDoubleCycleList( LINK_DOUBLE_CYCLE_LIST_TypeDe
 	}
 	
 	/* 增加新节点 */
-	LINK_DOUBLE_CYCLE_LIST_TypeDef *pNode = (LINK_DOUBLE_CYCLE_LIST_TypeDef *)calloc(1,sizeof(LINK_DOUBLE_CYCLE_LIST_TypeDef));
+	LINK_DOUBLE_CYCLE_LIST_TypeDef *pNode = (LINK_DOUBLE_CYCLE_LIST_TypeDef *)new(sizeof(LINK_DOUBLE_CYCLE_LIST_TypeDef));
 	if (pNode == NULL)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_FALSE;
 	}
 	pNode->next = prevNode->next;	
@@ -244,12 +312,20 @@ DATA_STRUCT_STATUS_ENUM InsertLinkDoubleCycleList( LINK_DOUBLE_CYCLE_LIST_TypeDe
 	prevNode->next = pNode;
 	
 	/* 存储用户数据 */
-	pNode->data = (void *)calloc(1,dataSize);
+	pNode->data = (void *)new(dataSize);
 	if (pNode->data == NULL)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_FALSE;
 	}	
 	memcpy(pNode->data,dataIn,dataSize);
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 	
 	return STATUS_DATA_STRUCT_TRUE;
 }
@@ -266,8 +342,18 @@ DATA_STRUCT_STATUS_ENUM InsertLinkDoubleCycleList( LINK_DOUBLE_CYCLE_LIST_TypeDe
 DATA_STRUCT_STATUS_ENUM DeleteLinkDoubleCycleList( LINK_DOUBLE_CYCLE_LIST_TypeDef *pHead,\
 		void *matchData, bool (*match_CallBack)( void *nodeData, void *matchData ) )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif	
+	
 	if (pHead == NULL)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif
+		
 		return STATUS_DATA_STRUCT_UNDEFINED;
 	}
 	
@@ -290,6 +376,10 @@ DATA_STRUCT_STATUS_ENUM DeleteLinkDoubleCycleList( LINK_DOUBLE_CYCLE_LIST_TypeDe
 	
 	if (isFind == false)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif
+		
 		return STATUS_DATA_STRUCT_FALSE;
 	}
 	
@@ -301,11 +391,15 @@ DATA_STRUCT_STATUS_ENUM DeleteLinkDoubleCycleList( LINK_DOUBLE_CYCLE_LIST_TypeDe
 	
 	if (oldNode->data != NULL)
 	{
-		free(oldNode->data);
+		delete(oldNode->data);
 		oldNode->data = NULL;
 	}
-	free(oldNode);
+	delete(oldNode);
 	oldNode = NULL;
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 	
 	return STATUS_DATA_STRUCT_TRUE;
 }
@@ -322,8 +416,18 @@ DATA_STRUCT_STATUS_ENUM DeleteLinkDoubleCycleList( LINK_DOUBLE_CYCLE_LIST_TypeDe
 DATA_STRUCT_STATUS_ENUM PushLinkDoubleCycleList( LINK_DOUBLE_CYCLE_LIST_TypeDef *pHead, void *dataIn, uint32_t dataSize,\
 		void *matchData, bool (*match_CallBack)( void *nodeData, void *matchData ) )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif	
+	
 	if (pHead == NULL)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_UNDEFINED;
 	}
 	
@@ -342,6 +446,10 @@ DATA_STRUCT_STATUS_ENUM PushLinkDoubleCycleList( LINK_DOUBLE_CYCLE_LIST_TypeDef 
 
 	if (isFind == false)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_FALSE;
 	}	
 	
@@ -351,6 +459,10 @@ DATA_STRUCT_STATUS_ENUM PushLinkDoubleCycleList( LINK_DOUBLE_CYCLE_LIST_TypeDef 
 		memcpy(pNode->data,dataIn,dataSize);
 		isDataOK = STATUS_DATA_STRUCT_TRUE;
 	}
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 	
 	return isDataOK;
 }
@@ -367,8 +479,18 @@ DATA_STRUCT_STATUS_ENUM PushLinkDoubleCycleList( LINK_DOUBLE_CYCLE_LIST_TypeDef 
 DATA_STRUCT_STATUS_ENUM PopLinkDoubleCycleList( LINK_DOUBLE_CYCLE_LIST_TypeDef *pHead, void *dataOut, uint32_t dataSize,\
 		void *matchData, bool (*match_CallBack)( void *nodeData, void *matchData ) )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif
+	
 	if (pHead == NULL)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_UNDEFINED;
 	}
 	
@@ -387,6 +509,10 @@ DATA_STRUCT_STATUS_ENUM PopLinkDoubleCycleList( LINK_DOUBLE_CYCLE_LIST_TypeDef *
 
 	if (isFind == false)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif		
+		
 		return STATUS_DATA_STRUCT_FALSE;
 	}	
 	
@@ -396,6 +522,10 @@ DATA_STRUCT_STATUS_ENUM PopLinkDoubleCycleList( LINK_DOUBLE_CYCLE_LIST_TypeDef *
 		memcpy(dataOut,pNode->data,dataSize);
 		isDataOK = STATUS_DATA_STRUCT_TRUE;
 	}
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif	
 	
 	return isDataOK;
 }
@@ -414,8 +544,18 @@ DATA_STRUCT_STATUS_ENUM TraverseNextLinkDoubleCycleList( LINK_DOUBLE_CYCLE_LIST_
 {
 	LINK_DOUBLE_CYCLE_LIST_TypeDef *pNode = pHead;
 	
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif	
+	
 	if (pHead == NULL)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_UNDEFINED;
 	}
 	
@@ -424,10 +564,18 @@ DATA_STRUCT_STATUS_ENUM TraverseNextLinkDoubleCycleList( LINK_DOUBLE_CYCLE_LIST_
 		pNode = pNode->next;
 		if (pNode->data == NULL)
 		{
+		#if (OS_EN)
+			CPU_CRITICAL_EXIT();
+		#endif
+			
 			return STATUS_DATA_STRUCT_FALSE;
 		}
 		show_CallBack(pNode->data);
 	}
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 	
 	return STATUS_DATA_STRUCT_TRUE;
 }
@@ -446,8 +594,18 @@ DATA_STRUCT_STATUS_ENUM TraversePrevLinkDoubleCycleList( LINK_DOUBLE_CYCLE_LIST_
 {
 	LINK_DOUBLE_CYCLE_LIST_TypeDef *pNode = pHead;
 	
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif	
+	
 	if (pHead == NULL)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_UNDEFINED;
 	}
 	
@@ -456,10 +614,18 @@ DATA_STRUCT_STATUS_ENUM TraversePrevLinkDoubleCycleList( LINK_DOUBLE_CYCLE_LIST_
 		pNode = pNode->prev;
 		if (pNode->data == NULL)
 		{
+		#if (OS_EN)
+			CPU_CRITICAL_EXIT();
+		#endif	
+			
 			return STATUS_DATA_STRUCT_FALSE;
 		}
 		show_CallBack(pNode->data);
 	}
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 	
 	return STATUS_DATA_STRUCT_TRUE;
 }
@@ -476,13 +642,27 @@ DATA_STRUCT_STATUS_ENUM TraversePrevLinkDoubleCycleList( LINK_DOUBLE_CYCLE_LIST_
 DATA_STRUCT_STATUS_ENUM SpliceLinkDoubleCycleList( LINK_DOUBLE_CYCLE_LIST_TypeDef *pHead,\
 		LINK_DOUBLE_CYCLE_LIST_TypeDef *pHeadNew )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif	
+	
 	if ((pHead == NULL) || (pHeadNew == NULL))
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif
+		
 		return STATUS_DATA_STRUCT_UNDEFINED;
 	}
 	
 	if (LinkDoubleCycleListIsEmpty(pHeadNew) == STATUS_DATA_STRUCT_TRUE)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_FALSE;
 	}
 	
@@ -498,6 +678,10 @@ DATA_STRUCT_STATUS_ENUM SpliceLinkDoubleCycleList( LINK_DOUBLE_CYCLE_LIST_TypeDe
 	/* 新结点并未释放头结点内存，需要外部 free() */
 	pHeadNew->next = pHeadNew;
 	pHeadNew->prev = pHeadNew;
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 	
 	return STATUS_DATA_STRUCT_TRUE;
 }

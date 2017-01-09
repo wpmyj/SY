@@ -2,9 +2,9 @@
 *********************************************************************************************************
 * @file    	LinkSingleListHash.c
 * @author  	SY
-* @version 	V1.0.0
-* @date    	2016-9-14 10:30:43
-* @IDE	 	V4.70.0.0
+* @version 	V1.1.0
+* @date    	2017-1-9 08:50:46
+* @IDE	 	Keil V5.22.0.0
 * @Chip    	STM32F407VE
 * @brief   	链式哈希表源文件
 *********************************************************************************************************
@@ -20,6 +20,11 @@
 *		数据中包含已存储的键值，如果键值不为空即为有冲突，必须寻找另一个地址存储新数据。链地址法通过
 *		在有冲突的节点后面插入新节点，形成一条链表解决冲突。
 *		
+* ---------------------------------------------------------
+* 版本：V1.1.0 	修改人：SY		修改日期：2017-1-9 08:50:46
+* 
+* 1、增加线程安全操作。
+* -------------------------------------------------------------------------------------------------------	
 *
 *********************************************************************************************************
 */
@@ -110,8 +115,18 @@ STATUS_HASH_ENUM SearchLinkSingleListHashTable( LINK_SINGLE_LIST_HASH_TABLE_Type
 		uint32_t (*getHashKey_CallBack)( LINK_SINGLE_LIST_HASH_TABLE_TypeDef *hashPtr, void *keyPtr ),\
 		bool (*matchHashKey_CallBack)( LINK_SINGLE_LIST_HASH_TABLE_NODE_TypeDef *base, void *keyPtr ) )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif	
+	
 	if ((getHashKey_CallBack == NULL) || (matchHashKey_CallBack == NULL))
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_HASH_UNDEFINED;
 	}
 	
@@ -121,14 +136,26 @@ STATUS_HASH_ENUM SearchLinkSingleListHashTable( LINK_SINGLE_LIST_HASH_TABLE_Type
 	{
 		if ((*nodePtr) == NULL)
 		{
+		#if (OS_EN)
+			CPU_CRITICAL_EXIT();
+		#endif	
+			
 			return STATUS_HASH_FALSE;
 		}
 		else if (matchHashKey_CallBack((*nodePtr), keyPtr) == true)
 		{
+		#if (OS_EN)
+			CPU_CRITICAL_EXIT();
+		#endif	
+			
 			return STATUS_HASH_TRUE;
 		}
 		else if ((*nodePtr)->next == NULL)
 		{
+		#if (OS_EN)
+			CPU_CRITICAL_EXIT();
+		#endif	
+			
 			return STATUS_HASH_FALSE;
 		}
 		else
@@ -154,8 +181,18 @@ STATUS_HASH_ENUM InsertLinkSingleListHashTable( LINK_SINGLE_LIST_HASH_TABLE_Type
 		uint32_t (*getHashKey_CallBack)( LINK_SINGLE_LIST_HASH_TABLE_TypeDef *hashPtr, void *keyPtr ),\
 		bool (*matchHashKey_CallBack)( LINK_SINGLE_LIST_HASH_TABLE_NODE_TypeDef *base, void *keyPtr ) )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif	
+	
 	if ((getHashKey_CallBack == NULL) || (matchHashKey_CallBack == NULL))
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_HASH_UNDEFINED;
 	}
 	
@@ -167,9 +204,13 @@ STATUS_HASH_ENUM InsertLinkSingleListHashTable( LINK_SINGLE_LIST_HASH_TABLE_Type
 	if (status == STATUS_HASH_FALSE)
 	{
 		LINK_SINGLE_LIST_HASH_TABLE_NODE_TypeDef *newNodePtr = \
-			(LINK_SINGLE_LIST_HASH_TABLE_NODE_TypeDef *)calloc(1,sizeof(LINK_SINGLE_LIST_HASH_TABLE_NODE_TypeDef));
+			(LINK_SINGLE_LIST_HASH_TABLE_NODE_TypeDef *)new(sizeof(LINK_SINGLE_LIST_HASH_TABLE_NODE_TypeDef));
 		if (newNodePtr == NULL)
 		{
+		#if (OS_EN)
+			CPU_CRITICAL_EXIT();
+		#endif	
+			
 			return STATUS_HASH_FALSE;
 		}
 		
@@ -188,14 +229,26 @@ STATUS_HASH_ENUM InsertLinkSingleListHashTable( LINK_SINGLE_LIST_HASH_TABLE_Type
 			lastNodePtr->next = newNodePtr;
 		}
 		
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif
+		
 		return STATUS_HASH_TRUE;
 	}
 	else if (status == STATUS_HASH_TRUE)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_HASH_FALSE;
 	}
 	else
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_HASH_UNDEFINED;
 	}
 }
@@ -213,8 +266,18 @@ STATUS_HASH_ENUM DeleteLinkSingleListHashTableNode( LINK_SINGLE_LIST_HASH_TABLE_
 		uint32_t (*getHashKey_CallBack)( LINK_SINGLE_LIST_HASH_TABLE_TypeDef *hashPtr, void *keyPtr ),\
 		bool (*matchHashKey_CallBack)( LINK_SINGLE_LIST_HASH_TABLE_NODE_TypeDef *base, void *keyPtr ) )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif	
+	
 	if ((getHashKey_CallBack == NULL) || (matchHashKey_CallBack == NULL) )
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_HASH_UNDEFINED;
 	}
 	
@@ -225,6 +288,10 @@ STATUS_HASH_ENUM DeleteLinkSingleListHashTableNode( LINK_SINGLE_LIST_HASH_TABLE_
 	{
 		if (nodePtr == NULL)
 		{
+		#if (OS_EN)
+			CPU_CRITICAL_EXIT();
+		#endif	
+			
 			return STATUS_HASH_FALSE;
 		}
 		else if (matchHashKey_CallBack(nodePtr, keyPtr) == true)
@@ -238,8 +305,12 @@ STATUS_HASH_ENUM DeleteLinkSingleListHashTableNode( LINK_SINGLE_LIST_HASH_TABLE_
 			{
 				prevNodePtr->next = nodePtr->next;
 			}
-			free(nodePtr);
+			delete(nodePtr);
 			nodePtr = NULL;
+			
+		#if (OS_EN)
+			CPU_CRITICAL_EXIT();
+		#endif		
 			
 			return STATUS_HASH_TRUE;
 		}

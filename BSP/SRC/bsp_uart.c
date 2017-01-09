@@ -440,7 +440,7 @@ bool ComGet(COM_PORT_E _ucPort, uint8_t *_pByte)
 #if UART1_FIFO_EN == 1
 void USART1_IRQHandler(void)
 {
-#if (uCOS_EN)
+#if (OS_EN)
 	CPU_SR_ALLOC();
 
     CPU_CRITICAL_ENTER();
@@ -450,7 +450,7 @@ void USART1_IRQHandler(void)
 	
 	HAL_UART_IRQHandler(&g_Uart1Handle);
 	
-#if (uCOS_EN)
+#if (OS_EN)
 	OSIntExit(); 
 #endif	
 }
@@ -459,7 +459,7 @@ void USART1_IRQHandler(void)
 #if UART2_FIFO_EN == 1
 void USART2_IRQHandler(void)
 {
-#if (uCOS_EN)
+#if (OS_EN)
 	CPU_SR_ALLOC();
 
     CPU_CRITICAL_ENTER();
@@ -469,7 +469,7 @@ void USART2_IRQHandler(void)
 	
 	HAL_UART_IRQHandler(&g_Uart2Handle);
 	
-#if (uCOS_EN)
+#if (OS_EN)
 	OSIntExit(); 
 #endif		
 }
@@ -478,7 +478,7 @@ void USART2_IRQHandler(void)
 #if UART3_FIFO_EN == 1
 void USART3_IRQHandler(void)
 {
-#if (uCOS_EN)
+#if (OS_EN)
 	CPU_SR_ALLOC();
 
     CPU_CRITICAL_ENTER();
@@ -488,7 +488,7 @@ void USART3_IRQHandler(void)
 	
 	HAL_UART_IRQHandler(&g_Uart3Handle);
 	
-#if (uCOS_EN)
+#if (OS_EN)
 	OSIntExit(); 
 #endif		
 }
@@ -497,7 +497,7 @@ void USART3_IRQHandler(void)
 #if UART4_FIFO_EN == 1
 void UART4_IRQHandler(void)
 {
-#if (uCOS_EN)
+#if (OS_EN)
 	CPU_SR_ALLOC();
 
     CPU_CRITICAL_ENTER();
@@ -507,7 +507,7 @@ void UART4_IRQHandler(void)
 	
 	HAL_UART_IRQHandler(&g_Uart4Handle);
 	
-#if (uCOS_EN)
+#if (OS_EN)
 	OSIntExit(); 
 #endif	
 }
@@ -516,7 +516,7 @@ void UART4_IRQHandler(void)
 #if UART5_FIFO_EN == 1
 void UART5_IRQHandler(void)
 {
-#if (uCOS_EN)
+#if (OS_EN)
 	CPU_SR_ALLOC();
 
     CPU_CRITICAL_ENTER();
@@ -526,7 +526,7 @@ void UART5_IRQHandler(void)
 	
 	HAL_UART_IRQHandler(&g_Uart5Handle);
 	
-#if (uCOS_EN)
+#if (OS_EN)
 	OSIntExit(); 
 #endif	
 }
@@ -535,7 +535,7 @@ void UART5_IRQHandler(void)
 #if UART6_FIFO_EN == 1
 void USART6_IRQHandler(void)
 {
-#if (uCOS_EN)
+#if (OS_EN)
 	CPU_SR_ALLOC();
 
     CPU_CRITICAL_ENTER();
@@ -545,7 +545,7 @@ void USART6_IRQHandler(void)
 	
 	HAL_UART_IRQHandler(&g_Uart6Handle);
 	
-#if (uCOS_EN)
+#if (OS_EN)
 	OSIntExit(); 
 #endif	
 }

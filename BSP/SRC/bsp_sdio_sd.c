@@ -271,7 +271,7 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd)
   */
 void DMA2_Stream3_IRQHandler(void)
 {
-#if (uCOS_EN)	
+#if (OS_EN)	
 	CPU_SR_ALLOC();
 	
 	CPU_CRITICAL_ENTER();
@@ -281,7 +281,7 @@ void DMA2_Stream3_IRQHandler(void)
 	
 	BSP_SD_DMA_Rx_IRQHandler();
 	
-#if (uCOS_EN)
+#if (OS_EN)
 	OSIntExit();
 #endif		
 }
@@ -293,7 +293,7 @@ void DMA2_Stream3_IRQHandler(void)
   */
 void DMA2_Stream6_IRQHandler(void)
 {
-#if (uCOS_EN)	
+#if (OS_EN)	
 	CPU_SR_ALLOC();
 	
 	CPU_CRITICAL_ENTER();
@@ -303,7 +303,7 @@ void DMA2_Stream6_IRQHandler(void)
 	
 	BSP_SD_DMA_Tx_IRQHandler(); 
 	
-#if (uCOS_EN)
+#if (OS_EN)
 	OSIntExit();
 #endif		
 }
@@ -315,7 +315,7 @@ void DMA2_Stream6_IRQHandler(void)
   */
 void SDIO_IRQHandler(void)
 {
-#if (uCOS_EN)	
+#if (OS_EN)	
 	CPU_SR_ALLOC();
 	
 	CPU_CRITICAL_ENTER();
@@ -325,7 +325,7 @@ void SDIO_IRQHandler(void)
 		
 	BSP_SD_IRQHandler();
 	
-#if (uCOS_EN)
+#if (OS_EN)
 	OSIntExit();
 #endif	
 }

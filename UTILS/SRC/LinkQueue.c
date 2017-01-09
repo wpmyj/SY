@@ -2,9 +2,9 @@
 *********************************************************************************************************
 * @file    	LinkQueue.c
 * @author  	SY
-* @version 	V1.0.1
-* @date    	2016-9-12 13:08:32
-* @IDE	 	V4.70.0.0
+* @version 	V1.1.0
+* @date    	2017-1-9 08:50:46
+* @IDE	 	Keil V5.22.0.0
 * @Chip    	STM32F407VE
 * @brief   	链式队列源文件
 *********************************************************************************************************
@@ -16,7 +16,12 @@
 * 
 * 1、增加链式队列的遍历。
 * -------------------------------------------------------------------------------------------------------	
-*	
+* ---------------------------------------------------------
+* 版本：V1.1.0 	修改人：SY		修改日期：2017-1-9 08:50:46
+* 
+* 1、增加线程安全操作。
+* -------------------------------------------------------------------------------------------------------	
+*
 *
 * 
 *********************************************************************************************************
@@ -85,14 +90,14 @@
 LINK_QUEUE_TypeDef *CreateLinkQueue( void )
 {
 	/* 生成头指针 */
-	LINK_QUEUE_TypeDef *pHead = (LINK_QUEUE_TypeDef *)calloc(1,sizeof(LINK_QUEUE_TypeDef));
+	LINK_QUEUE_TypeDef *pHead = (LINK_QUEUE_TypeDef *)new(sizeof(LINK_QUEUE_TypeDef));
 	if (pHead == NULL)
 	{
 		return NULL;
 	}
 	
 	/* 生成头结点 */
-	LINK_QUEUE_NODE_TypeDef *pNode = (LINK_QUEUE_NODE_TypeDef *)calloc(1,sizeof(LINK_QUEUE_NODE_TypeDef));
+	LINK_QUEUE_NODE_TypeDef *pNode = (LINK_QUEUE_NODE_TypeDef *)new(sizeof(LINK_QUEUE_NODE_TypeDef));
 	if (pNode == NULL)
 	{
 		return NULL;
@@ -143,6 +148,12 @@ DATA_STRUCT_STATUS_ENUM LinkQueueIsEmpty( LINK_QUEUE_TypeDef *pHead )
 */
 void ClearLinkQueue( LINK_QUEUE_TypeDef *pHead )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif
+	
 	if (pHead != NULL)
 	{
 		LINK_QUEUE_NODE_TypeDef *oldNode = NULL;
@@ -155,16 +166,20 @@ void ClearLinkQueue( LINK_QUEUE_TypeDef *pHead )
 			
 			if (oldNode->data != NULL)
 			{
-				free(oldNode->data);
+				delete(oldNode->data);
 				oldNode->data = NULL;
 			}
 			
-			free(oldNode);
+			delete(oldNode);
 			oldNode = NULL;				
 		}
 		
 		pHead->rear = pHead->front;
 	}
+
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 }
 
 /*
@@ -179,6 +194,12 @@ void ClearLinkQueue( LINK_QUEUE_TypeDef *pHead )
 void DestoryLinkQueue( LINK_QUEUE_TypeDef **pHead )
 {
 	LINK_QUEUE_TypeDef *this = *pHead;
+
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif
 	
 	if (this != NULL)
 	{
@@ -187,15 +208,19 @@ void DestoryLinkQueue( LINK_QUEUE_TypeDef **pHead )
 		if (this->front != NULL)
 		{
 			/* 释放头结点 */
-			free(this->front);
+			delete(this->front);
 			this->front = this->rear = NULL;
 			
 			/* 释放头指针 */
-			free(this);
+			delete(this);
 			
 			*pHead = NULL;
 		}
 	}
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 }
 
 /*
@@ -209,15 +234,29 @@ void DestoryLinkQueue( LINK_QUEUE_TypeDef **pHead )
 */
 DATA_STRUCT_STATUS_ENUM PushLinkQueue( LINK_QUEUE_TypeDef *pHead, void *dataIn, uint32_t dataSize )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif	
+
 	if (pHead == NULL)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_UNDEFINED;
 	}
 	
 	/* 增加新节点 */
-	LINK_QUEUE_NODE_TypeDef *pNode = (LINK_QUEUE_NODE_TypeDef *)calloc(1,sizeof(LINK_QUEUE_NODE_TypeDef));
+	LINK_QUEUE_NODE_TypeDef *pNode = (LINK_QUEUE_NODE_TypeDef *)new(sizeof(LINK_QUEUE_NODE_TypeDef));
 	if (pNode == NULL)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif
+		
 		return STATUS_DATA_STRUCT_FALSE;
 	}
 	pNode->next = NULL;	
@@ -230,12 +269,20 @@ DATA_STRUCT_STATUS_ENUM PushLinkQueue( LINK_QUEUE_TypeDef *pHead, void *dataIn, 
 	pHead->rear = pNode;
 	
 	/* 存储用户数据 */
-	pNode->data = (void *)calloc(1,dataSize);
+	pNode->data = (void *)new(dataSize);
 	if (pNode->data == NULL)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_FALSE;
 	}	
 	memcpy(pNode->data,dataIn,dataSize);
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 	
 	return STATUS_DATA_STRUCT_TRUE;
 }
@@ -251,13 +298,27 @@ DATA_STRUCT_STATUS_ENUM PushLinkQueue( LINK_QUEUE_TypeDef *pHead, void *dataIn, 
 */
 DATA_STRUCT_STATUS_ENUM PopLinkQueue( LINK_QUEUE_TypeDef *pHead, void *dataOut, uint32_t dataSize )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif	
+	
 	if (pHead == NULL)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_UNDEFINED;
 	}
 	
 	if (LinkQueueIsEmpty(pHead) == STATUS_DATA_STRUCT_TRUE)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_FALSE;
 	}
 	
@@ -274,12 +335,16 @@ DATA_STRUCT_STATUS_ENUM PopLinkQueue( LINK_QUEUE_TypeDef *pHead, void *dataOut, 
 	if (oldNode->data != NULL)
 	{
 		memcpy(dataOut,oldNode->data,dataSize);
-		free(oldNode->data);
+		delete(oldNode->data);
 		oldNode->data = NULL;
 		isDataOK = STATUS_DATA_STRUCT_TRUE;
 	}
-	free(oldNode);
+	delete(oldNode);
 	oldNode = NULL;
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif	
 	
 	return isDataOK;
 }
@@ -295,13 +360,27 @@ DATA_STRUCT_STATUS_ENUM PopLinkQueue( LINK_QUEUE_TypeDef *pHead, void *dataOut, 
 */
 DATA_STRUCT_STATUS_ENUM GetLinkQueueElement( LINK_QUEUE_TypeDef *pHead, void *dataOut, uint32_t dataSize )
 {
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif	
+	
 	if (pHead == NULL)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif
+		
 		return STATUS_DATA_STRUCT_UNDEFINED;
 	}
 	
 	if (LinkQueueIsEmpty(pHead) == STATUS_DATA_STRUCT_TRUE)
 	{
+	#if (OS_EN)
+		CPU_CRITICAL_EXIT();
+	#endif	
+		
 		return STATUS_DATA_STRUCT_FALSE;
 	}
 	
@@ -313,6 +392,10 @@ DATA_STRUCT_STATUS_ENUM GetLinkQueueElement( LINK_QUEUE_TypeDef *pHead, void *da
 		memcpy(dataOut,oldNode->data,dataSize);
 		isDataOK = STATUS_DATA_STRUCT_TRUE;
 	}
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 	
 	return isDataOK;
 }
@@ -332,6 +415,12 @@ void TraverseLinkQueue( LINK_QUEUE_TypeDef *pHead, void *dataOut, uint32_t dataS
 	LINK_QUEUE_TypeDef queue = *pHead;
 	LINK_QUEUE_NODE_TypeDef *pNode = queue.front->next;
 	
+#if (OS_EN)
+	CPU_SR_ALLOC();
+	
+	CPU_CRITICAL_ENTER();
+#endif
+	
 	while (pNode != NULL)
 	{
 		memcpy(dataOut,pNode->data,dataSize);
@@ -343,6 +432,10 @@ void TraverseLinkQueue( LINK_QUEUE_TypeDef *pHead, void *dataOut, uint32_t dataS
 		
 		pNode = pNode->next;
 	}
+	
+#if (OS_EN)
+	CPU_CRITICAL_EXIT();
+#endif
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics **********END OF FILE*************************/
