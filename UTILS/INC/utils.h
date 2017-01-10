@@ -62,7 +62,6 @@
 */
 #define MAX_STRING_NUM						(32)
 #define EPSINON								(0.00001f)				//浮点数不存在绝对的0，只能取近似值
-#define PIC_BUFF_SIZE						(4*1024)				//用于图片等大容量共享缓存
 
 
 /*

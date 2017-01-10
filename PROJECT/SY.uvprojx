@@ -1130,14 +1130,29 @@
               <FilePath>..\FWLIB\STemWinLibrary532\Usr\GUIDRV.c</FilePath>
             </File>
             <File>
+              <FileName>GUIDRV.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\FWLIB\STemWinLibrary532\Usr\GUIDRV.h</FilePath>
+            </File>
+            <File>
               <FileName>GUIConf.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\FWLIB\STemWinLibrary532\Usr\GUIConf.c</FilePath>
             </File>
             <File>
+              <FileName>GUIConf.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\FWLIB\STemWinLibrary532\Usr\GUIConf.h</FilePath>
+            </File>
+            <File>
               <FileName>LCDConf.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\FWLIB\STemWinLibrary532\Usr\LCDConf.c</FilePath>
+            </File>
+            <File>
+              <FileName>LCDConf.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\FWLIB\STemWinLibrary532\Usr\LCDConf.h</FilePath>
             </File>
             <File>
               <FileName>emWinUtils.c</FileName>
@@ -1368,6 +1383,26 @@
               <FileName>zutil.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\FWLIB\STemWinLibrary532\PNG\zutil.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>emWin/RES</GroupName>
+          <Files>
+            <File>
+              <FileName>PIC_SystemSet.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FWLIB\STemWinLibrary532\RES\PIC_SystemSet.c</FilePath>
+            </File>
+            <File>
+              <FileName>PIC_TimeDate.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FWLIB\STemWinLibrary532\RES\PIC_TimeDate.c</FilePath>
+            </File>
+            <File>
+              <FileName>PIC_LanguageSelect.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FWLIB\STemWinLibrary532\RES\PIC_LanguageSelect.c</FilePath>
             </File>
           </Files>
         </Group>

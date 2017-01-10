@@ -75,6 +75,83 @@ typedef struct {
 
 /*
 *********************************************************************************************************
+*                              				OPERATE
+*********************************************************************************************************
+*/
+typedef struct {
+	void *up;
+	void *down;
+	void *left;
+	void *right;
+	
+	uint32_t id;
+	void *this;				
+}OBJECT_OPERATE_TypeDef;
+
+/*
+*********************************************************************************************************
+*                              				TEXT
+*********************************************************************************************************
+*/
+typedef struct tagWIDGET_TEXT_TypeDef {
+	uint32_t id;
+	char data[MAX_STRING_NUM];
+	
+	void *paraPtr;
+	void (*setValue_CallBack)(struct tagWIDGET_TEXT_TypeDef *this);
+}WIDGET_TEXT_TypeDef;
+
+/*
+*********************************************************************************************************
+*                              				BUTTON
+*********************************************************************************************************
+*/
+typedef struct tagWIDGET_BUTTON_TypeDef {
+	uint32_t id;
+	char data[MAX_STRING_NUM];
+	
+	void *paraPtr;
+	void (*pressNotify_CallBack)(struct tagWIDGET_BUTTON_TypeDef *this);
+	void (*releaseNotify_CallBack)(struct tagWIDGET_BUTTON_TypeDef *this);
+}WIDGET_BUTTON_TypeDef;
+
+/*
+*********************************************************************************************************
+*                              				SPINBOX
+*********************************************************************************************************
+*/
+typedef struct tagWIDGET_SPINBOX_TypeDef {
+	uint32_t id;
+	char data[MAX_STRING_NUM];
+	void *stepValue;					//步进值
+	void *minValue;						//最小值
+	void *maxValue;						//最大值
+	
+	void *paraPtr;
+	void (*pressNotify_CallBack)(struct tagWIDGET_SPINBOX_TypeDef *this);
+	void (*releaseNotify_CallBack)(struct tagWIDGET_SPINBOX_TypeDef *this);
+	void (*changeNotify_CallBack)(struct tagWIDGET_SPINBOX_TypeDef *this, bool cursor);
+	void (*setValue_CallBack)(struct tagWIDGET_SPINBOX_TypeDef *this);
+}WIDGET_SPINBOX_TypeDef;
+
+/*
+*********************************************************************************************************
+*                              				ICON
+*********************************************************************************************************
+*/
+typedef struct tagWIDGET_ICON_TypeDef {
+	uint32_t id;
+	char data[MAX_STRING_NUM];
+	
+	void *paraPtr;
+	void (*pressNotify_CallBack)(struct tagWIDGET_SPINBOX_TypeDef *this);
+	void (*releaseNotify_CallBack)(struct tagWIDGET_SPINBOX_TypeDef *this);
+	void (*changeNotify_CallBack)(struct tagWIDGET_SPINBOX_TypeDef *this, bool cursor);
+	void (*setValue_CallBack)(struct tagWIDGET_SPINBOX_TypeDef *this);
+}WIDGET_ICON_TypeDef;
+
+/*
+*********************************************************************************************************
 *                              				Exported constants
 *********************************************************************************************************
 */

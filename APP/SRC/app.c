@@ -206,13 +206,13 @@ void MainTask(void)
 	
 	/* 更新字库 */
 	UpdateFlashFontTask(NotifyFlashFontProgress_CallBack);
-	
+
 	/* 创建任务 */
 	AppTaskCreate();
 	
 	while (1)
 	{		
-		GUI_Delay(100);
+		GUI_Delay(50);
 	}
 }
 

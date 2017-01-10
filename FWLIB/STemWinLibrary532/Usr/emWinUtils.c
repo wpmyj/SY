@@ -54,7 +54,6 @@
 *                              				Private variables
 *********************************************************************************************************
 */
-extern uint8_t 	g_PicBuff[PIC_BUFF_SIZE];
 
 #if (USE_XBF_FONT)
 FIL 			FIL_FontSongTi_16X16;
@@ -70,6 +69,20 @@ GUI_FONT 		GUI_FontSongTi_32X32;
 GUI_XBF_DATA 	GUI_XBF_DataSongTi_32X32;
 #endif
 
+const uint32_t ALLOC_PIC_MEM_SIZE 			= 4*1024;
+static GUI_HMEM hPicMem;
+static char *_acPicBuffer;
+#define PIC_ALLOC_MEM()						do {\
+												/* 申请一块内存空间 并且将其清零    */\
+												hPicMem = GUI_ALLOC_AllocZero(ALLOC_PIC_MEM_SIZE);\
+												/* 将申请到内存的句柄转换成指针类型 */\
+												_acPicBuffer = (char *)GUI_ALLOC_h2p(hPicMem);\
+											} while(0)
+#define PIC_FREE_MEM()						do {\
+												GUI_ALLOC_Free(hPicMem);\
+											} while(0)
+
+
 /*
 *********************************************************************************************************
 *                              				Private function prototypes
@@ -83,12 +96,7 @@ GUI_XBF_DATA 	GUI_XBF_DataSongTi_32X32;
 */
 /*
 *********************************************************************************************************
-*                              				BMP
-*********************************************************************************************************
-*/
-/*
-*********************************************************************************************************
-*	函 数 名: BMP_GetData
+*	函 数 名: _GetData
 *	功能说明: 被函数GUI_BMP_DrawEx()调用
 *	形    参：p             FIL类型数据
 *             NumBytesReq   请求读取的字节数
@@ -97,7 +105,7 @@ GUI_XBF_DATA 	GUI_XBF_DataSongTi_32X32;
 *	返 回 值: 返回读取的字节数
 *********************************************************************************************************
 */
-static int BMP_GetData(void * p, const U8 ** ppData, unsigned NumBytesReq, U32 Off) 
+static int _GetData(void * p, const U8 ** ppData, unsigned NumBytesReq, U32 Off) 
 {
 	static int FileAddress = 0;
 	uint32_t NumBytesRead = 0;
@@ -110,8 +118,8 @@ static int BMP_GetData(void * p, const U8 ** ppData, unsigned NumBytesReq, U32 O
 	/*
 	* 检测缓存大小
 	*/
-	if (NumBytesReq > sizeof(g_PicBuff)) {
-	NumBytesReq = sizeof(g_PicBuff);
+	if (NumBytesReq > ALLOC_PIC_MEM_SIZE) {
+		NumBytesReq = ALLOC_PIC_MEM_SIZE;
 	}
 
 	/*
@@ -127,17 +135,17 @@ static int BMP_GetData(void * p, const U8 ** ppData, unsigned NumBytesReq, U32 O
 	*/
 	for(i = 0; i < NumBytesReq / 512; i++)
 	{
-		result = f_read(PicFile, &g_PicBuff[512*i], 512, &bw);
+		result = f_read(PicFile, (_acPicBuffer+512*i), 512, &bw);
 		NumBytesRead += bw;
 	}
 	
-	result = f_read(PicFile, &g_PicBuff[512*i], NumBytesReq % 512, &bw);
+	result = f_read(PicFile, (_acPicBuffer+512*i), NumBytesReq % 512, &bw);
 	NumBytesRead += bw;
 
 	/*
 	* 让指针ppData指向读取的函数
 	*/
-	*ppData = (const uint8_t *)&g_PicBuff[0];
+	*ppData = (const uint8_t *)_acPicBuffer;
 
 	/*
 	* 返回读取的字节数
@@ -147,13 +155,18 @@ static int BMP_GetData(void * p, const U8 ** ppData, unsigned NumBytesReq, U32 O
 
 /*
 *********************************************************************************************************
-*	函 数 名: emWinShowBMPEx
+*                              				BMP
+*********************************************************************************************************
+*/
+/*
+*********************************************************************************************************
+*	函 数 名: ShowBMPEx
 *	功能说明: 显示BMP图片
 *	形    参: sFilename 要显示图片的名字
 *	返 回 值: 无
 *********************************************************************************************************
 */
-void emWinShowBMPEx(uint16_t x, uint16_t y, const char * sFilename) 
+void ShowBMPEx(uint16_t x, uint16_t y, const char * sFilename) 
 {		
 	FIL file;
 	
@@ -164,7 +177,9 @@ void emWinShowBMPEx(uint16_t x, uint16_t y, const char * sFilename)
 		return;
 	}
 	
-	GUI_BMP_DrawEx(BMP_GetData, &file, x, y);
+	PIC_ALLOC_MEM();
+	GUI_BMP_DrawEx(_GetData, &file, x, y);
+	PIC_FREE_MEM();
 
 	f_close(&file);
 }
@@ -186,14 +201,14 @@ static void _WriteByte2File(U8 Data, void * p)
 
 /*
 *********************************************************************************************************
-* Function Name : emWinSaveBMPEx
+* Function Name : SaveBMPEx
 * Description	: 保存BMP图片
 * Input			: None
 * Output		: None
 * Return		: None
 *********************************************************************************************************
 */
-bool emWinSaveBMPEx( const char * filePath )
+bool SaveBMPEx( const char * filePath )
 {
 	FRESULT result = CreatFolder(filePath);
 	if ((result != FR_OK) && (result != FR_EXIST))
@@ -208,8 +223,10 @@ bool emWinSaveBMPEx( const char * filePath )
 		return false;
 	}
 	
+	PIC_ALLOC_MEM();
 	/* 绘制BMP图片 */
 	GUI_BMP_Serialize(_WriteByte2File, &file);
+	PIC_FREE_MEM();
 	
 	result = f_close(&file);
 	if (result != FR_OK)
@@ -227,62 +244,13 @@ bool emWinSaveBMPEx( const char * filePath )
 */
 /*
 *********************************************************************************************************
-*	函 数 名: JPG_GetData
-*	功能说明: 被函数GUI_JPEG_DrawEx()调用
-*	形    参：p             FIL类型数据
-*             NumBytesReq   请求读取的字节数
-*             ppData        数据指针
-*             Off           如果Off = 1，那么将重新从其实位置读取                 
-*	返 回 值: 返回读取的字节数
-*********************************************************************************************************
-*/
-static int JPG_GetData(void * p, const U8 ** ppData, unsigned NumBytesReq, U32 Off) 
-{
-	static int FileAddress = 0;
-	UINT NumBytesRead;
-	FIL *PicFile;
-
-	PicFile = (FIL *)p;
-
-	/*
-	* 检测缓存大小
-	*/
-	if (NumBytesReq > sizeof(g_PicBuff)) {
-	NumBytesReq = sizeof(g_PicBuff);
-	}
-
-	/*
-	* 设置读取位置
-	*/
-	if(Off == 1) FileAddress = 0;
-	else FileAddress = Off;
-	FRESULT result =f_lseek(PicFile, FileAddress);
-
-	/*
-	* 读取数据到缓存
-	*/
-	result = f_read(PicFile, g_PicBuff, NumBytesReq, &NumBytesRead);
-
-	/*
-	* 让指针ppData指向读取的函数
-	*/
-	*ppData = (const U8 *)g_PicBuff;
-
-	/*
-	* 返回读取的字节数
-	*/
-	return NumBytesRead;
-}
-
-/*
-*********************************************************************************************************
-*	函 数 名: emWinShowJPEGEx
+*	函 数 名: ShowJPEGEx
 *	功能说明: 显示JPEG图片(需要给emWin分配80KByte内存，才能正常显示)
 *	形    参：sFilename 要显示图片的名字
 *	返 回 值: 无
 *********************************************************************************************************
 */
-void emWinShowJPEGEx(uint16_t x, uint16_t y, const char * sFilename) 
+void ShowJPEGEx(uint16_t x, uint16_t y, const char * sFilename) 
 {	
 	FIL file;
 	GUI_JPEG_INFO JpegInfo;
@@ -295,14 +263,16 @@ void emWinShowJPEGEx(uint16_t x, uint16_t y, const char * sFilename)
 		return;
 	}
 	
-	ret = GUI_JPEG_GetInfoEx(JPG_GetData, &file, &JpegInfo);
+	PIC_ALLOC_MEM();
+	ret = GUI_JPEG_GetInfoEx(_GetData, &file, &JpegInfo);
 	if (ret)
 	{
+		PIC_FREE_MEM();
 		f_close(&file);
 		
 		return;
 	}
-	GUI_JPEG_DrawScaledEx(JPG_GetData, 
+	GUI_JPEG_DrawScaledEx(_GetData, 
 						  &file, 
 						  x,
 						  y,
@@ -310,6 +280,8 @@ void emWinShowJPEGEx(uint16_t x, uint16_t y, const char * sFilename)
 						  100);
 
 	f_close(&file);
+	
+	PIC_FREE_MEM();
 }
 
 /*
@@ -317,55 +289,6 @@ void emWinShowJPEGEx(uint16_t x, uint16_t y, const char * sFilename)
 *                              				GIF
 *********************************************************************************************************
 */
-/*
-*********************************************************************************************************
-*	函 数 名: GIF_GetData
-*	功能说明: 被函数GUI_JPEG_DrawEx()调用
-*	形    参: p             FIL类型数据
-*             NumBytesReq   请求读取的字节数
-*             ppData        数据指针
-*             Off           如果Off = 1，那么将重新从起始位置读取                 
-*	返 回 值: 返回读取的字节数
-*********************************************************************************************************
-*/
-static int GIF_GetData(void * p, const U8 ** ppData, unsigned NumBytesReq, U32 Off) 
-{
-	static int FileAddress = 0;
-	UINT NumBytesRead;
-	FIL *PicFile;
-
-	PicFile = (FIL *)p;
-
-	/*
-	* 检测缓存大小
-	*/
-	if (NumBytesReq > sizeof(g_PicBuff)) {
-	NumBytesReq = sizeof(g_PicBuff);
-	}
-
-	/*
-	* 设置读取位置
-	*/
-	if(Off == 1) FileAddress = 0;
-	else FileAddress = Off;
-	FRESULT result =f_lseek(PicFile, FileAddress);
-
-	/*
-	* 读取数据到缓存
-	*/
-	result = f_read(PicFile, g_PicBuff, NumBytesReq, &NumBytesRead);
-
-	/*
-	* 让指针ppData指向读取的函数
-	*/
-	*ppData = (const U8 *)g_PicBuff;
-
-	/*
-	* 返回读取的字节数
-	*/
-	return NumBytesRead;
-}
-
 /*
 *********************************************************************************************************
 *	函 数 名: ShowGIFEx
@@ -390,8 +313,10 @@ void ShowGIFEx(uint16_t x, uint16_t y, const char * sFilename)
 		return;
 	}
    
+	PIC_ALLOC_MEM();
+	
 	/* 获取GIF图片信息 */
-   GUI_GIF_GetInfoEx(GIF_GetData, &file,&InfoGif);
+   GUI_GIF_GetInfoEx(_GetData, &file,&InfoGif);
 	
    while(1)
    {
@@ -399,7 +324,7 @@ void ShowGIFEx(uint16_t x, uint16_t y, const char * sFilename)
 		if(i < InfoGif.NumImages)
 	    {
 			/* 获取当前帧GIF图片信息，注意第4个参数是从0开始计数的 */
-			GUI_GIF_GetImageInfoEx(GIF_GetData, &file, &ImagInfoGif, i);
+			GUI_GIF_GetImageInfoEx(_GetData, &file, &ImagInfoGif, i);
 			
 			/* 如果此帧延迟时间是0，默认是延迟100ms */
 			if(ImagInfoGif.Delay == 0)
@@ -411,7 +336,7 @@ void ShowGIFEx(uint16_t x, uint16_t y, const char * sFilename)
 				t0 = GUI_GetTime();
 				
 				/* 解码并显示此帧GIF图片，注意第5个参数是从0开始计数的 */
-				GUI_GIF_DrawSubEx(GIF_GetData, 
+				GUI_GIF_DrawSubEx(_GetData, 
 								  &file, 
 								  x,
 								  y, 
@@ -442,44 +367,6 @@ void ShowGIFEx(uint16_t x, uint16_t y, const char * sFilename)
 */
 /*
 *********************************************************************************************************
-*	函 数 名: _GetData
-*	功能说明: 被函数GUI_PNG_DrawEx调用
-*	形    参: p             FIL类型数据
-*             NumBytesReq   请求读取的字节数
-*             ppData        数据指针
-*             Off           如果Off = 1，那么将重新从其实位置读取                 
-*	返 回 值: 返回读取的字节数
-*********************************************************************************************************
-*/
-static int PNG_GetData(void * p, const U8 ** ppData, unsigned NumBytesReq, U32 Off) 
-{
-	static int FileAddress = 0;
-	FIL *file;
-	UINT    NumBytesRead;
-	U8     * pData;
-
-	pData  = (U8 *)*ppData;
-	file = (FIL *)p;
-	
-	//
-	// 设置数据读取位置
-	//
-	if(Off == 1) FileAddress = 0;
-	else FileAddress = Off;
-	FRESULT result =f_lseek(file, FileAddress);
-	//
-	// 读取数据到缓存
-	//
-	result = f_read(file, pData, NumBytesReq, &NumBytesRead);
-	
-	//
-	// 返回读取大小
-	//
-	return NumBytesRead;
-
-}
-/*
-*********************************************************************************************************
 *	函 数 名: _ShowPNG
 *	功能说明: 显示PNG图片（emWin需要分配很大存储空间）
 *	形    参: sFilename 要显示的图片名字
@@ -494,14 +381,102 @@ bool ShowPNGEx(uint16_t usPOSX, uint16_t usPOSY, const char * sFilename)
 	int32_t ret;
 	
 	/* 打开文件 */		
-	FRESULT result = f_open(&file, sFilename, FA_OPEN_EXISTING | FA_READ);
+	FRESULT result = f_open(&file, sFilename, FA_OPEN_EXISTING | FA_READ | FA_OPEN_ALWAYS);
 	if (result != FR_OK)
 	{
 		return false;
 	}
 	
-	ret = GUI_PNG_DrawEx(PNG_GetData, &file, usPOSX, usPOSY);
+	PIC_ALLOC_MEM();
+	ret = GUI_PNG_DrawEx(_GetData, &file, usPOSX, usPOSY);
+	PIC_FREE_MEM();
+	
+	f_close(&file);
+	
+	if (ret)
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
 
+/*
+*********************************************************************************************************
+*                              				Bitmap
+*********************************************************************************************************
+*/
+/*
+*********************************************************************************************************
+*	函 数 名: ShowBitmapEx
+*	功能说明: 显示Bitmap图片
+*	形    参: sFilename 要显示的图片名字
+*             usPOSX    显示位置X
+*             usPOSY    显示位置Y
+*	返 回 值: 无
+*********************************************************************************************************
+*/
+bool ShowBitmapEx(uint16_t usPOSX, uint16_t usPOSY, const char * sFilename) 
+{	
+	FIL file;
+	int32_t ret;
+	
+	/* 打开文件 */		
+	FRESULT result = f_open(&file, sFilename, FA_OPEN_EXISTING | FA_READ | FA_OPEN_ALWAYS);
+	if (result != FR_OK)
+	{
+		return false;
+	}
+	
+	PIC_ALLOC_MEM();
+	ret = GUI_DrawStreamedBitmapExAuto(_GetData, &file, usPOSX, usPOSY);
+	PIC_FREE_MEM();
+	
+	f_close(&file);
+	
+	if (ret)
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
+/*
+*********************************************************************************************************
+*                              				ICON
+*********************************************************************************************************
+*/
+/*
+*********************************************************************************************************
+*	函 数 名: ShowIconEx
+*	功能说明: 显示ICON图片
+*	形    参: sFilename 要显示的图片名字
+*             usPOSX    显示位置X
+*             usPOSY    显示位置Y
+*	返 回 值: 无
+*********************************************************************************************************
+*/
+bool ShowIconEx(ICONVIEW_Handle hIcon, const char * pText, const char * sFilename) 
+{	
+	FIL file;
+	int32_t ret;
+	
+	/* 打开文件 */		
+	FRESULT result = f_open(&file, sFilename, FA_OPEN_EXISTING | FA_READ | FA_OPEN_ALWAYS);
+	if (result != FR_OK)
+	{
+		return false;
+	}
+	
+	PIC_ALLOC_MEM();
+	ret = ICONVIEW_AddBMPItemEx(hIcon, &file, _GetData, pText);
+	PIC_FREE_MEM();
+	
 	f_close(&file);
 	
 	if (ret)

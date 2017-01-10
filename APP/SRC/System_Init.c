@@ -334,7 +334,7 @@ static void AppTaskStart(void *p_arg)
 	
 	AppObjCreate();                                             /* Create Applicaiton kernel objects                    */
 	AppTaskCreate();                                            /* Create Application tasks                             */
-
+	
 	while (1)
 	{			
 		AppTaskStartUtils();

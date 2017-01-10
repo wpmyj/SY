@@ -91,11 +91,13 @@ extern GUI_CONST_STORAGE  GUI_FONT GUI_FontSongTi_32X32;
 *                              				Exported functions
 *********************************************************************************************************
 */
-void emWinShowBMPEx(uint16_t x, uint16_t y, const char * sFilename);
-bool emWinSaveBMPEx( const char * filePath );
-void emWinShowJPEGEx(uint16_t x, uint16_t y, const char * sFilename);
+void ShowBMPEx(uint16_t x, uint16_t y, const char * sFilename);
+bool SaveBMPEx( const char * filePath );
+void ShowJPEGEx(uint16_t x, uint16_t y, const char * sFilename);
 void ShowGIFEx(uint16_t x, uint16_t y, const char * sFilename);
 bool ShowPNGEx(uint16_t usPOSX, uint16_t usPOSY, const char * sFilename);
+bool ShowBitmapEx(uint16_t usPOSX, uint16_t usPOSY, const char * sFilename);
+bool ShowIconEx(ICONVIEW_Handle hIcon, const char * pText, const char * sFilename);
 
 #if (USE_XBF_FONT)
 bool Open_XBF(void);

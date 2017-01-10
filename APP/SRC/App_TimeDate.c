@@ -185,6 +185,7 @@ static void WindowsConstructor(WM_MESSAGE *pMsg)
 	WM_HWIN hWin = pMsg->hWin;
 	WM_SetFocus(hWin);
 	
+	
 	ECHO(DEBUG_APP_WINDOWS, "[APP] 构造 <时间日期> 窗口");
 }
 
@@ -198,10 +199,24 @@ static void WindowsConstructor(WM_MESSAGE *pMsg)
 *********************************************************************************************************
 */
 static void WindowsDestructor( WM_MESSAGE *pMsg )
+{	
+	ECHO(DEBUG_APP_WINDOWS, "[APP] 析构 <时间日期> 窗口");
+}
+
+/*
+*********************************************************************************************************
+* Function Name : DeleteWindow
+* Description	: 删除窗口
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+static void DeleteWindow( WM_MESSAGE *pMsg )
 {
 	WM_DeleteWindow(pMsg->hWin);	
 	
-	ECHO(DEBUG_APP_WINDOWS, "[APP] 析构 <时间日期> 窗口");
+	ECHO(DEBUG_APP_WINDOWS, "[APP] 删除 <时间日期> 窗口");
 }
 
 /*
@@ -223,23 +238,18 @@ static void _cbDesktop(WM_MESSAGE *pMsg)
 		case WM_CREATE:	
 			WindowsConstructor(pMsg);
 			break;
+		case WM_DELETE:
+			WindowsDestructor(pMsg);
+			break;
 		case WM_PAINT:
 			_PaintFrame();
 			break;
 		case MSG_USER_ESC:
 		{
-			WindowsDestructor(pMsg);
+			DeleteWindow(pMsg);
 			App_MenuTaskCreate();
 			break;
 		}		
-		case WM_NOTIFY_PARENT:
-		{
-			break;
-		}
-		case WM_SET_FOCUS:
-		{			
-			break;
-		}
 		default:
 			WM_DefaultProc(pMsg);
 			break;
@@ -339,6 +349,9 @@ static void DialogConstructor(WM_MESSAGE *pMsg)
 	SPINBOX_SetStep(hChild, 1);
 	SPINBOX_SetRange(hChild, 0, 59);
 	SPINBOX_SetValue(hChild, time.ucSec);
+	
+//	hChild = WM_GetDialogItem(hWin, GUI_ID_SPINBOX0);
+//	WM_SetFocus(hChild);
 }
 
 /*
@@ -359,28 +372,12 @@ static void _cbDialog(WM_MESSAGE *pMsg)
 		case WM_INIT_DIALOG:	
 			DialogConstructor(pMsg);
 			break;
-		case WM_CREATE:
-		{
-			break;
-		}
-		case WM_PAINT:
-			break;
 		case WM_KEY:
 		{
 			int key = ((WM_KEY_INFO*)(pMsg->Data.p))->Key;
 			
 			switch (key)
 			{
-				case GUI_KEY_UP:
-				{
-
-					break;				
-				}
-				case GUI_KEY_DOWN:	
-				{	
-
-					break;				
-				}
 				case GUI_KEY_LEFT:
 				{
 					GUI_SendKeyMsg(GUI_KEY_BACKTAB, true);
@@ -439,11 +436,6 @@ static void _cbDialog(WM_MESSAGE *pMsg)
 					}		
 					break;
 			}
-			break;
-		}
-		case WM_SET_FOCUS:
-		{		
-			
 			break;
 		}
 		default:
