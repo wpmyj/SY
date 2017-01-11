@@ -154,5 +154,74 @@ void HID_HostDetectTask( HID_Usr_State *hidHostPtr )
 	}
 }
 
+/*
+*********************************************************************************************************
+* Function Name : GetFreeMemory
+* Description	: 获取空闲容量[单位：MB]
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+float GetFreeMemorySize(const char *(*getPath)(void))
+{
+	float freeSize = 0;
+	char rootPath[20] = {0};
+	
+	FATFS *fs;
+	unsigned long size = 0;
+	if (getPath)
+	{
+		strcpy(rootPath, getPath());
+	}
+	FRESULT fresult = f_getfree(rootPath, &size, &fs);
+	if (fresult != FR_OK)
+	{
+		return 0;
+	}
+	
+	uint32_t totalWord = size * fs->csize;
+	uint32_t totalByte = totalWord >> 1;
+	freeSize = totalByte / 1024.0f;
+	
+	return freeSize;
+}
+
+/*
+*********************************************************************************************************
+* Function Name : GetTotalMemorySize
+* Description	: 获取SD卡全部容量[单位：MB]
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+float GetTotalMemorySize(const char *(*getPath)(void))
+{
+	float totalSize = 0;
+	char rootPath[20] = {0};
+	
+	FATFS *fs;
+	unsigned long size = 0;
+	if (getPath)
+	{
+		strcpy(rootPath, getPath());
+	}
+	FRESULT fresult = f_getfree(rootPath, &size, &fs);
+	if (fresult != FR_OK)
+	{
+		return 0;
+	}
+	
+	if (fs->n_fatent > 2)
+	{
+		uint32_t totalWord = (fs->n_fatent - 2) * fs->csize;
+		uint32_t totalByte = totalWord >> 1;
+		totalSize = totalByte / 1024.0f;
+	}
+	
+	return totalSize;
+}
+
 
 /************************ (C) COPYRIGHT STMicroelectronics **********END OF FILE*************************/

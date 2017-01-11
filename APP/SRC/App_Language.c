@@ -55,7 +55,7 @@ enum LANGUAGE_INDEX {
 static const GUI_WIDGET_CREATE_INFO _aDialogCreate[] = {
 	{ FRAMEWIN_CreateIndirect, "Framewin", GUI_ID_DIALOG0,
 		GUI_DIALOG_START_X, GUI_DIALOG_START_Y, GUI_DIALOG_WIDTH, GUI_DIALOG_HEIGHT, 
-		FRAMEWIN_CF_MOVEABLE, 0, 0 },
+		0, 0, 0 },
 	
 	{ RADIO_CreateIndirect, "Radio", GUI_ID_RADIO0,
 		10, 20, 0, 0, 
@@ -159,10 +159,24 @@ static void WindowsConstructor(WM_MESSAGE *pMsg)
 *********************************************************************************************************
 */
 static void WindowsDestructor( WM_MESSAGE *pMsg )
+{	
+	ECHO(DEBUG_APP_WINDOWS, "[APP] Îö¹¹ <ÓïÑÔÑ¡Ôñ> ´°¿Ú");
+}
+
+/*
+*********************************************************************************************************
+* Function Name : DeleteWindow
+* Description	: É¾³ý´°¿Ú
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+static void DeleteWindow( WM_MESSAGE *pMsg )
 {
 	WM_DeleteWindow(pMsg->hWin);	
 	
-	ECHO(DEBUG_APP_WINDOWS, "[APP] Îö¹¹ <ÓïÑÔÑ¡Ôñ> ´°¿Ú");
+	ECHO(DEBUG_APP_WINDOWS, "[APP] É¾³ý <ÓïÑÔÑ¡Ôñ> ´°¿Ú");
 }
 
 /*
@@ -184,12 +198,15 @@ static void _cbDesktop(WM_MESSAGE *pMsg)
 		case WM_CREATE:	
 			WindowsConstructor(pMsg);
 			break;
+		case WM_DELETE:
+			WindowsDestructor(pMsg);
+			break;
 		case WM_PAINT:
 			_PaintFrame();
 			break;
 		case MSG_USER_ESC:
 		{
-			WindowsDestructor(pMsg);
+			DeleteWindow(pMsg);
 			App_MenuTaskCreate();
 			break;
 		}		
@@ -246,6 +263,12 @@ static void _cbDialog(WM_MESSAGE *pMsg)
 		case WM_INIT_DIALOG:	
 			DialogConstructor(pMsg);
 			break;
+		case WM_CREATE:
+		{
+			WM_HWIN hChild = WM_GetDialogItem(hWin, GUI_ID_SPINBOX0);
+			WM_SetFocus(hChild);
+			break;
+		}
 		case WM_KEY:
 		{
 			int key = ((WM_KEY_INFO*)(pMsg->Data.p))->Key;

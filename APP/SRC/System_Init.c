@@ -328,7 +328,7 @@ static void AppTaskStart(void *p_arg)
 		strcat(versionBuff,".");
 		memcpy(&versionBuff[5], &buff[3], 2);
 		
-		ECHO(DEBUG_BSP_INIT, "uCOS-III Version£º%s", versionBuff);
+		ECHO(DEBUG_BSP_INIT, "uC/OS-III Version£º%s", versionBuff);
 	}
 #endif	
 	

@@ -559,6 +559,11 @@
               <FileType>1</FileType>
               <FilePath>..\APP\SRC\App_Language.c</FilePath>
             </File>
+            <File>
+              <FileName>App_DeviceManager.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\SRC\App_DeviceManager.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1403,6 +1408,11 @@
               <FileName>PIC_LanguageSelect.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\FWLIB\STemWinLibrary532\RES\PIC_LanguageSelect.c</FilePath>
+            </File>
+            <File>
+              <FileName>PIC_DeviceManager.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FWLIB\STemWinLibrary532\RES\PIC_DeviceManager.c</FilePath>
             </File>
           </Files>
         </Group>

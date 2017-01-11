@@ -57,10 +57,10 @@
 *********************************************************************************************************
 */
 
-char SDPath[4]; 
+char SD_RootPath[4]; 
 FATFS SDFatFs;
 
-char USBPath[4]; 
+char USB_RootPath[4]; 
 FATFS USBFatFs;
 
 /*
@@ -86,9 +86,9 @@ FATFS USBFatFs;
 void bsp_InitFatFs( void )
 {
 	/* π“‘ÿMMC */
-	if (FATFS_LinkDriver(&SD_Driver, SDPath) == 0)
+	if (FATFS_LinkDriver(&SD_Driver, SD_RootPath) == 0)
 	{
-		FRESULT res = f_mount(&SDFatFs, (TCHAR const*)SDPath, 0);
+		FRESULT res = f_mount(&SDFatFs, (TCHAR const*)SD_RootPath, 0);
 		if (res != FR_OK)
 		{
 			/* FatFs Initialization Error */
@@ -103,7 +103,7 @@ void bsp_InitFatFs( void )
 	}
 	
 	/* π“‘ÿU≈Ã */
-	if (FATFS_LinkDriver(&USBH_Driver, USBPath) == 0)
+	if (FATFS_LinkDriver(&USBH_Driver, USB_RootPath) == 0)
 	{
 		/* Init Host Library,Add Supported Class and Start the library*/
 		USBH_Init(&hUsbHostHS, USBH_UserProcess, HOST_HS);
@@ -130,7 +130,7 @@ void bsp_InitFatFs( void )
 */
 const char *bsp_GetSDRootPath( void )
 {
-	return SDPath;
+	return SD_RootPath;
 }
 
 /*
@@ -144,7 +144,7 @@ const char *bsp_GetSDRootPath( void )
 */
 const char *bsp_GetUSBRootPath( void )
 {
-	return USBPath;
+	return USB_RootPath;
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics **********END OF FILE*************************/

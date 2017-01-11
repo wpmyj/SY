@@ -52,6 +52,7 @@
 *********************************************************************************************************
 */
 static LANGUAGE_TYPE_TypeDef g_languageType = LANG_CHINESE;
+extern WM_HWIN hWindowsSuper;
 
 /*
 *********************************************************************************************************
@@ -153,7 +154,7 @@ WM_HWIN _CreateFrame(WM_CALLBACK* cb)
 	y = FRAME_BORDER + MAIN_TITLE_HEIGHT;
 	
 	WM_HWIN hFrame = WM_CreateWindowAsChild(x, y, FRAME_WIDTH, FRAME_HEIGHT, \
-				WM_HBKWIN, WM_CF_SHOW, cb, 0);
+				hWindowsSuper, WM_CF_SHOW, cb, 0);
 	
 	return hFrame;
 }

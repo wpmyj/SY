@@ -161,6 +161,20 @@
 
 /*
 *********************************************************************************************************
+*                              				¿ò¼ÜPROGBAR¿Ø¼þ
+*********************************************************************************************************
+*/
+#define FRAME_PROGBAR_BKCOLOR0     			FRAME_BKCOLOR          	/* Disabled  */    	
+#define FRAME_PROGBAR_BKCOLOR1    			FRAME_BKCOLOR           /* Enabled  */	
+#define FRAME_PROGBAR_BKCOLOR2     			FRAME_BKCOLOR           /* Cursor */
+#define FRAME_PROGBAR_COLOR0       			GUI_BLACK              	/* Disabled  */  
+#define FRAME_PROGBAR_COLOR1       			GUI_BLACK				/* Enabled  */	
+#define FRAME_PROGBAR_COLOR2       			GUI_BLACK				/* Cursor */
+#define FRAME_PROGBAR_FONT         			(&GUI_Font16_ASCII)
+
+
+/*
+*********************************************************************************************************
 *                              				Exported types
 *********************************************************************************************************
 */

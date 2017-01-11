@@ -24,18 +24,17 @@
 #include "App_SystemParameter.h"
 #include "App_Language.h"
 #include "App_TimeDate.h"
+#include "App_DeviceManager.h"
 
 /*
 *********************************************************************************************************
 *                              				Private define
 *********************************************************************************************************
 */
-#define MOVE_WIDGET_NUMS					3
-#define ICON_WIDGET_NUMS					3
-
 #define ID_ICONVIEW0						(GUI_ID_USER + 0)
 #define ID_ICONVIEW1						(GUI_ID_USER + 1)
 #define ID_ICONVIEW2						(GUI_ID_USER + 2)
+#define ID_ICONVIEW3						(GUI_ID_USER + 3)
 
 #define ICONVIEW_TBorder   					10   /* 控件ICONVIEW的上边距 */
 #define ICONVIEW_LBorder   					10   /* 控件ICONVIEW的左边距 */
@@ -43,8 +42,8 @@
 #define ICONVIEW_BBorder   					10   /* 控件ICONVIEW的下边距 */   
 #define ICONVIEW_Width     					128  /* 控件ICONVIEW的宽 */  
 #define ICONVIEW_Height    					128  /* 控件ICONVIEW的高，包括图标的Y方向间距 */  
-#define ICONVIEW_YSpace    					10    /* 控件ICONVIEW的Y方向间距 */  
-#define ICONVIEW_ImagNum   					ICON_WIDGET_NUMS   /* 控件ICONVIEW中的图标个数 */
+#define ICONVIEW_YSpace    					10   /* 控件ICONVIEW的Y方向间距 */  
+#define ICONVIEW_ImagNum   					10   /* 控件ICONVIEW中的图标个数 */
 
 /*
 *********************************************************************************************************
@@ -64,6 +63,7 @@ typedef struct {
 extern GUI_CONST_STORAGE GUI_BITMAP bmPIC_SystemSet;
 extern GUI_CONST_STORAGE GUI_BITMAP bmPIC_TimeDate;
 extern GUI_CONST_STORAGE GUI_BITMAP bmPIC_LanguageSelect;
+extern GUI_CONST_STORAGE GUI_BITMAP bmPIC_DeviceManager;
 
 static const BITMAP_ITEM _aLang[][SUPPORT_LANGUAGE_NUMS] = {
 	{
@@ -78,6 +78,10 @@ static const BITMAP_ITEM _aLang[][SUPPORT_LANGUAGE_NUMS] = {
 		{&bmPIC_LanguageSelect, 	"语言选择"},
 		{&bmPIC_LanguageSelect, 	"Language Select"},
 	},	//3
+	{
+		{&bmPIC_DeviceManager,		"设备管理器"},
+		{&bmPIC_DeviceManager,		"Device Manager"},
+	},	//4
 };
 
 /*
@@ -141,15 +145,15 @@ static void Constructor(WM_MESSAGE *pMsg)
 	WM_HWIN hWin = pMsg->hWin;
 
 	/* 设置ICONVIEW的显示位置 ********************************************************************/
-	uint16_t ICONVIEW_VNum = (CONST_FRAME_HEIGHT - ICONVIEW_TBorder - ICONVIEW_BBorder) / ICONVIEW_Height;
-	uint16_t ICONVIEW_HNum = (CONST_FRAME_WIDTH - ICONVIEW_LBorder - ICONVIEW_RBorder) / ICONVIEW_Width;
+	uint16_t ICONVIEW_VNum = (CONST_FRAME_WIDTH - ICONVIEW_TBorder - ICONVIEW_BBorder) / ICONVIEW_Width;
+	uint16_t ICONVIEW_HNum = (CONST_FRAME_HEIGHT - ICONVIEW_LBorder - ICONVIEW_RBorder) / ICONVIEW_Height;
 	
 	/*在指定位置创建指定尺寸的ICONVIEW 小工具*/
 	ICONVIEW_Handle hIcon;
 	hIcon = ICONVIEW_CreateEx(ICONVIEW_TBorder, 				/* 小工具的最左像素（在父坐标中）*/
 							 ICONVIEW_LBorder, 					/* 小工具的最上像素（在父坐标中）*/
-							 ICONVIEW_HNum * ICONVIEW_Width,    /* 小工具的水平尺寸（单位：像素）*/
-							 ICONVIEW_VNum * ICONVIEW_Height, 	/* 小工具的垂直尺寸（单位：像素）*/
+							 ICONVIEW_VNum * ICONVIEW_Width + 30,  /* 小工具的水平尺寸（单位：像素）*/
+							 ICONVIEW_HNum * ICONVIEW_Height + 30, /* 小工具的垂直尺寸（单位：像素）*/
 							 hWin, 				        		/* 父窗口的句柄。如果为0 ，则新小工具将成为桌面（顶级窗口）的子窗口 */
 							 WM_CF_SHOW | WM_CF_HASTRANS,       /* 窗口创建标记。为使小工具立即可见，通常使用 WM_CF_SHOW */ 
 							 0,								 	/* 默认是0，如果不够可设置增减垂直滚动条 */
@@ -163,7 +167,7 @@ static void Constructor(WM_MESSAGE *pMsg)
 		const BITMAP_ITEM *hBitmap = _GetLang(i);
 		ICONVIEW_AddBitmapItem(hIcon, hBitmap->pBitmap, hBitmap->pText);
 	}
-	ICONVIEW_SetBkColor(hIcon, ICONVIEW_CI_SEL, GUI_RED | 0x80000000);
+	ICONVIEW_SetBkColor(hIcon, ICONVIEW_CI_SEL, GUI_LIGHTRED);
 	ICONVIEW_SetFont(hIcon, FRAME_ICON_FONT);
 	ICONVIEW_SetTextColor(hIcon, ICONVIEW_CI_UNSEL, GUI_BLACK);
 	ICONVIEW_SetTextColor(hIcon, ICONVIEW_CI_SEL, GUI_WHITE);
@@ -249,11 +253,15 @@ static void _cbCallback(WM_MESSAGE* pMsg)
 							break;
 						case 1:
 							DeleteWindow(pMsg);
-							App_TimeDateTaskCreate();
+							App_TimeDateTaskCreate();		
 							break;
 						case 2:
 							DeleteWindow(pMsg);
 							App_LanguageTaskCreate();
+							break;
+						case 3:
+							DeleteWindow(pMsg);
+							App_DeviceManagerTaskCreate();
 							break;
 					}
 					break;				

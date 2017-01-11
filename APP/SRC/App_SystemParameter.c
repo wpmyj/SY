@@ -227,8 +227,6 @@ static void Constructor(WM_MESSAGE* pMsg)
 */
 static void Destructor(WM_MESSAGE* pMsg) 
 {
-	WM_DeleteWindow(pMsg->hWin);
-	
 	LIST_HANDLE_TypeDef *handle;
 	list_for_each_entry(handle, &this->handleHead, LIST_HANDLE_TypeDef, list)
 	{
@@ -238,6 +236,22 @@ static void Destructor(WM_MESSAGE* pMsg)
 	delete(this);
 	
 	ECHO(DEBUG_APP_WINDOWS, "[APP] 析构 <系统参数设置> 窗口");
+}
+
+/*
+*********************************************************************************************************
+* Function Name : DeleteWindow
+* Description	: 删除窗口
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+static void DeleteWindow( WM_MESSAGE *pMsg )
+{
+	WM_DeleteWindow(pMsg->hWin);	
+	
+	ECHO(DEBUG_APP_WINDOWS, "[APP] 删除 <系统参数设置> 窗口");
 }
 
 /*
@@ -281,6 +295,9 @@ static void _cbCallback(WM_MESSAGE* pMsg)
 	{
 		case WM_CREATE:	
 			Constructor(pMsg);
+			break;
+		case WM_DELETE:
+			Destructor(pMsg);
 			break;
 		case WM_PAINT:		
 			_PaintFrame();			
@@ -331,7 +348,7 @@ static void _cbCallback(WM_MESSAGE* pMsg)
 					break;				
 				}
 				case GUI_KEY_ESCAPE:
-					Destructor(pMsg);
+					DeleteWindow(pMsg);
 					App_MenuTaskCreate();
 					break;
 				default:
