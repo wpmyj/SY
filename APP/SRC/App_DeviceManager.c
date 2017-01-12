@@ -21,6 +21,7 @@
 */
 #include "app.h"
 #include "App_Menu.h"
+#include "usbh_usr.h"
 
 /*
 *********************************************************************************************************
@@ -52,26 +53,25 @@ static const GUI_WIDGET_CREATE_INFO _aDialogCreate[] = {
 		GUI_DIALOG_START_X, GUI_DIALOG_START_Y, GUI_DIALOG_WIDTH, GUI_DIALOG_HEIGHT, 
 		0, 0, 0 },
 	{ TEXT_CreateIndirect, "Text", GUI_ID_TEXT0, 
-		20, 30, 150, 32,
+		20, 30, 220, 32,
 		0, 0x0, 0 },
 	{ PROGBAR_CreateIndirect, "Progbar", GUI_ID_PROGBAR0, 
-		180, 30, 200, 32,
+		250, 30, 200, 32,
 		0, 0x0, 0 },
 	
 	{ TEXT_CreateIndirect, "Text", GUI_ID_TEXT1, 
-		20, 80, 150, 32, 
+		20, 80, 220, 32, 
 		0, 0x0, 0 },
 	{ PROGBAR_CreateIndirect, "Progbar", GUI_ID_PROGBAR1,
-		180, 80, 200, 32,
+		250, 80, 200, 32,
 		0, 0x0, 0 },
 	
 	{ TEXT_CreateIndirect, "Text", GUI_ID_TEXT2, 
-		20, 130, 150, 32, 
+		20, 130, 220, 32, 
 		0, 0x0, 0 },
 	{ SLIDER_CreateIndirect, "Slider", GUI_ID_SLIDER0,
-		180, 130, 200, 32,
+		250, 130, 200, 32,
 		0, 0x0, 0 },
-  
 };
 
 static const char * _aLang[][SUPPORT_LANGUAGE_NUMS] = {
@@ -84,12 +84,12 @@ static const char * _aLang[][SUPPORT_LANGUAGE_NUMS] = {
 		"SD Card Capacity:",
 	},	//2
 	{
-		"USB容量：",
-		"USB Capacity:",
+		"U盘容量：",
+		"USB Disk Capacity:",
 	},	//3
 	{
-		"屏幕亮度：",
-		"Screen Light:",
+		"背光调节：",
+		"Backlight Adjust:",
 	},	//4
 	
 };
@@ -226,6 +226,97 @@ static void _cbDesktop(WM_MESSAGE *pMsg)
 
 /*
 *********************************************************************************************************
+* Function Name : GUI_UpdateSD
+* Description	: 更新SD界面
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+static void GUI_UpdateSD(WM_MESSAGE *pMsg)
+{
+	char usedBuff[50] = {0};	
+	uint32_t totalSize = 0, freeSize = 0, usedSize = 0;
+	bool ret = GetFreeMemory(bsp_GetSDRootPath, &totalSize, &freeSize);	
+	
+	WM_HWIN hChild = WM_GetDialogItem(pMsg->hWin, GUI_ID_PROGBAR0);	
+	if (ret == false)
+	{
+		PROGBAR_SetText(hChild, "Read Error...");
+		PROGBAR_SetValue(hChild, 0);
+	}
+	else
+	{
+		usedSize = totalSize - freeSize;
+		sprintf(usedBuff, "%d / %d MB", usedSize>>10, totalSize>>10);
+		PROGBAR_SetText(hChild, usedBuff);
+		uint32_t usedRate = 0;
+		if (totalSize)
+		{
+			usedRate = (float)usedSize / totalSize * 100;
+		}			
+		PROGBAR_SetValue(hChild, usedRate);
+	}
+}
+
+/*
+*********************************************************************************************************
+* Function Name : GUI_UpdateUSBDisk
+* Description	: 更新U盘界面
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+static void GUI_UpdateUSBDisk(WM_MESSAGE *pMsg)
+{
+	WM_HWIN hChild = WM_GetDialogItem(pMsg->hWin, GUI_ID_PROGBAR1);	
+	USB_HOST_STATUS_TypeDef usbStatus = USBH_GetStatus();
+	
+	switch (usbStatus)
+	{
+		case USB_HOST_READY:
+		{
+			char usedBuff[50] = {0};	
+			uint32_t totalSize = 0, freeSize = 0, usedSize = 0;
+			bool ret = GetFreeMemory(bsp_GetUSBRootPath, &totalSize, &freeSize);
+			
+			if (ret == false)
+			{
+				PROGBAR_SetText(hChild, "Read Error...");
+				PROGBAR_SetValue(hChild, 0);
+			}
+			else
+			{
+				usedSize = totalSize - freeSize;
+				sprintf(usedBuff, "%d / %d MB", usedSize>>10, totalSize>>10);
+				PROGBAR_SetText(hChild, usedBuff);
+				uint32_t usedRate = 0;
+				if (totalSize)
+				{
+					usedRate = (float)usedSize / totalSize * 100;
+				}			
+				PROGBAR_SetValue(hChild, usedRate);
+			}
+			break;
+		}
+		case USB_HOST_DISCONNECT:
+		{
+			PROGBAR_SetText(hChild, "Not Connect...");
+			PROGBAR_SetValue(hChild, 0);
+			break;
+		}
+		default:
+		{
+			PROGBAR_SetText(hChild, "Ready...");
+			PROGBAR_SetValue(hChild, 0);
+			break;
+		}
+	}
+}
+
+/*
+*********************************************************************************************************
 * Function Name : DialogConstructor
 * Description	: 对话框构造函数
 * Input			: None
@@ -258,64 +349,21 @@ static void DialogConstructor(WM_MESSAGE *pMsg)
 	TEXT_SetFont(hChild, FRAME_TEXT_FONT);
 	TEXT_SetText(hChild, _GetLang(4));
 	
-	
 	hChild = WM_GetDialogItem(hWin, GUI_ID_PROGBAR0);	
 	PROGBAR_SetFont(hChild, FRAME_PROGBAR_FONT);
 	PROGBAR_SetMinMax(hChild, 0, 100);
 	PROGBAR_SetTextColor(hChild, PROGBAR_SKINFLEX_L, GUI_WHITE);
-	{
-		float usedSize = 0;
-		char usedBuff[50] = {0};
-		
-		float freeSize = GetFreeMemorySize(bsp_GetSDRootPath);	
-		float totalSize = GetTotalMemorySize(bsp_GetSDRootPath);
-		char totalBuff[20] = {0};
-		sprintf(totalBuff, "%5.2f", totalSize);
-		
-		usedSize = totalSize - freeSize;
-		sprintf(usedBuff, "%5.2f", usedSize);
-			
-		strcat(usedBuff, " / ");
-		strcat(usedBuff, totalBuff);
-		strcat(usedBuff, " MB");
-		PROGBAR_SetText(hChild, usedBuff);
-		uint32_t usedRate = 0;
-		if (totalSize)
-		{
-			usedRate = usedSize / totalSize * 100;
-		}			
-		PROGBAR_SetValue(hChild, usedRate);
-	}
+	PROGBAR_SetTextColor(hChild, PROGBAR_SKINFLEX_R, GUI_WHITE);
 	
 	hChild = WM_GetDialogItem(hWin, GUI_ID_PROGBAR1);	
 	PROGBAR_SetFont(hChild, FRAME_PROGBAR_FONT);
 	PROGBAR_SetMinMax(hChild, 0, 100);
 	PROGBAR_SetTextColor(hChild, PROGBAR_SKINFLEX_L, GUI_WHITE);
+	PROGBAR_SetTextColor(hChild, PROGBAR_SKINFLEX_R, GUI_WHITE);	
 	
-	{
-		float usedSize = 0;
-		char usedBuff[50] = {0};
-		
-		float freeSize = GetFreeMemorySize(bsp_GetUSBRootPath);	
-		float totalSize = GetTotalMemorySize(bsp_GetUSBRootPath);		
-		
-		char totalBuff[20] = {0};
-		sprintf(totalBuff, "%5.2f", totalSize);
-		
-		usedSize = totalSize - freeSize;
-		sprintf(usedBuff, "%5.2f", usedSize);
-			
-		strcat(usedBuff, " / ");
-		strcat(usedBuff, totalBuff);
-		strcat(usedBuff, " MB");
-		PROGBAR_SetText(hChild, usedBuff);
-		uint32_t usedRate = 0;
-		if (totalSize)
-		{
-			usedRate = usedSize / totalSize * 100;
-		}			
-		PROGBAR_SetValue(hChild, usedRate);
-	}
+	hChild = WM_GetDialogItem(hWin, GUI_ID_SLIDER0);	
+	SLIDER_SetRange(hChild, 0, 10);
+	SLIDER_SetValue(hChild, 10);
 }
 
 /*
@@ -335,6 +383,17 @@ static void _cbDialog(WM_MESSAGE *pMsg)
 	{
 		case WM_INIT_DIALOG:	
 			DialogConstructor(pMsg);
+			break;
+		case WM_CREATE:			
+			break;
+		case WM_DELETE:
+			LCD_SetBackLight(0xFF);
+			break;
+		case WM_TIMER:
+			GUI_UpdateSD(pMsg);
+			GUI_UpdateUSBDisk(pMsg);
+
+			WM_RestartTimer(pMsg->Data.v, 500);
 			break;
 		case WM_KEY:
 		{
@@ -375,10 +434,16 @@ static void _cbDialog(WM_MESSAGE *pMsg)
 					
 					switch (Id)
 					{
-						case GUI_ID_SPINBOX0:
-						case GUI_ID_SPINBOX1:
+						case GUI_ID_SLIDER0:
 						{
-														
+							uint32_t value = SLIDER_GetValue(WM_GetDialogItem(hWin, GUI_ID_SLIDER0));							
+							if (value < 1)
+							{
+								value = 1;
+							}
+							uint8_t setValue = (float)value / 10 * 0x7F + 0x80;
+							
+							LCD_SetBackLight(setValue);
 							break;
 						}
 						default:
@@ -406,7 +471,12 @@ static void _cbDialog(WM_MESSAGE *pMsg)
 void App_DeviceManagerTaskCreate(void)
 {
 	WM_HWIN hWin = _CreateFrame(_cbDesktop);	
-	GUI_CreateDialogBox(_aDialogCreate, GUI_COUNTOF(_aDialogCreate), &_cbDialog, hWin, 0, 0);
+	WM_HWIN hDialog = GUI_CreateDialogBox(_aDialogCreate, GUI_COUNTOF(_aDialogCreate), &_cbDialog, hWin, 0, 0);
+	
+	WM_CreateTimer(WM_GetClientWindow(hDialog),  	/* 接受信息的窗口的句柄 */
+                   0, 	                        	/* 用户定义的Id。如果不对同一窗口使用多个定时器，此值可以设置为零。 */
+			       500,                         	/* 周期，此周期过后指定窗口应收到消息*/
+			       0);	                        	/* 留待将来使用，应为0 */ 
 }
 
 

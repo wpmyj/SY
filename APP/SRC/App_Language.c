@@ -269,6 +269,14 @@ static void _cbDialog(WM_MESSAGE *pMsg)
 			WM_SetFocus(hChild);
 			break;
 		}
+		case WM_TIMER:
+		{
+			if (GetLanguageType() == LANG_ENGLISH)
+			{
+				GUI_SendKeyMsg(GUI_KEY_DOWN, true);
+			}
+			break;
+		}
 		case WM_KEY:
 		{
 			int key = ((WM_KEY_INFO*)(pMsg->Data.p))->Key;
@@ -330,7 +338,12 @@ static void _cbDialog(WM_MESSAGE *pMsg)
 void App_LanguageTaskCreate(void)
 {
 	WM_HWIN hWin = _CreateFrame(_cbDesktop);	
-	GUI_CreateDialogBox(_aDialogCreate, GUI_COUNTOF(_aDialogCreate), &_cbDialog, hWin, 0, 0);
+	WM_HWIN hDialog = GUI_CreateDialogBox(_aDialogCreate, GUI_COUNTOF(_aDialogCreate), &_cbDialog, hWin, 0, 0);
+	
+	WM_CreateTimer(WM_GetClientWindow(hDialog),  /* 接受信息的窗口的句柄 */
+                   0, 	                        /* 用户定义的Id。如果不对同一窗口使用多个定时器，此值可以设置为零。 */
+			       100,                         /* 周期，此周期过后指定窗口应收到消息*/
+			       0);	                        /* 留待将来使用，应为0 */ 
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics **********END OF FILE*************************/

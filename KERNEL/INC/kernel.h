@@ -86,8 +86,7 @@ extern HID_Usr_State HID_HostState;
 */
 void KERNEL_Init( void );
 void HID_HostDetectTask( HID_Usr_State *hidHostPtr );
-float GetFreeMemorySize(const char *(*getPath)(void));
-float GetTotalMemorySize(const char *(*getPath)(void));
+bool GetFreeMemory(const char *(*getPath)(void), uint32_t *totalSize, uint32_t *freeSize);
 
 /*
 *********************************************************************************************************

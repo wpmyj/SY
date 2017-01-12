@@ -167,9 +167,7 @@ void  AppTaskStartUtils (void)
 		RepeatExecuteTaskCycle(GetBeepHandle());
 		
 		/* USB任务 */
-		{
-			USBH_Process(&hUsbHostHS);
-		}
+		USBH_Process(&hUsbHostHS);
 		
 		/* 以太网任务 */
 		{

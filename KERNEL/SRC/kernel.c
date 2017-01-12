@@ -157,71 +157,42 @@ void HID_HostDetectTask( HID_Usr_State *hidHostPtr )
 /*
 *********************************************************************************************************
 * Function Name : GetFreeMemory
-* Description	: 获取空闲容量[单位：MB]
+* Description	: 获取空闲容量[单位：KB]
 * Input			: None
 * Output		: None
 * Return		: None
 *********************************************************************************************************
 */
-float GetFreeMemorySize(const char *(*getPath)(void))
+bool GetFreeMemory(const char *(*getPath)(void), uint32_t *totalSize, uint32_t *freeSize)
 {
-	float freeSize = 0;
+	*freeSize = 0;
 	char rootPath[20] = {0};
 	
 	FATFS *fs;
-	unsigned long size = 0;
+	unsigned long freeClust = 0;
 	if (getPath)
 	{
 		strcpy(rootPath, getPath());
 	}
-	FRESULT fresult = f_getfree(rootPath, &size, &fs);
+	FRESULT fresult = f_getfree(rootPath, &freeClust, &fs);
 	if (fresult != FR_OK)
 	{
-		return 0;
+		return false;
 	}
 	
-	uint32_t totalWord = size * fs->csize;
-	uint32_t totalByte = totalWord >> 1;
-	freeSize = totalByte / 1024.0f;
+	uint32_t totalSector = (fs->n_fatent - 2) * fs->csize;
+	uint32_t freeSector = fs->csize * freeClust;
+#if _MAX_SS!=512				  				    //扇区大小不是512字节,则转换为512字节	
+	totalSector *= FS->ssize / 512;
+	freeSector *= FS->ssize / 512;
+#endif
 	
-	return freeSize;
+	*totalSize = totalSector >> 1;
+	*freeSize = freeSector >> 1;
+	
+	return true;
 }
 
-/*
-*********************************************************************************************************
-* Function Name : GetTotalMemorySize
-* Description	: 获取SD卡全部容量[单位：MB]
-* Input			: None
-* Output		: None
-* Return		: None
-*********************************************************************************************************
-*/
-float GetTotalMemorySize(const char *(*getPath)(void))
-{
-	float totalSize = 0;
-	char rootPath[20] = {0};
-	
-	FATFS *fs;
-	unsigned long size = 0;
-	if (getPath)
-	{
-		strcpy(rootPath, getPath());
-	}
-	FRESULT fresult = f_getfree(rootPath, &size, &fs);
-	if (fresult != FR_OK)
-	{
-		return 0;
-	}
-	
-	if (fs->n_fatent > 2)
-	{
-		uint32_t totalWord = (fs->n_fatent - 2) * fs->csize;
-		uint32_t totalByte = totalWord >> 1;
-		totalSize = totalByte / 1024.0f;
-	}
-	
-	return totalSize;
-}
 
 
 /************************ (C) COPYRIGHT STMicroelectronics **********END OF FILE*************************/

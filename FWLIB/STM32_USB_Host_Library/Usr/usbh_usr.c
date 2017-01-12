@@ -87,10 +87,11 @@ void USBH_UserProcess(USBH_HandleTypeDef *phost, uint8_t id)
 
 		case HOST_USER_DISCONNECTION:
 		{			
-			if (f_mount(NULL, (TCHAR const*)bsp_GetUSBRootPath(), 0) != FR_OK)
-			{
-				bsp_ErrorHandler();
-			}
+//			FRESULT res = f_mount(NULL, (TCHAR const*)bsp_GetUSBRootPath(), 0);
+//			if (res != FR_OK)
+//			{
+//				bsp_ErrorHandler();
+//			}
 			
 			Appli_state = USB_HOST_DISCONNECT;
 			ECHO(DEBUG_BSP_USB,"USB断开连接！");
@@ -98,11 +99,11 @@ void USBH_UserProcess(USBH_HandleTypeDef *phost, uint8_t id)
 		}
 		case HOST_USER_CLASS_ACTIVE:
 		{		
-			if (f_mount(&USBFatFs, (TCHAR const*)bsp_GetUSBRootPath(), 0) != FR_OK)
+			FRESULT res = f_mount(&USBFatFs, (TCHAR const*)bsp_GetUSBRootPath(), 0);
+			if (res != FR_OK)
 			{
 				bsp_ErrorHandler();
 			}
-			
 			Appli_state = USB_HOST_READY;
 			ECHO(DEBUG_BSP_USB,"USB已就绪！");
 			break;

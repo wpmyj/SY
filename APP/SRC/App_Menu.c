@@ -67,8 +67,8 @@ extern GUI_CONST_STORAGE GUI_BITMAP bmPIC_DeviceManager;
 
 static const BITMAP_ITEM _aLang[][SUPPORT_LANGUAGE_NUMS] = {
 	{
-		{&bmPIC_SystemSet, 			"系统参数设置"},
-		{&bmPIC_SystemSet, 			"System Parameter Set"},
+		{&bmPIC_SystemSet, 			"参数设置"},
+		{&bmPIC_SystemSet, 			"Parameter Set"},
 	},	//1
 	{
 		{&bmPIC_TimeDate, 			"时间日期设置"},

@@ -30,19 +30,14 @@
 *                              				Private define
 *********************************************************************************************************
 */
-#define START_WIDGET_X						10
-#define START_WIDGET_Y						10
-#define WIDGET_ROWS_DISTANCE				24
-#define WIDGET_COLUMNS_DISTANCE				(0)
+#define GUI_ID_DIALOG0     					(GUI_ID_USER + 0x00)
+#define GUI_ID_DIALOG1     					(GUI_ID_USER + 0x01)
+#define GUI_ID_DIALOG2     					(GUI_ID_USER + 0x02)
 
-#define TEXT_LENTH							250	
-#define TEXT_WIDTH							32
-#define EDIT_LENTH							250	
-#define EDIT_WIDTH							32
-#define EDIT_BOTTOM_BUTTON_LENTH_DISTANCE	3
-#define EDIT_BOTTOM_BUTTON_WIDTH_DISTANCE	3
-#define EDIT_BOTTOM_BUTTON_LENTH			(EDIT_LENTH+2*EDIT_BOTTOM_BUTTON_LENTH_DISTANCE)
-#define EDIT_BOTTOM_BUTTON_WIDTH			(EDIT_WIDTH+2*EDIT_BOTTOM_BUTTON_WIDTH_DISTANCE)
+#define GUI_DIALOG_WIDTH					550
+#define GUI_DIALOG_HEIGHT					350
+#define GUI_DIALOG_START_X					(30)
+#define GUI_DIALOG_START_Y					(30)
 
 
 /*
@@ -50,11 +45,8 @@
 *                              				Private typedef
 *********************************************************************************************************
 */
-typedef struct {
-	LIST_HANDLE_TypeDef curWidgetHandle;		
-	char stringBuff[MAX_STRING_NUM+1];
-	struct list_head handleHead;
-}APP_SYSTEM_PARAMETER_TypeDef;
+
+
 
 
 /*
@@ -62,15 +54,63 @@ typedef struct {
 *                              				Private constants
 *********************************************************************************************************
 */
+static const GUI_WIDGET_CREATE_INFO _aDialogCreate[] = {
+	{ FRAMEWIN_CreateIndirect, "Framewin", GUI_ID_DIALOG0, 
+		GUI_DIALOG_START_X, GUI_DIALOG_START_Y, GUI_DIALOG_WIDTH, GUI_DIALOG_HEIGHT, 
+		0, 0, 0 },
+};
+
+static const GUI_WIDGET_CREATE_INFO _aDialogCreate1[] = {
+	{ WINDOW_CreateIndirect, "Framewin", GUI_ID_DIALOG1, 
+		10, 50, GUI_DIALOG_WIDTH-30, GUI_DIALOG_HEIGHT-50, 
+		0, 0, 0 },
+	{ DROPDOWN_CreateIndirect, "Dropdown", GUI_ID_DROPDOWN0,
+		20, 50, 200, 32,
+		0, 0x0, 0 },
+	{ BUTTON_CreateIndirect, "Button", GUI_ID_BUTTON0,
+		30, 200, 100, 32, 
+		0, 0x0, 0 },
+	{ BUTTON_CreateIndirect, "Button", GUI_ID_BUTTON1,
+		180, 200, 100, 32, 
+		0, 0x0, 0 },
+};
+
+static const GUI_WIDGET_CREATE_INFO _aDialogCreate2[] = {
+	{ WINDOW_CreateIndirect, "Framewin", GUI_ID_DIALOG2, 
+		10, 50, GUI_DIALOG_WIDTH-30, GUI_DIALOG_HEIGHT-50, 
+		0, 0, 0 },	
+	{ CHECKBOX_CreateIndirect, "Checkbox", GUI_ID_CHECK0,
+		20, 50, 200, 32, 
+		0, 0x0, 0 },
+	{ BUTTON_CreateIndirect, "Button", GUI_ID_BUTTON0,
+		30, 200, 100, 32, 
+		0, 0x0, 0 },
+	{ BUTTON_CreateIndirect, "Button", GUI_ID_BUTTON1,
+		180, 200, 100, 32, 
+		0, 0x0, 0 },
+};
+
 static const char * _aLang[][SUPPORT_LANGUAGE_NUMS] = {
 	{
-		"系统最大力：",
-		"MaxForceOfSystem:",
-	},													//1
+		"参数设置",
+		"Parameter Set",
+	},	//1
 	{
-		"最大控制量：",
-		"MaxControlDegree:",
-	},													//2
+		"控制参数",
+		"Control Parameter",
+	},	//2
+	{
+		"试验参数",
+		"Test Parameter",
+	},	//3
+	{
+		"系统最大力：",
+		"Max Force Of System:",
+	},	//4
+	{
+		"自动加载：",
+		"Auto Load:",
+	},	//5
 };
 
 /*
@@ -84,7 +124,7 @@ static const char * _aLang[][SUPPORT_LANGUAGE_NUMS] = {
 *                              				Private variables
 *********************************************************************************************************
 */
-static APP_SYSTEM_PARAMETER_TypeDef *this;
+
 
 /*
 *********************************************************************************************************
@@ -122,120 +162,33 @@ static const char *_GetLang(uint32_t Index)
 
 /*
 *********************************************************************************************************
-* Function Name : Constructor
-* Description	: 构造函数
+* Function Name : WindowsConstructor
+* Description	: 窗口构造函数
 * Input			: None
 * Output		: None
 * Return		: None
 *********************************************************************************************************
 */
-static void Constructor(WM_MESSAGE* pMsg) 
+static void WindowsConstructor(WM_MESSAGE *pMsg) 
 {
-	uint16_t x = START_WIDGET_X;
-	uint16_t y = START_WIDGET_Y;
 	WM_HWIN hWin = pMsg->hWin;
+	WM_SetFocus(hWin);
 	
-	this = new(sizeof(APP_SYSTEM_PARAMETER_TypeDef));
-
-	INIT_LIST_HEAD(&this->handleHead);
-	
-	/*
-		编辑框聚焦后，直接进入输入状态。
-		因此不能单独作为控件，表示当前焦点位置。
-		需要在文本控件下面需要放置按钮。
-	 */
-	{
-		LIST_HANDLE_TypeDef *listHandle = new(sizeof(LIST_HANDLE_TypeDef));
-		
-		listHandle->handleLevel1 = _CreateButton(hWin,
-												FRAME_BUTTON_EFFECT,
-												"", 
-												GUI_ID_BUTTON0, 
-												x+TEXT_LENTH, 
-												y, 
-												EDIT_BOTTOM_BUTTON_LENTH,  
-												EDIT_BOTTOM_BUTTON_WIDTH);
-		listHandle->handleLevel2 = _CreateEdit(hWin, 
-												FRAME_EDIT_EFFECT,
-												"", 
-												GUI_ID_EDIT0, 
-												TEXT_CF_LEFT | TEXT_CF_VCENTER,
-												MAX_TEXT_PUTIN_LENTH,
-												x+TEXT_LENTH+EDIT_BOTTOM_BUTTON_LENTH_DISTANCE, 
-												y+EDIT_BOTTOM_BUTTON_WIDTH_DISTANCE, 
-												EDIT_LENTH,  
-												EDIT_WIDTH);
-		listHandle->handleLevel3 = _CreateText(hWin,
-												_GetLang(1),
-												GUI_ID_TEXT0,
-												TEXT_CF_RIGHT | TEXT_CF_VCENTER,
-												x, 
-												y+EDIT_BOTTOM_BUTTON_WIDTH_DISTANCE, 
-												TEXT_LENTH,  
-												TEXT_WIDTH);
-		listHandle->cursorHandle = listHandle->handleLevel1;
-		list_add_tail(&listHandle->list, &this->handleHead);
-	}
-	y += WIDGET_ROWS_DISTANCE + EDIT_BOTTOM_BUTTON_WIDTH;
-	{
-		LIST_HANDLE_TypeDef *listHandle = new(sizeof(LIST_HANDLE_TypeDef));
-		
-		listHandle->handleLevel1 = _CreateButton(hWin, 
-												FRAME_BUTTON_EFFECT,
-												"", 
-												GUI_ID_BUTTON1, 
-												x+TEXT_LENTH, 
-												y, 
-												EDIT_BOTTOM_BUTTON_LENTH,  
-												EDIT_BOTTOM_BUTTON_WIDTH);
-		listHandle->handleLevel2 = _CreateEdit(hWin,
-												FRAME_EDIT_EFFECT,
-												"", 
-												GUI_ID_EDIT1, 
-												TEXT_CF_LEFT | TEXT_CF_VCENTER,
-												MAX_TEXT_PUTIN_LENTH,
-												x+TEXT_LENTH+EDIT_BOTTOM_BUTTON_LENTH_DISTANCE, 
-												y+EDIT_BOTTOM_BUTTON_WIDTH_DISTANCE, 
-												EDIT_LENTH,  
-												EDIT_WIDTH);	
-		listHandle->handleLevel3 = _CreateText(hWin,
-												_GetLang(2),
-												GUI_ID_TEXT1,
-												TEXT_CF_RIGHT | TEXT_CF_VCENTER,
-												x, 
-												y+EDIT_BOTTOM_BUTTON_WIDTH_DISTANCE, 
-												TEXT_LENTH,  
-												TEXT_WIDTH);
-		listHandle->cursorHandle = listHandle->handleLevel1;
-		list_add_tail(&listHandle->list, &this->handleHead);
-	}
-	
-
-	WM_SendMessageNoPara(hWin, WM_SET_FOCUS);
-	
-	ECHO(DEBUG_APP_WINDOWS, "[APP] 构造 <系统参数设置> 窗口");
+	ECHO(DEBUG_APP_WINDOWS, "[APP] 构造 <参数设置> 窗口");
 }
 
 /*
 *********************************************************************************************************
-* Function Name : Destructor
-* Description	: 析构函数
+* Function Name : WindowsDestructor
+* Description	: 窗口析构函数
 * Input			: None
 * Output		: None
 * Return		: None
 *********************************************************************************************************
 */
-static void Destructor(WM_MESSAGE* pMsg) 
-{
-	LIST_HANDLE_TypeDef *handle;
-	list_for_each_entry(handle, &this->handleHead, LIST_HANDLE_TypeDef, list)
-	{
-		delete(handle);
-	}
-	
-	delete(this);
-	
-	ECHO(DEBUG_APP_WINDOWS, "[APP] 析构 <系统参数设置> 窗口");
+static void WindowsDestructor( WM_MESSAGE *pMsg )
+{	
+	ECHO(DEBUG_APP_WINDOWS, "[APP] 析构 <参数设置> 窗口");
 }
 
 /*
@@ -251,31 +204,64 @@ static void DeleteWindow( WM_MESSAGE *pMsg )
 {
 	WM_DeleteWindow(pMsg->hWin);	
 	
-	ECHO(DEBUG_APP_WINDOWS, "[APP] 删除 <系统参数设置> 窗口");
+	ECHO(DEBUG_APP_WINDOWS, "[APP] 删除 <参数设置> 窗口");
 }
 
 /*
 *********************************************************************************************************
-* Function Name : GetFocusListHandle
-* Description	: 获取已经聚焦的链表句柄
+* Function Name : _cbDesktop
+* Description	: 桌面窗口回调函数
 * Input			: None
 * Output		: None
 * Return		: None
 *********************************************************************************************************
 */
-static LIST_HANDLE_TypeDef *GetFocusListHandle(void)
+static void _cbDesktop(WM_MESSAGE *pMsg) 
 {
-	LIST_HANDLE_TypeDef *handle;
+	WM_HWIN hWin = pMsg->hWin;
+	(void)hWin;
 	
-	list_for_each_entry(handle, &this->handleHead, LIST_HANDLE_TypeDef, list)
+	switch (pMsg->MsgId) 
 	{
-		if (WM_HasFocus(handle->cursorHandle) == true)
+		case WM_CREATE:	
+			WindowsConstructor(pMsg);
+			break;
+		case WM_DELETE:
+			WindowsDestructor(pMsg);
+			break;
+		case WM_PAINT:
+			_PaintFrame();
+			break;
+		case MSG_USER_ESC:
 		{
-			return handle;
-		}
+			DeleteWindow(pMsg);
+			App_MenuTaskCreate();
+			break;
+		}		
+		default:
+			WM_DefaultProc(pMsg);
+			break;
 	}
+}
+
+/*
+*********************************************************************************************************
+* Function Name : DialogConstructor
+* Description	: 构造函数
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+static void DialogConstructor(WM_MESSAGE* pMsg) 
+{
+	WM_HWIN hWin = pMsg->hWin;
 	
-	return NULL;
+	FRAMEWIN_SetFont(hWin, FRAME_FONT);
+	FRAMEWIN_SetTitleHeight(hWin, DIALOG_TITLE_HEIGHT);
+	FRAMEWIN_SetTextAlign(hWin, GUI_TA_HCENTER | GUI_TA_VCENTER);
+	FRAMEWIN_SetText(hWin, _GetLang(1));
+	
 }
 
 /*
@@ -287,20 +273,16 @@ static LIST_HANDLE_TypeDef *GetFocusListHandle(void)
 * Return		: None
 *********************************************************************************************************
 */
-static void _cbCallback(WM_MESSAGE* pMsg) 
+static void _cbDialog(WM_MESSAGE* pMsg) 
 {
 	WM_HWIN hWin = pMsg->hWin;
 	
 	switch (pMsg->MsgId) 
 	{
 		case WM_CREATE:	
-			Constructor(pMsg);
+			DialogConstructor(pMsg);
 			break;
-		case WM_DELETE:
-			Destructor(pMsg);
-			break;
-		case WM_PAINT:		
-			_PaintFrame();			
+		case WM_PAINT:				
 			break;
 		case WM_KEY:
 		{
@@ -309,47 +291,16 @@ static void _cbCallback(WM_MESSAGE* pMsg)
 			{
 				case GUI_KEY_UP:
 				{
-					LIST_HANDLE_TypeDef *handle = GetFocusListHandle();
-					if (handle)
-					{
-						if (handle == list_first_entry(&this->handleHead, LIST_HANDLE_TypeDef, list))
-						{
-							handle = list_last_entry(&this->handleHead, LIST_HANDLE_TypeDef, list);
-						}	
-						else					
-						{
-							handle = list_prev_entry(handle, LIST_HANDLE_TypeDef, list);						
-						}
-						if (handle)
-						{
-							WM_SetFocus(handle->cursorHandle);
-						}
-					}
+					
 					break;				
 				}
 				case GUI_KEY_DOWN:	
 				{
-					LIST_HANDLE_TypeDef *handle = GetFocusListHandle();
-					if (handle)
-					{
-						if (handle == list_last_entry(&this->handleHead, LIST_HANDLE_TypeDef, list))
-						{
-							handle = list_first_entry(&this->handleHead, LIST_HANDLE_TypeDef, list);
-						}	
-						else					
-						{
-							handle = list_next_entry(handle, LIST_HANDLE_TypeDef, list);						
-						}
-						if (handle)
-						{
-							WM_SetFocus(handle->cursorHandle);
-						}
-					}					
+									
 					break;				
 				}
-				case GUI_KEY_ESCAPE:
-					DeleteWindow(pMsg);
-					App_MenuTaskCreate();
+				case GUI_KEY_ESCAPE:				
+					WM_SendMessageNoPara(WM_GetParent(hWin), MSG_USER_ESC);
 					break;
 				default:
 					
@@ -359,52 +310,25 @@ static void _cbCallback(WM_MESSAGE* pMsg)
 		}
 		case WM_NOTIFY_PARENT:
 		{
-			int Id    = WM_GetId(pMsg->hWinSrc);      
-			int NCode = pMsg->Data.v;  
-			
-			if (NCode == WM_NOTIFICATION_RELEASED)
-			{
-				/* 记录当前光标所在控件信息 */
-				{
-					this->curWidgetHandle = *GetFocusListHandle();
-					EDIT_GetText(this->curWidgetHandle.handleLevel2, this->stringBuff, MAX_STRING_NUM);
-				}
-				
-				switch (Id)
-				{
-					case GUI_ID_BUTTON0:
-						_CreateNumPad(hWin, CONST_FRAME_WIDTH >> 1, 150);	
-						break;
-					case GUI_ID_BUTTON1:
-						_CreateNumPad(hWin, CONST_FRAME_WIDTH >> 1, 200);
-						break;
-				}
-			}			
+						
 			break;
 		}
 		case MSG_USER_PAD_CHANGED:
 		case MSG_USER_PAD_DELETE:
 		case MSG_USER_PAD_CLEAR:
-		{		
-			EDIT_SetText(this->curWidgetHandle.handleLevel2, pMsg->Data.p);
+		{					
 			break;
 		}		
 		case MSG_USER_PAD_CANCEL:	
-		{		
-			EDIT_SetText(this->curWidgetHandle.handleLevel2, this->stringBuff);
-			WM_SetFocus(this->curWidgetHandle.handleLevel1);
+		{					
 			break;
 		}
 		case MSG_USER_PAD_OK:	
-		{
-			WM_SetFocus(this->curWidgetHandle.handleLevel1);
+		{			
 			break;
 		}
 		case WM_SET_FOCUS:
 		{
-			LIST_HANDLE_TypeDef *handle = NULL;
-			handle = list_first_entry(&this->handleHead, LIST_HANDLE_TypeDef, list);
-			WM_SetFocus(handle->cursorHandle);
 			break;
 		}
 		default:
@@ -424,7 +348,20 @@ static void _cbCallback(WM_MESSAGE* pMsg)
 */
 void App_SystemParameterTaskCreate( void )
 {
-	_CreateFrame(_cbCallback);
+	WM_HWIN hWin = _CreateFrame(_cbDesktop);
+	WM_HWIN hFrameWin = GUI_CreateDialogBox(_aDialogCreate, GUI_COUNTOF(_aDialogCreate), &_cbDialog, hWin, 0, 0);
+	
+	WM_HWIN hMultiPage = MULTIPAGE_CreateEx(10, 40, GUI_DIALOG_WIDTH - 30, GUI_DIALOG_HEIGHT - 80, WM_GetClientWindow(hFrameWin), WM_CF_SHOW, 0, 0);
+	MULTIPAGE_SetFont(hMultiPage, FRAME_FONT);
+	MULTIPAGE_SetAlign(hMultiPage, MULTIPAGE_ALIGN_TOP);
+	
+	WM_HWIN hDialog = GUI_CreateDialogBox(_aDialogCreate1, GUI_COUNTOF(_aDialogCreate1), _cbDialog, hMultiPage, 0, 0);
+	MULTIPAGE_AddPage(hMultiPage, hDialog, _GetLang(2));
+	
+	hDialog = GUI_CreateDialogBox(_aDialogCreate2, GUI_COUNTOF(_aDialogCreate2), _cbDialog, hMultiPage, 0, 0);
+	MULTIPAGE_AddPage(hMultiPage, hDialog, _GetLang(3));
+	
+	MULTIPAGE_SelectPage(hMultiPage, 0);
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics **********END OF FILE*************************/
