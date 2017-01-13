@@ -81,6 +81,10 @@ __ALIGN_RAM	static  OS_TCB   	AppTaskIOTCB;
 					OS_TCB 		* const AppTaskIOTCB_Ptr = &AppTaskIOTCB;
 __ALIGN_RAM	static  CPU_STK  	AppTaskIOStk[APP_CFG_TASK_IO_STK_SIZE];
 
+__ALIGN_RAM	static  OS_TCB   	AppTaskShellTCB;
+					OS_TCB 		* const AppTaskShellTCB_Ptr = &AppTaskShellTCB;
+__ALIGN_RAM	static  CPU_STK  	AppTaskEchoStk[APP_CFG_TASK_SHELL_STK_SIZE];
+
 
 /*
 *********************************************************************************************************
@@ -230,6 +234,24 @@ __weak void AppTaskGUIRefresh(void *p_arg)
 *********************************************************************************************************
 */
 __weak void AppTaskIO(void *p_arg)
+{
+	(void)p_arg;
+	while (1)
+	{
+		BSP_OS_TimeDlyMs(1000);
+	}
+}
+
+/*
+*********************************************************************************************************
+* Function Name : AppTaskShell
+* Description	: Shell任务
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+__weak void AppTaskShell(void *p_arg)
 {
 	(void)p_arg;
 	while (1)
@@ -451,6 +473,21 @@ static void AppTaskCreate(void)
                  (void         *)0,
                  (OS_OPT        )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR | OS_OPT_TASK_SAVE_FP),
                  (OS_ERR       *)&err);	
+				 
+	/**************创建SHELL任务*********************/			 
+	OSTaskCreate((OS_TCB       *)&AppTaskShellTCB,              
+                 (CPU_CHAR     *)"App Task SHELL",
+                 (OS_TASK_PTR   )AppTaskShell, 
+                 (void         *)0,
+                 (OS_PRIO       )APP_CFG_TASK_SHELL_PRIO,
+                 (CPU_STK      *)&AppTaskEchoStk[0],
+                 (CPU_STK_SIZE  )APP_CFG_TASK_SHELL_STK_SIZE / 10,
+                 (CPU_STK_SIZE  )APP_CFG_TASK_SHELL_STK_SIZE,
+                 (OS_MSG_QTY    )0,
+                 (OS_TICK       )0,
+                 (void         *)0,
+                 (OS_OPT        )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR | OS_OPT_TASK_SAVE_FP),
+                 (OS_ERR       *)&err);				 
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics **********END OF FILE*************************/

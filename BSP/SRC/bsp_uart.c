@@ -684,46 +684,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle)
 	}
 }
 
-/*
-*********************************************************************************************************
-* Function Name : bsp_fputc
-* Description	: fputc处理
-* Input			: None
-* Output		: None
-* Return		: None
-*********************************************************************************************************
-*/
-__weak void bsp_fputc( uint8_t ch )
-{
-	;
-}
 
-/*
-*********************************************************************************************************
-* Function Name : fputc
-* Description	: 重定义putc函数，这样可以使用printf函数从串口1打印输出
-* Input			: None
-* Output		: None
-* Return		: None
-*********************************************************************************************************
-*/
-int fputc(int ch, FILE *f)
-{
-	#if 1	/* 将需要printf的字符通过串口中断FIFO发送出去，printf函数会立即返回 */
-		ComSend(DEBUG_COM,(uint8_t *)&ch,1);
-		bsp_fputc(ch);
-	
-		return ch;
-	#else	/* 采用阻塞方式发送每个字符,等待数据发送完毕 */
-		/* 写一个字节到USART1 */
-		USART_SendData(USART1, (uint8_t) ch);
-		/* 等待发送结束 */
-		while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
-		{
-			;
-		}
-		return ch;
-	#endif
-}
 
 /************************ (C) COPYRIGHT STMicroelectronics **********END OF FILE*************************/

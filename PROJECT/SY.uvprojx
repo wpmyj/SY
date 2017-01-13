@@ -594,6 +594,11 @@
               <FileType>1</FileType>
               <FilePath>..\KERNEL\SRC\mouse.c</FilePath>
             </File>
+            <File>
+              <FileName>shell.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\KERNEL\SRC\shell.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -608,6 +613,11 @@
               <FileName>bsp_assert.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\BSP\SRC\bsp_assert.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_printf.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\BSP\SRC\bsp_printf.c</FilePath>
             </File>
             <File>
               <FileName>bsp_itm.c</FileName>

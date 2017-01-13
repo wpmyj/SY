@@ -146,7 +146,7 @@ void APP_DebugViewTaskCreate( void )
 *	返 回 值: 无
 *********************************************************************************************************
 */
-static void DispTaskInfo(void)
+void DispTaskInfo(void)
 {
 	OS_TCB      *p_tcb;	        /* 定义一个任务控制块指针, TCB = TASK CONTROL BLOCK */
 	float CPU;

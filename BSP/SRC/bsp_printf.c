@@ -1,16 +1,15 @@
 /*
 *********************************************************************************************************
-* @file    	kernel.c
+* @file    	bsp_printf.c
 * @author  	SY
 * @version 	V1.0.0
-* @date    	2016-10-14 16:10:26
-* @IDE	 	Keil V5.18.0.0
+* @date    	2017-1-13 09:33:05
+* @IDE	 	Keil V5.22.0.0
 * @Chip    	STM32F407VE
-* @brief   	内核源文件
+* @brief   	printf源文件
 *********************************************************************************************************
 * @attention
 *
-* 
 *********************************************************************************************************
 */
 
@@ -19,12 +18,9 @@
 *                              				Private Includes
 *********************************************************************************************************
 */
-#include "kernel.h"
-#include "ff_gen_drv.h"
-#include "emWinUtils.h"
-#include "SeqQueue.h"
-#include "SeqList.h"
-#include "usbh_usr.h"
+#include "bsp.h"
+
+
 /*
 *********************************************************************************************************
 *                              				Private define
@@ -55,15 +51,14 @@
 *                              				Private variables
 *********************************************************************************************************
 */
-HID_Usr_State HID_HostState;
-static uint64_t s_SystemTick = 0;	
+static bool isInitOk;
+static  OS_SEM  EchoSem;
 
 /*
 *********************************************************************************************************
 *                              				Private function prototypes
 *********************************************************************************************************
 */
-
 
 /*
 *********************************************************************************************************
@@ -72,154 +67,162 @@ static uint64_t s_SystemTick = 0;
 */
 /*
 *********************************************************************************************************
-* Function Name : KERNEL_Init
-* Description	: 内核初始化
+* Function Name : ECHO_Init
+* Description	: 打印输出初始化
 * Input			: None
 * Output		: None
 * Return		: None
 *********************************************************************************************************
 */
-void KERNEL_Init( void )
+void ECHO_Init(void)
 {
-	ECHO(DEBUG_KERNEL_INIT, "==================== KERNEL ====================");
+#if (OS_EN)
 	
-	Key_Init();
-	IO_Init();
+	OS_ERR     err;
 
-	ECHO(DEBUG_KERNEL_INIT, "==================== END ====================\r\n");
+	/* 用于资源共享 cnt = 1*/
+    OSSemCreate((OS_SEM    *)&EchoSem,
+                (CPU_CHAR  *)"EchoSem",
+                (OS_SEM_CTR )1,
+                (OS_ERR    *)&err);
+	
+	isInitOk = true;
+
+#endif	
 }
 
 /*
 *********************************************************************************************************
-* Function Name : HID_HostDetectTask
-* Description	: 主机嗅探任务
+* Function Name : __ECHO
+* Description	: 打印输出
 * Input			: None
 * Output		: None
 * Return		: None
 *********************************************************************************************************
 */
-void HID_HostDetectTask( HID_Usr_State *hidHostPtr )
+void __ECHO(char *format, ...)
 {
-	USB_HOST_STATUS_TypeDef USB_HostStatus = USBH_GetStatus();
-	
-	switch (*hidHostPtr)
+	CPU_CHAR  buf_str[256];
+    va_list   v_args;
+
+    va_start(v_args, format);
+   (void)vsnprintf((char       *)&buf_str[0],
+                   (size_t      ) sizeof(buf_str),
+                   (char const *) format,
+                                  v_args);
+    va_end(v_args);
+
+    printf("%s\r\n", buf_str);
+}	
+
+/*
+*********************************************************************************************************
+* Function Name : ECHO_SAFE
+* Description	: 线程安全的打印信息
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+void ECHO_SAFE(char *format, ...)
+{
+    CPU_CHAR  buf_str[256];
+    va_list   v_args;
+    OS_ERR     err;
+
+    va_start(v_args, format);
+   (void)vsnprintf((char       *)&buf_str[0],
+                   (size_t      ) sizeof(buf_str),
+                   (char const *) format,
+                                  v_args);
+    va_end(v_args);
+ 
+	if (isInitOk == true)
 	{
-		case HID_USR_IDLE:
-			*hidHostPtr = HID_USR_WAIT;
-			break;
-		case HID_USR_WAIT:
-			*hidHostPtr = HID_USR_START;
-			break;
-		case HID_USR_START:
+		OSSemPend((OS_SEM *)&EchoSem,
+				  (OS_TICK )0,
+				  (OS_OPT  )OS_OPT_PEND_BLOCKING,
+				  (CPU_TS  *)0,
+				  (OS_ERR *)&err);
+	}
+
+    printf("%s\r\n", buf_str);
+
+	if (isInitOk == true)
+	{
+		OSSemPost((OS_SEM *)&EchoSem,
+				  (OS_OPT  )OS_OPT_POST_1,
+				  (OS_ERR *)&err);
+	}
+}
+
+/*
+*********************************************************************************************************
+* Function Name : bsp_fputc
+* Description	: fputc处理
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+__weak void bsp_fputc( uint8_t ch )
+{
+	;
+}
+
+/*
+*********************************************************************************************************
+* Function Name : fputc
+* Description	: 重定义putc函数，这样可以使用printf函数从串口1打印输出
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+int fputc(int ch, FILE *f)
+{
+	#if 1	/* 将需要printf的字符通过串口中断FIFO发送出去，printf函数会立即返回 */
+		ComSend(DEBUG_COM,(uint8_t *)&ch,1);
+		bsp_fputc(ch);
+	
+		return ch;
+	#else	/* 采用阻塞方式发送每个字符,等待数据发送完毕 */
+		/* 写一个字节到USART1 */
+		USART_SendData(USART1, (uint8_t) ch);
+		/* 等待发送结束 */
+		while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
 		{
-			if (USB_HostStatus == USB_HOST_READY)
-			{
-				HID_TypeTypeDef HID_Type = USBH_HID_GetDeviceType(&hUsbHostHS);
-				if (HID_Type == HID_KEYBOARD)
-				{
-					*hidHostPtr = HID_USR_KEYBOARD;
-					ECHO(DEBUG_KERNEL_HID, "嗅探到键盘...");
-				}
-				else if (HID_Type == HID_MOUSE)
-				{
-					*hidHostPtr = HID_USR_MOUSE;
-					HID_MouseInit(g_mousePtr);
-					ECHO(DEBUG_KERNEL_HID, "嗅探到鼠标...");
-				}
-				else
-				{
-					ECHO(DEBUG_KERNEL_HID, "未知设备！");
-				}
-			}
-			break;
+			;
 		}
-		case HID_USR_MOUSE:
-			HID_MouseProcess(g_mousePtr);
-			break;
-		case HID_USR_KEYBOARD:
-			
-			break;
-		case HID_USR_REENUMERATE:
-			USBH_ReEnumerate(&hUsbHostHS);		
-			*hidHostPtr = HID_USR_START;
-			ECHO(DEBUG_KERNEL_HID, "重新枚举！");
-			break;
-		default:
-			*hidHostPtr = HID_USR_IDLE;
-			break;
-	}
-	
-	if (USB_HostStatus == USB_HOST_DISCONNECT)
-	{
-		*hidHostPtr = HID_USR_IDLE;
-	}
+		return ch;
+	#endif
 }
 
 /*
 *********************************************************************************************************
-* Function Name : GetFreeMemory
-* Description	: 获取空闲容量[单位：KB]
-* Input			: None
-* Output		: None
-* Return		: None
+*	函 数 名: fgetc
+*	功能说明: 重定义getc函数，这样可以使用getchar函数从串口1输入数据
+*	形    参: 无
+*	返 回 值: 无
 *********************************************************************************************************
 */
-bool GetFreeMemory(const char *(*getPath)(void), uint32_t *totalSize, uint32_t *freeSize)
+int fgetc(FILE *f)
 {
-	*freeSize = 0;
-	char rootPath[20] = {0};
-	
-	FATFS *fs;
-	unsigned long freeClust = 0;
-	if (getPath)
+#if 1	/* 从串口接收FIFO中取1个数据, 只有取到数据才返回 */
+	uint8_t ucData;
+
+	while(ComGet(DEBUG_COM, &ucData) == 0)
 	{
-		strcpy(rootPath, getPath());
+		BSP_OS_TimeDlyMs(100);
 	}
-	FRESULT fresult = f_getfree(rootPath, &freeClust, &fs);
-	if (fresult != FR_OK)
-	{
-		return false;
-	}
-	
-	uint32_t totalSector = (fs->n_fatent - 2) * fs->csize;
-	uint32_t freeSector = fs->csize * freeClust;
-#if _MAX_SS!=512				  				    //扇区大小不是512字节,则转换为512字节	
-	totalSector *= FS->ssize / 512;
-	freeSector *= FS->ssize / 512;
+
+	return ucData;
+#else
+	/* 等待串口1输入数据 */
+	while (USART_GetFlagStatus(USART1, USART_FLAG_RXNE) == RESET);
+
+	return (int)USART_ReceiveData(USART1);
 #endif
-	
-	*totalSize = totalSector >> 1;
-	*freeSize = freeSector >> 1;
-	
-	return true;
-}
-
-/*
-*********************************************************************************************************
-* Function Name : SystemTick_Inc
-* Description	: 系统心跳增加
-* Input			: None
-* Output		: None
-* Return		: None
-*********************************************************************************************************
-*/
-void SystemTick_Inc(uint32_t inc)
-{	
-	s_SystemTick += inc;
-}
-
-/*
-*********************************************************************************************************
-* Function Name : GetSystemTick
-* Description	: 获取系统心跳[单位：ms]
-* Input			: None
-* Output		: None
-* Return		: None
-*********************************************************************************************************
-*/
-uint64_t GetSystemTick(void)
-{	
-	return s_SystemTick;
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics **********END OF FILE*************************/

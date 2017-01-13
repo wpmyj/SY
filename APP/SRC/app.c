@@ -78,7 +78,7 @@ void APP_DebugViewTaskCreate( void );
 * Return		: None
 *********************************************************************************************************
 */
-static void PrintControllerInfo(void)
+void PrintControllerInfo(void)
 {
 	ECHO(DEBUG_BSP_INIT, "\r\n========== [控制器信息] ==========");
 	ECHO(DEBUG_BSP_INIT, "[系统型号] %s", SYSTEM_MODEL);

@@ -70,6 +70,7 @@ static CRC_HandleTypeDef hcrc;
 static void bsp_InitCRC( void );
 void LCD_DebugViewTask( void );
 void BSP_Tick_Init (void);
+void ECHO_Init(void);
 
 /*
 *********************************************************************************************************
@@ -178,6 +179,7 @@ void  AppTaskStartUtils (void)
 		/* 以太网开关任务 */
 		SwitchTask(&g_ETH_Switch);
 	}
+	SystemTick_Inc(1);
 }
 
 /*
@@ -373,5 +375,18 @@ void HAL_MspInit(void)
 	__enable_irq();
 }
 
+/*
+*********************************************************************************************************
+* Function Name : AppObjCreate
+* Description	: 创建Obj
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+void AppObjCreate(void)
+{
+	ECHO_Init();
+}
 
 /************************ (C) COPYRIGHT STMicroelectronics **********END OF FILE*************************/
