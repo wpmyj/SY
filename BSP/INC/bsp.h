@@ -102,6 +102,7 @@ void bsp_ErrorHandler(void);
 void NVIC_SetVectorTable(uint32_t NVIC_VectTab, uint32_t Offset);
 void SystemClock_Config(void);
 CPU_INT32U  BSP_CPU_ClkFreq (void);
+void SystemSoftwareReset(void);
 
 #endif
 /************************ (C) COPYRIGHT STMicroelectronics **********END OF FILE*************************/

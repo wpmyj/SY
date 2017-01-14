@@ -36,10 +36,10 @@
 *********************************************************************************************************
 */
 #define SUPPORT_LANGUAGE_NUMS				(2)
-#define LANG_EXCEPTION						"LangException"
 #define MAX_TEXT_PUTIN_LENTH				(32)
+#define LANG_EXCEPTION						"LangException"
 
-/* 自定义消息 */
+/* 自定义 [软键盘] 消息 */
 #define MSG_USER_PAD_CHANGED     			(WM_USER + 0)
 #define MSG_USER_PAD_OK         			(WM_USER + 1)
 #define MSG_USER_PAD_CANCEL      			(WM_USER + 2)
@@ -48,7 +48,13 @@
 #define MSG_USER_UPDATE       				(WM_USER + 5)
 #define MSG_USER_ESC       					(WM_USER + 6)
 
-#define ERROR_WIDGET_ID						(-1)
+/* 自定义 [键盘] 消息 */
+#define MSG_USER_KEY_UP         			(WM_USER + 7)
+#define MSG_USER_KEY_DOWN         			(WM_USER + 8)
+#define MSG_USER_KEY_LEFT         			(WM_USER + 9)
+#define MSG_USER_KEY_RIGHT         			(WM_USER + 10)
+#define MSG_USER_KEY_ENTER         			(WM_USER + 11)
+#define MSG_USER_KEY_ESCAPE         		(WM_USER + 12)
 
 /*
 *********************************************************************************************************

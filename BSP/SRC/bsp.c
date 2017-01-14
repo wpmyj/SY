@@ -389,4 +389,19 @@ void AppObjCreate(void)
 	ECHO_Init();
 }
 
+/*
+*********************************************************************************************************
+* Function Name : SystemSoftwareReset
+* Description	: œµÕ≥»Ì∏¥Œª
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+void SystemSoftwareReset(void)
+{	
+	__set_FAULTMASK(1);
+	NVIC_SystemReset();
+}
+
 /************************ (C) COPYRIGHT STMicroelectronics **********END OF FILE*************************/

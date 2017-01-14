@@ -172,6 +172,31 @@
 #define FRAME_PROGBAR_COLOR2       			GUI_BLACK				/* Cursor */
 #define FRAME_PROGBAR_FONT         			(&GUI_Font16_ASCII)
 
+/*
+*********************************************************************************************************
+*                              				¿ò¼ÜDROPDOWN¿Ø¼þ
+*********************************************************************************************************
+*/
+#define FRAME_DROPDOWN_BKCOLOR0     			FRAME_BKCOLOR          	/* Disabled  */    	
+#define FRAME_DROPDOWN_BKCOLOR1    				FRAME_BKCOLOR           /* Enabled  */	
+#define FRAME_DROPDOWN_BKCOLOR2     			FRAME_BKCOLOR           /* Cursor */
+#define FRAME_DROPDOWN_COLOR0       			GUI_BLACK              	/* Disabled  */  
+#define FRAME_DROPDOWN_COLOR1       			GUI_BLACK				/* Enabled  */	
+#define FRAME_DROPDOWN_COLOR2       			GUI_BLACK				/* Cursor */
+#define FRAME_DROPDOWN_FONT         			(&GUI_FontSongTi_24X24)
+
+/*
+*********************************************************************************************************
+*                              				¿ò¼ÜMULTIPAGE¿Ø¼þ
+*********************************************************************************************************
+*/
+#define FRAME_MULTIPAGE_BKCOLOR0     			FRAME_BKCOLOR          	/* Disabled  */    	
+#define FRAME_MULTIPAGE_BKCOLOR1    			FRAME_BKCOLOR           /* Enabled  */	
+#define FRAME_MULTIPAGE_BKCOLOR2     			FRAME_BKCOLOR           /* Cursor */
+#define FRAME_MULTIPAGE_COLOR0       			GUI_BLACK              	/* Disabled  */  
+#define FRAME_MULTIPAGE_COLOR1       			GUI_BLACK				/* Enabled  */	
+#define FRAME_MULTIPAGE_COLOR2       			GUI_BLACK				/* Cursor */
+#define FRAME_MULTIPAGE_FONT         			(&GUI_FontSongTi_24X24)
 
 /*
 *********************************************************************************************************

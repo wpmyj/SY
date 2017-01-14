@@ -322,7 +322,19 @@ void AppTaskUserIF(void *p_arg)
 						
 					#if 1
 						switch ( key )		
-						{				
+						{		
+							case KEY_VALUE_UP:
+								GUI_SendKeyMsg(GUI_KEY_UP, true);
+								break;
+							case KEY_VALUE_DOWN:
+								GUI_SendKeyMsg(GUI_KEY_DOWN, true);
+								break;
+							case KEY_VALUE_LEFT:
+								GUI_SendKeyMsg(GUI_KEY_LEFT, true);							
+								break;
+							case KEY_VALUE_RIGHT:
+								GUI_SendKeyMsg(GUI_KEY_RIGHT, true);
+								break;						
 							case KEY_VALUE_ENTER:
 								GUI_SendKeyMsg(GUI_KEY_ENTER, true);
 								break;
@@ -331,19 +343,7 @@ void AppTaskUserIF(void *p_arg)
 								break;
 							case KEY_VALUE_BACK:
 								GUI_SendKeyMsg(GUI_KEY_BACKSPACE, true);
-								break;
-							case KEY_VALUE_LEFT:
-								GUI_SendKeyMsg(GUI_KEY_LEFT, true);
-								break;
-							case KEY_VALUE_RIGHT:
-								GUI_SendKeyMsg(GUI_KEY_RIGHT, true);
-								break;
-							case KEY_VALUE_UP:
-								GUI_SendKeyMsg(GUI_KEY_UP, true);
-								break;
-							case KEY_VALUE_DOWN:
-								GUI_SendKeyMsg(GUI_KEY_DOWN, true);
-								break;		
+								break;	
 							case KEY_VALUE_1:
 								GUI_SendKeyMsg(GUI_KEY_BACKTAB, true);
 								break;

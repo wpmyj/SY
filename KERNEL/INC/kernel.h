@@ -90,6 +90,7 @@ void HID_HostDetectTask( HID_Usr_State *hidHostPtr );
 bool GetFreeMemory(const char *(*getPath)(void), uint32_t *totalSize, uint32_t *freeSize);
 void SystemTick_Inc(uint32_t inc);
 uint64_t GetSystemTick(void);
+void PrintProcessSnapshot(void);
 
 /*
 *********************************************************************************************************

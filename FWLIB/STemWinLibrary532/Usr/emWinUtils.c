@@ -388,7 +388,7 @@ bool ShowPNGEx(uint16_t usPOSX, uint16_t usPOSY, const char * sFilename)
 	}
 	
 	PIC_ALLOC_MEM();
-	ret = GUI_PNG_DrawEx(_GetData, &file, usPOSX, usPOSY);
+	//ret = GUI_PNG_DrawEx(_GetData, &file, usPOSX, usPOSY);
 	PIC_FREE_MEM();
 	
 	f_close(&file);

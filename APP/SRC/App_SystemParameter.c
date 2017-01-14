@@ -58,35 +58,47 @@ static const GUI_WIDGET_CREATE_INFO _aDialogCreate[] = {
 	{ FRAMEWIN_CreateIndirect, "Framewin", GUI_ID_DIALOG0, 
 		GUI_DIALOG_START_X, GUI_DIALOG_START_Y, GUI_DIALOG_WIDTH, GUI_DIALOG_HEIGHT, 
 		0, 0, 0 },
+	{ MULTIPAGE_CreateIndirect, "Multipage", GUI_ID_MULTIPAGE0,
+		10, 10, GUI_DIALOG_WIDTH - 30, GUI_DIALOG_HEIGHT - 60,
+		0, 0x0, 0 },
 };
 
 static const GUI_WIDGET_CREATE_INFO _aDialogCreate1[] = {
 	{ WINDOW_CreateIndirect, "Framewin", GUI_ID_DIALOG1, 
-		10, 50, GUI_DIALOG_WIDTH-30, GUI_DIALOG_HEIGHT-50, 
+		10, 10, GUI_DIALOG_WIDTH-30, GUI_DIALOG_HEIGHT-40, 
 		0, 0, 0 },
+	{ TEXT_CreateIndirect, "Text", GUI_ID_TEXT0,
+		20, 20, 150, 32,
+		0, 0x0, 0 },
 	{ DROPDOWN_CreateIndirect, "Dropdown", GUI_ID_DROPDOWN0,
-		20, 50, 200, 32,
+		180, 20, 200, 32,
+		0, 0x0, 0 },
+	{ TEXT_CreateIndirect, "Text", GUI_ID_TEXT1,
+		20, 60, 150, 32,
+		0, 0x0, 0 },
+	{ DROPDOWN_CreateIndirect, "Dropdown", GUI_ID_DROPDOWN1,
+		180, 60, 200, 32,
 		0, 0x0, 0 },
 	{ BUTTON_CreateIndirect, "Button", GUI_ID_BUTTON0,
-		30, 200, 100, 32, 
+		70, 210, 150, 32, 
 		0, 0x0, 0 },
 	{ BUTTON_CreateIndirect, "Button", GUI_ID_BUTTON1,
-		180, 200, 100, 32, 
+		310, 210, 150, 32, 
 		0, 0x0, 0 },
 };
 
 static const GUI_WIDGET_CREATE_INFO _aDialogCreate2[] = {
 	{ WINDOW_CreateIndirect, "Framewin", GUI_ID_DIALOG2, 
-		10, 50, GUI_DIALOG_WIDTH-30, GUI_DIALOG_HEIGHT-50, 
+		10, 10, GUI_DIALOG_WIDTH-30, GUI_DIALOG_HEIGHT-40, 
 		0, 0, 0 },	
 	{ CHECKBOX_CreateIndirect, "Checkbox", GUI_ID_CHECK0,
 		20, 50, 200, 32, 
 		0, 0x0, 0 },
 	{ BUTTON_CreateIndirect, "Button", GUI_ID_BUTTON0,
-		30, 200, 100, 32, 
+		70, 210, 150, 32, 
 		0, 0x0, 0 },
 	{ BUTTON_CreateIndirect, "Button", GUI_ID_BUTTON1,
-		180, 200, 100, 32, 
+		310, 210, 150, 32, 
 		0, 0x0, 0 },
 };
 
@@ -96,21 +108,93 @@ static const char * _aLang[][SUPPORT_LANGUAGE_NUMS] = {
 		"Parameter Set",
 	},	//1
 	{
-		"控制参数",
-		"Control Parameter",
-	},	//2
-	{
 		"试验参数",
 		"Test Parameter",
+	},	//2
+	{
+		"控制参数",
+		"Control Parameter",
 	},	//3
 	{
 		"系统最大力：",
 		"Max Force Of System:",
 	},	//4
 	{
-		"自动加载：",
-		"Auto Load:",
+		"P·I",
+		"P·I",
 	},	//5
+	{
+		"P·II",
+		"P·II",
+	},	//6
+	{
+		"试样品种：",
+		"Sample Variety:",
+	},	//7
+	{
+		"上一页",
+		"Before Page",
+	},	//8
+	{
+		"下一页",
+		"Next Page",
+	},	//9
+	{
+		"P·O",
+		"P·O",
+	},	//10
+	{
+		"P·S·A",
+		"P·S·A",
+	},	//11
+	{
+		"P·S·B",
+		"P·S·B",
+	},	//12
+	{
+		"P·P",
+		"P·P",
+	},	//13
+	{
+		"P·F",
+		"P·F",
+	},	//14
+	{
+		"P·C",
+		"P·C",
+	},	//15
+	{
+		"矿粉S",
+		"矿粉S",
+	},	//16
+	{
+		"强度等级：",
+		"Strength Grade:",
+	},	//17
+	{
+		"32.5",
+		"32.5",
+	},	//18
+	{
+		"32.5R",
+		"32.5R",
+	},	//19
+	{
+		"42.5",
+		"42.5",
+	},	//20
+	{
+		"42.5R",
+		"42.5R",
+	},	//21
+	{
+		"52.5",
+		"52.5",
+	},	//22
+	{
+		"52.5R",
+		"52.5R",
+	},	//23
 };
 
 /*
@@ -131,6 +215,8 @@ static const char * _aLang[][SUPPORT_LANGUAGE_NUMS] = {
 *                              				Private function prototypes
 *********************************************************************************************************
 */
+static void _cbDialog1(WM_MESSAGE* pMsg);
+static void _cbDialog2(WM_MESSAGE* pMsg);
 
 /*
 *********************************************************************************************************
@@ -257,11 +343,24 @@ static void DialogConstructor(WM_MESSAGE* pMsg)
 {
 	WM_HWIN hWin = pMsg->hWin;
 	
+	FRAMEWIN_SetActive(hWin, 1);
+	
 	FRAMEWIN_SetFont(hWin, FRAME_FONT);
 	FRAMEWIN_SetTitleHeight(hWin, DIALOG_TITLE_HEIGHT);
 	FRAMEWIN_SetTextAlign(hWin, GUI_TA_HCENTER | GUI_TA_VCENTER);
 	FRAMEWIN_SetText(hWin, _GetLang(1));
 	
+	WM_HWIN hMultiPage = WM_GetDialogItem(hWin, GUI_ID_MULTIPAGE0);
+	MULTIPAGE_SetFont(hMultiPage, FRAME_MULTIPAGE_FONT);
+	MULTIPAGE_SetAlign(hMultiPage, MULTIPAGE_ALIGN_TOP);
+	
+	WM_HWIN hDialog = GUI_CreateDialogBox(_aDialogCreate1, GUI_COUNTOF(_aDialogCreate1), _cbDialog1, hMultiPage, 0, 0);
+	MULTIPAGE_AddEmptyPage(hMultiPage, hDialog, _GetLang(2));
+	
+	hDialog = GUI_CreateDialogBox(_aDialogCreate2, GUI_COUNTOF(_aDialogCreate2), _cbDialog2, hMultiPage, 0, 0);
+	MULTIPAGE_AddEmptyPage(hMultiPage, hDialog, _GetLang(3));
+	
+	MULTIPAGE_SelectPage(hMultiPage, 0);
 }
 
 /*
@@ -279,8 +378,106 @@ static void _cbDialog(WM_MESSAGE* pMsg)
 	
 	switch (pMsg->MsgId) 
 	{
-		case WM_CREATE:	
+		case WM_INIT_DIALOG:	
 			DialogConstructor(pMsg);
+			break;
+		case WM_CREATE:				
+			break;
+		case WM_PAINT:	
+			break;
+		case WM_KEY:
+		{			
+			break;
+		}
+		case WM_NOTIFY_PARENT:
+		{						
+			break;
+		}
+		default:
+			WM_DefaultProc(pMsg);
+			break;
+	}
+}
+
+/*
+*********************************************************************************************************
+* Function Name : DialogConstructor1
+* Description	: 构造函数
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+static void DialogConstructor1(WM_MESSAGE* pMsg) 
+{
+	WM_HWIN hWin = pMsg->hWin;
+	
+	WM_HWIN hText = WM_GetDialogItem(hWin, GUI_ID_TEXT0);
+	TEXT_SetFont(hText, FRAME_TEXT_FONT);
+	TEXT_SetTextAlign(hText, TEXT_CF_RIGHT | TEXT_CF_VCENTER);
+	TEXT_SetText(hText, _GetLang(7));
+	
+	WM_HWIN hDropDown = WM_GetDialogItem(hWin, GUI_ID_DROPDOWN0);
+	DROPDOWN_SetFont(hDropDown, FRAME_DROPDOWN_FONT);
+	DROPDOWN_AddString(hDropDown, _GetLang(5));
+	DROPDOWN_AddString(hDropDown, _GetLang(6));
+	DROPDOWN_AddString(hDropDown, _GetLang(10));
+	DROPDOWN_AddString(hDropDown, _GetLang(11));
+	DROPDOWN_AddString(hDropDown, _GetLang(12));
+	DROPDOWN_AddString(hDropDown, _GetLang(13));
+	DROPDOWN_AddString(hDropDown, _GetLang(14));
+	DROPDOWN_AddString(hDropDown, _GetLang(15));
+	DROPDOWN_AddString(hDropDown, _GetLang(16));
+	DROPDOWN_SetListHeight(hDropDown, 80);
+	DROPDOWN_SetAutoScroll(hDropDown, 1);
+	DROPDOWN_SetScrollbarWidth(hDropDown, 20);
+	
+	hText = WM_GetDialogItem(hWin, GUI_ID_TEXT1);
+	TEXT_SetFont(hText, FRAME_TEXT_FONT);
+	TEXT_SetTextAlign(hText, TEXT_CF_RIGHT | TEXT_CF_VCENTER);
+	TEXT_SetText(hText, _GetLang(17));
+	
+	hDropDown = WM_GetDialogItem(hWin, GUI_ID_DROPDOWN1);
+	DROPDOWN_SetFont(hDropDown, FRAME_DROPDOWN_FONT);
+	DROPDOWN_AddString(hDropDown, _GetLang(18));
+	DROPDOWN_AddString(hDropDown, _GetLang(19));
+	DROPDOWN_AddString(hDropDown, _GetLang(20));
+	DROPDOWN_AddString(hDropDown, _GetLang(21));
+	DROPDOWN_AddString(hDropDown, _GetLang(22));
+	DROPDOWN_AddString(hDropDown, _GetLang(23));
+	DROPDOWN_SetListHeight(hDropDown, 80);
+	DROPDOWN_SetAutoScroll(hDropDown, 1);
+	DROPDOWN_SetScrollbarWidth(hDropDown, 20);
+	
+	WM_HWIN hButton = WM_GetDialogItem(hWin, GUI_ID_BUTTON0);
+	BUTTON_SetFont(hButton, FRAME_BUTTON_FONT);
+	BUTTON_SetText(hButton, _GetLang(8));
+	
+	hButton = WM_GetDialogItem(hWin, GUI_ID_BUTTON1);
+	BUTTON_SetFont(hButton, FRAME_BUTTON_FONT);
+	BUTTON_SetText(hButton, _GetLang(9));
+}
+
+/*
+*********************************************************************************************************
+* Function Name : _cbDialog1
+* Description	: 窗口回调函数
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+static void _cbDialog1(WM_MESSAGE* pMsg) 
+{
+	WM_HWIN hWin = pMsg->hWin;
+	
+	switch (pMsg->MsgId) 
+	{
+		case WM_INIT_DIALOG:	
+			DialogConstructor1(pMsg);
+			break;
+		case WM_CREATE:	
+			
 			break;
 		case WM_PAINT:				
 			break;
@@ -299,9 +496,11 @@ static void _cbDialog(WM_MESSAGE* pMsg)
 									
 					break;				
 				}
-				case GUI_KEY_ESCAPE:				
+				case GUI_KEY_ESCAPE:
+				{					
 					WM_SendMessageNoPara(WM_GetParent(hWin), MSG_USER_ESC);
 					break;
+				}
 				default:
 					
 					break;
@@ -310,31 +509,27 @@ static void _cbDialog(WM_MESSAGE* pMsg)
 		}
 		case WM_NOTIFY_PARENT:
 		{
-						
-			break;
-		}
-		case MSG_USER_PAD_CHANGED:
-		case MSG_USER_PAD_DELETE:
-		case MSG_USER_PAD_CLEAR:
-		{					
-			break;
-		}		
-		case MSG_USER_PAD_CANCEL:	
-		{					
-			break;
-		}
-		case MSG_USER_PAD_OK:	
-		{			
-			break;
-		}
-		case WM_SET_FOCUS:
-		{
+					
 			break;
 		}
 		default:
 			WM_DefaultProc(pMsg);
 			break;
 	}
+}
+
+/*
+*********************************************************************************************************
+* Function Name : _cbDialog2
+* Description	: 窗口回调函数
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+static void _cbDialog2(WM_MESSAGE* pMsg) 
+{
+	WM_DefaultProc(pMsg);
 }
 
 /*
@@ -350,18 +545,6 @@ void App_SystemParameterTaskCreate( void )
 {
 	WM_HWIN hWin = _CreateFrame(_cbDesktop);
 	WM_HWIN hFrameWin = GUI_CreateDialogBox(_aDialogCreate, GUI_COUNTOF(_aDialogCreate), &_cbDialog, hWin, 0, 0);
-	
-	WM_HWIN hMultiPage = MULTIPAGE_CreateEx(10, 40, GUI_DIALOG_WIDTH - 30, GUI_DIALOG_HEIGHT - 80, WM_GetClientWindow(hFrameWin), WM_CF_SHOW, 0, 0);
-	MULTIPAGE_SetFont(hMultiPage, FRAME_FONT);
-	MULTIPAGE_SetAlign(hMultiPage, MULTIPAGE_ALIGN_TOP);
-	
-	WM_HWIN hDialog = GUI_CreateDialogBox(_aDialogCreate1, GUI_COUNTOF(_aDialogCreate1), _cbDialog, hMultiPage, 0, 0);
-	MULTIPAGE_AddPage(hMultiPage, hDialog, _GetLang(2));
-	
-	hDialog = GUI_CreateDialogBox(_aDialogCreate2, GUI_COUNTOF(_aDialogCreate2), _cbDialog, hMultiPage, 0, 0);
-	MULTIPAGE_AddPage(hMultiPage, hDialog, _GetLang(3));
-	
-	MULTIPAGE_SelectPage(hMultiPage, 0);
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics **********END OF FILE*************************/

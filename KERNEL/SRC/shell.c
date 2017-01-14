@@ -45,7 +45,11 @@ static void UnameCmdFormat_handler(const char *para);
 static void Status_handler(const char *para);
 static void StatusCmdFormat_handler(const char *para);
 
+static void ProcessSnapshot_handler(const char *para);
+static void ProcessSnapshotCmdFormat_handler(const char *para);
 
+static void Reboot_handler(const char *para);
+static void RebootCmdFormat_handler(const char *para);
 
 
 /*
@@ -110,6 +114,18 @@ static const SHELL_TypeDef g_Shell[] = {
 		Status_handler,
 		StatusCmdFormat_handler,
 	},
+	{
+		"ps",
+		0,
+		ProcessSnapshot_handler,
+		ProcessSnapshotCmdFormat_handler,
+	},
+	{
+		"reboot",
+		0,
+		Reboot_handler,
+		RebootCmdFormat_handler,
+	},
 };
 
 
@@ -140,7 +156,7 @@ static const SHELL_TypeDef g_Shell[] = {
 * Return		: None
 *********************************************************************************************************
 */
-bool isCmdExist(const char *cmd)
+static bool isCmdExist(const char *cmd)
 {
 	for (uint32_t i=0; i<ARRAY_SIZE(g_Shell); ++i)
 	{
@@ -162,7 +178,7 @@ bool isCmdExist(const char *cmd)
 * Return		: None
 *********************************************************************************************************
 */
-bool GetCmdIndex(const char *cmd, uint32_t *index)
+static bool GetCmdIndex(const char *cmd, uint32_t *index)
 {
 	for (uint32_t i=0; i<ARRAY_SIZE(g_Shell); ++i)
 	{
@@ -198,7 +214,7 @@ void AppTaskShell(void *p_arg)
 		if (isCmdExist(stringBuffer) == false)
 		{
 			ECHO(DEBUG_KERNEL_SHELL, "未找到命令！");
-			ECHO(DEBUG_KERNEL_SHELL, "输入 <help> 查看支持的命令！");
+			ECHO(DEBUG_KERNEL_SHELL, "输入 <cmd> 查看支持的命令！");
 			continue;
 		}
 		
@@ -439,8 +455,8 @@ static void Status_handler(const char *para)
 
 /*
 *********************************************************************************************************
-* Function Name : UnameCmdFormat_handler
-* Description	: 处理系统信息命令格式
+* Function Name : StatusCmdFormat_handler
+* Description	: 处理状态命令格式
 * Input			: None
 * Output		: None
 * Return		: None
@@ -449,6 +465,62 @@ static void Status_handler(const char *para)
 static void StatusCmdFormat_handler(const char *para)
 {
 	ECHO(DEBUG_KERNEL_SHELL, "命令格式：status");	
+}
+
+/*
+*********************************************************************************************************
+* Function Name : ProcessSnapshot_handler
+* Description	: 处理进程快照
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+static void ProcessSnapshot_handler(const char *para)
+{
+	PrintProcessSnapshot();
+}
+
+/*
+*********************************************************************************************************
+* Function Name : ProcessSnapshotCmdFormat_handler
+* Description	: 处理进程快照命令格式
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+static void ProcessSnapshotCmdFormat_handler(const char *para)
+{
+	ECHO(DEBUG_KERNEL_SHELL, "命令格式：ps");	
+}
+
+/*
+*********************************************************************************************************
+* Function Name : Reboot_handler
+* Description	: 处理重启控制器
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+static void Reboot_handler(const char *para)
+{
+	SystemSoftwareReset();
+}
+
+/*
+*********************************************************************************************************
+* Function Name : RebootCmdFormat_handler
+* Description	: 处理重启命令格式
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+static void RebootCmdFormat_handler(const char *para)
+{
+	ECHO(DEBUG_KERNEL_SHELL, "命令格式：reboot");	
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics **********END OF FILE*************************/

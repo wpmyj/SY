@@ -56,7 +56,7 @@
 *********************************************************************************************************
 */
 HID_Usr_State HID_HostState;
-static uint64_t s_SystemTick = 0;	
+static uint64_t s_SystemTick;	
 
 /*
 *********************************************************************************************************
@@ -220,6 +220,48 @@ void SystemTick_Inc(uint32_t inc)
 uint64_t GetSystemTick(void)
 {	
 	return s_SystemTick;
+}
+
+/*
+*********************************************************************************************************
+*	函 数 名: PrintProcessSnapshot
+*	功能说明: 打印进程快照
+*	形    参: 无
+*	返 回 值: 无
+*********************************************************************************************************
+*/
+void PrintProcessSnapshot(void)
+{
+	OS_TCB      *p_tcb;	        /* 定义一个任务控制块指针, TCB = TASK CONTROL BLOCK */
+	float CPU;
+	CPU_SR_ALLOC();
+
+	CPU_CRITICAL_ENTER();
+    p_tcb = OSTaskDbgListPtr;
+    CPU_CRITICAL_EXIT();
+	
+	void ECHO_SAFE(char *format, ...);
+	
+	/* 打印标题 */
+	ECHO_SAFE("============================================================\r\n");
+	ECHO_SAFE(" 优先级 使用栈 剩余栈 百分比  CPU     任  务\r\n");
+
+	/* 遍历任务控制块列表(TCB list)，打印所有的任务的优先级和名称 */
+	while (p_tcb != (OS_TCB *)0) 
+	{
+		CPU = (float)p_tcb->CPUUsage / 100;
+		ECHO_SAFE("   %2d  %5d  %5d    %02d%%  %5.2f%%   %s\r\n", 
+		p_tcb->Prio, 
+		p_tcb->StkUsed, 
+		p_tcb->StkFree, 
+		(p_tcb->StkUsed * 100) / (p_tcb->StkUsed + p_tcb->StkFree),
+		CPU,
+		p_tcb->NamePtr);		
+	 	
+		CPU_CRITICAL_ENTER();
+        p_tcb = p_tcb->DbgNextPtr;
+        CPU_CRITICAL_EXIT();
+	}
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics **********END OF FILE*************************/
