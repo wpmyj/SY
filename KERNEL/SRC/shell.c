@@ -36,9 +36,6 @@ static void HelpCmdFormat_handler(const char *para);
 static void PowerOnTime_handler(const char *para);
 static void TimeCmdFormat_handler(const char *para);
 
-static void PowerOnDays_handler(const char *para);
-static void DaysCmdFormat_handler(const char *para);
-
 static void Uname_handler(const char *para);
 static void UnameCmdFormat_handler(const char *para);
 
@@ -95,12 +92,6 @@ static const SHELL_TypeDef g_Shell[] = {
 		0,
 		PowerOnTime_handler,
 		TimeCmdFormat_handler,
-	},
-	{
-		"day",
-		0,
-		PowerOnDays_handler,
-		DaysCmdFormat_handler,
 	},
 	{
 		"uname",
@@ -350,17 +341,12 @@ static void HelpCmdFormat_handler(const char *para)
 */
 static void PowerOnTime_handler(const char *para)
 {
-	uint64_t tick = GetSystemTick();
 	char timeBuff[32] = {0};
+	tTime time;
+	GetSystemTime(&time);
 	
-	uint32_t hour = 0, minutes = 0, seconds = 0;
-	
-	tick /= 1000;
-	hour = tick / 3600;
-	minutes = (tick - hour * 3600) / 60;
-	seconds = tick - hour * 3600 - minutes * 60;
-	
-	sprintf(timeBuff, "开机时间(h:m:s)：%d:%d:%d", hour, minutes, seconds);
+	sprintf(timeBuff, "开机时间：%04d-%02d-%02d %02d:%02d:%02d", \
+			time.usYear, time.ucMon, time.ucMday, time.ucHour, time.ucMin, time.ucSec);
 	ECHO(DEBUG_KERNEL_SHELL, timeBuff);
 }
 
@@ -376,37 +362,6 @@ static void PowerOnTime_handler(const char *para)
 static void TimeCmdFormat_handler(const char *para)
 {
 	ECHO(DEBUG_KERNEL_SHELL, "命令格式：time");	
-}
-
-/*
-*********************************************************************************************************
-* Function Name : PowerOnDays_handler
-* Description	: 处理开机天数
-* Input			: None
-* Output		: None
-* Return		: None
-*********************************************************************************************************
-*/
-static void PowerOnDays_handler(const char *para)
-{
-	uint64_t tick = GetSystemTick();
-	uint32_t days = ((tick /1000) / 3600) / 24;
-	
-	ECHO(DEBUG_KERNEL_SHELL, "开机天数：%d", days);
-}
-
-/*
-*********************************************************************************************************
-* Function Name : DaysCmdFormat_handler
-* Description	: 处理天数命令格式
-* Input			: None
-* Output		: None
-* Return		: None
-*********************************************************************************************************
-*/
-static void DaysCmdFormat_handler(const char *para)
-{
-	ECHO(DEBUG_KERNEL_SHELL, "命令格式：day");	
 }
 
 /*

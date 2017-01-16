@@ -348,23 +348,23 @@ WM_HWIN _CreateRadio(WM_HWIN hParent,
 typedef struct {
 	int MsgId;							//消息ID
 	WM_HWIN hTarget;					//目标句柄
-	struct list_head listBody;
-}KEY_MSG_BODY_TypeDef;
-
-typedef struct {
-	
-	
-	void (*addMsg_CallBack)(void);		//添加消息
-	void (*deleteMsg_CallBack)(void);	//删除消息
-	void (*sendMsg_CallBack)(void);		//发送消息	
-	
 	struct list_head list;
 }KEY_MSG_TypeDef;
+
+//typedef struct {
+//	
+//	
+//	void (*addMsg_CallBack)(void);		//添加消息
+//	void (*deleteMsg_CallBack)(void);	//删除消息
+//	void (*sendMsg_CallBack)(void);		//发送消息	
+//	
+//	struct list_head list;
+//}KEY_MSG_TypeDef;
 
 /*
 *********************************************************************************************************
 * Function Name : CreateKeyMsg
-* Description	: 创建按键消息对象
+* Description	: 创建按键消息
 * Input			: None
 * Output		: None
 * Return		: None
@@ -390,11 +390,11 @@ KEY_MSG_TypeDef *CreateKeyMsg(void)
 */
 bool AddKeyMsg(KEY_MSG_TypeDef *this, int MsgId, WM_HWIN hTarget)
 {
-	KEY_MSG_BODY_TypeDef *newPoint = new(sizeof(KEY_MSG_BODY_TypeDef));
-	newPoint->MsgId = MsgId;	
-	newPoint->hTarget = hTarget;
+	KEY_MSG_TypeDef *newNode = new(sizeof(KEY_MSG_TypeDef));
+	newNode->MsgId = MsgId;	
+	newNode->hTarget = hTarget;
 	
-	list_add_tail(&newPoint->listBody, &this->list);
+	list_add_tail(&newNode->list, &this->list);
 	
 	return true;
 }
@@ -410,7 +410,11 @@ bool AddKeyMsg(KEY_MSG_TypeDef *this, int MsgId, WM_HWIN hTarget)
 */
 bool DeleteKeyMsg(KEY_MSG_TypeDef *this, WM_HWIN hTarget)
 {
-	1
+	
+	list_for_each_entry_safe()
+	{
+		
+	}
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics **********END OF FILE*************************/

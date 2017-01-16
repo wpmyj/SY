@@ -224,6 +224,38 @@ uint64_t GetSystemTick(void)
 
 /*
 *********************************************************************************************************
+* Function Name : GetSystemTime
+* Description	: 获取系统时间
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+void GetSystemTime(tTime *time)
+{
+	uint64_t tick = GetSystemTick();
+	uint32_t year = 0, month = 0, day = 0, hour = 0, minutes = 0, seconds = 0;
+	
+	tick /= 1000;
+	
+	year = tick / 3600 / 24 / 30 / 12;
+	month = (tick / 3600 / 24 / 30) % 12;
+	day = (tick / 3600 / 24) % 30;	
+	hour = (tick / 3600) % 24;
+	minutes = (tick / 60) % 60;
+	seconds = tick % 60;
+	
+	time->usYear = year;
+	time->ucMon = month;
+	time->ucMday = day;
+	time->ucWday = 0;
+	time->ucHour = hour;
+	time->ucMin = minutes;
+	time->ucSec = seconds;
+}
+
+/*
+*********************************************************************************************************
 *	函 数 名: PrintProcessSnapshot
 *	功能说明: 打印进程快照
 *	形    参: 无

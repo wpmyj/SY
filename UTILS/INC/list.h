@@ -270,7 +270,7 @@ static __INLINE void list_replace_init(struct list_head *old,
  * @head:	the head for your list.
  * @member:	the name of the list_head within the struct.
  */
-#define list_for_each_entry(pos,head,type, member)				\
+#define list_for_each_entry(pos, head, type, member)				\
 	for (pos = list_first_entry(head, type, member);	\
 	     &pos->member != (head);					\
 	     pos = list_next_entry(pos,type,member))
@@ -344,8 +344,8 @@ static __INLINE void list_replace_init(struct list_head *old,
  * @head:	the head for your list.
  * @member:	the name of the list_head within the struct.
  */
-#define list_for_each_entry_safe(pos, n, head, member)			\
-	for (pos = list_first_entry(head, typeof(*pos), member),	\
+#define list_for_each_entry_safe(pos, n, head, type, member)			\
+	for (pos = list_first_entry(head, type, member),	\
 		n = list_next_entry(pos, member);			\
 	     &pos->member != (head); 					\
 	     pos = n, n = list_next_entry(n, member))

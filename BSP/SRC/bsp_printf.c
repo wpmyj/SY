@@ -18,7 +18,7 @@
 *                              				Private Includes
 *********************************************************************************************************
 */
-#include "bsp.h"
+#include "kernel.h"
 
 
 /*
@@ -105,8 +105,20 @@ void __ECHO(char *format, ...)
 	CPU_CHAR  buf_str[256];
     va_list   v_args;
 
+	uint32_t index = 0;
+	{
+		char timeBuff[32] = {0};
+		tTime time;
+		GetSystemTime(&time);
+		
+		sprintf(timeBuff, "[%04d-%02d-%02d %02d:%02d:%02d] ", \
+				time.usYear, time.ucMon, time.ucMday, time.ucHour, time.ucMin, time.ucSec);
+		strcpy(buf_str, timeBuff);
+		index = strlen(timeBuff);
+	}
+	
     va_start(v_args, format);
-   (void)vsnprintf((char       *)&buf_str[0],
+   (void)vsnprintf((char       *)&buf_str[index],
                    (size_t      ) sizeof(buf_str),
                    (char const *) format,
                                   v_args);
@@ -129,9 +141,21 @@ void ECHO_SAFE(char *format, ...)
     CPU_CHAR  buf_str[256];
     va_list   v_args;
     OS_ERR     err;
+	
+	uint32_t index = 0;
+	{
+		char timeBuff[32] = {0};
+		tTime time;
+		GetSystemTime(&time);
+		
+		sprintf(timeBuff, "[%04d-%02d-%02d %02d:%02d:%02d] ", \
+				time.usYear, time.ucMon, time.ucMday, time.ucHour, time.ucMin, time.ucSec);
+		strcpy(buf_str, timeBuff);
+		index = strlen(timeBuff);
+	}
 
     va_start(v_args, format);
-   (void)vsnprintf((char       *)&buf_str[0],
+   (void)vsnprintf((char       *)&buf_str[index],
                    (size_t      ) sizeof(buf_str),
                    (char const *) format,
                                   v_args);
