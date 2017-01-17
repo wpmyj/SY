@@ -346,9 +346,9 @@ static __INLINE void list_replace_init(struct list_head *old,
  */
 #define list_for_each_entry_safe(pos, n, head, type, member)			\
 	for (pos = list_first_entry(head, type, member),	\
-		n = list_next_entry(pos, member);			\
+		n = list_next_entry(pos, type, member);			\
 	     &pos->member != (head); 					\
-	     pos = n, n = list_next_entry(n, member))
+	     pos = n, n = list_next_entry(n, type, member))
 
 /**
  * list_for_each_entry_safe_continue - continue list iteration safe against removal

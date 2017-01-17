@@ -40,21 +40,13 @@
 #define LANG_EXCEPTION						"LangException"
 
 /* 自定义 [软键盘] 消息 */
-#define MSG_USER_PAD_CHANGED     			(WM_USER + 0)
-#define MSG_USER_PAD_OK         			(WM_USER + 1)
-#define MSG_USER_PAD_CANCEL      			(WM_USER + 2)
-#define MSG_USER_PAD_DELETE       			(WM_USER + 3)
-#define MSG_USER_PAD_CLEAR       			(WM_USER + 4)
-#define MSG_USER_UPDATE       				(WM_USER + 5)
-#define MSG_USER_ESC       					(WM_USER + 6)
-
-/* 自定义 [键盘] 消息 */
-#define MSG_USER_KEY_UP         			(WM_USER + 7)
-#define MSG_USER_KEY_DOWN         			(WM_USER + 8)
-#define MSG_USER_KEY_LEFT         			(WM_USER + 9)
-#define MSG_USER_KEY_RIGHT         			(WM_USER + 10)
-#define MSG_USER_KEY_ENTER         			(WM_USER + 11)
-#define MSG_USER_KEY_ESCAPE         		(WM_USER + 12)
+#define WM_USER_PAD_CHANGED     			(WM_USER + 0)
+#define WM_USER_PAD_OK         				(WM_USER + 1)
+#define WM_USER_PAD_CANCEL      			(WM_USER + 2)
+#define WM_USER_PAD_DELETE       			(WM_USER + 3)
+#define WM_USER_PAD_CLEAR       			(WM_USER + 4)
+#define WM_USER_UPDATE       				(WM_USER + 5)
+#define WM_USER_ESC       					(WM_USER + 6)
 
 /*
 *********************************************************************************************************
@@ -78,6 +70,17 @@ typedef struct {
 	WM_HWIN handleLevel3;
 	struct list_head list;
 }LIST_HANDLE_TypeDef;
+
+/*
+*********************************************************************************************************
+*                              				按键消息
+*********************************************************************************************************
+*/
+typedef struct tagKEY_MSG_REMAP_TypeDef {
+	int key;
+	void (*sendKeyMsg_CallBack)(void);
+	struct list_head list;
+}KEY_MSG_REMAP_TypeDef;
 
 /*
 *********************************************************************************************************
@@ -187,6 +190,34 @@ void _PaintFrame(void);
 
 LANGUAGE_TYPE_TypeDef GetLanguageType( void );
 void SetLanguageType( LANGUAGE_TYPE_TypeDef type);
+
+/*
+*********************************************************************************************************
+*                              				按键消息映射
+*********************************************************************************************************
+*/
+KEY_MSG_REMAP_TypeDef *CreateKeyMsgRemap(void);
+bool AddKeyMsgRemap(KEY_MSG_REMAP_TypeDef *head, int key, \
+		void (*sendKeyMsg_CallBack)(void));
+KEY_MSG_REMAP_TypeDef *FindKeyMsgRemap(KEY_MSG_REMAP_TypeDef *head, int key);
+bool DeleteKeyMsgRemap(KEY_MSG_REMAP_TypeDef *node);
+void IteratorKeyMsgRemap(KEY_MSG_REMAP_TypeDef *head, \
+		void (*iterator_CallBack)(KEY_MSG_REMAP_TypeDef *node));
+
+bool Register_KeyMsgRemap(KEY_MSG_REMAP_TypeDef *head, int key, \
+		void (*sendKeyMsg_CallBack)(void));
+void DeleteKeyMsgRemap_CallBack(KEY_MSG_REMAP_TypeDef *node);
+void SendKeyUpMsg_CallBack(void);
+void SendKeyDownMsg_CallBack(void);
+void SendKeyLeftMsg_CallBack(void);
+void SendKeyRightMsg_CallBack(void);
+void SendKeyEnterMsg_CallBack(void);
+void SendKeyEscapeMsg_CallBack(void);
+void SendKeySpaceMsg_CallBack(void);
+void SendKeyTabMsg_CallBack(void);
+void SendKeyBackTabMsg_CallBack(void);
+
+
 
 WM_HWIN _CreateButton(WM_HWIN hParent, 
 						const WIDGET_EFFECT* pEffect,

@@ -71,6 +71,7 @@
 *********************************************************************************************************
 */
 void APP_Init( void );
+KEY_MSG_REMAP_TypeDef *GetKeyMsgRemapHandle(void);
 
 
 #endif

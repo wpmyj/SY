@@ -212,7 +212,7 @@ static void _cbDesktop(WM_MESSAGE *pMsg)
 		case WM_PAINT:
 			_PaintFrame();
 			break;
-		case MSG_USER_ESC:
+		case WM_USER_ESC:
 		{
 			DeleteWindow(pMsg);
 			App_MenuTaskCreate();
@@ -414,7 +414,7 @@ static void _cbDialog(WM_MESSAGE *pMsg)
 				case GUI_KEY_ENTER:
 				case GUI_KEY_ESCAPE:
 				{									
-					WM_SendMessageNoPara(WM_GetParent(hWin), MSG_USER_ESC);
+					WM_SendMessageNoPara(WM_GetParent(hWin), WM_USER_ESC);
 					break;
 				}
 				default:				

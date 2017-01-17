@@ -443,21 +443,21 @@ static void _cbNumPad(WM_MESSAGE* pMsg)
 				}
 				case GUI_KEY_ESCAPE:	
 				{
-					WM_SendMessageNoPara(hWin, MSG_USER_PAD_CANCEL);
+					WM_SendMessageNoPara(hWin, WM_USER_PAD_CANCEL);
 					break;
 				}
 			}
 			break;
 		}
-		case MSG_USER_PAD_OK:
+		case WM_USER_PAD_OK:
 		{
-			WM_SendMessageNoPara(WM_GetParent(hWin), MSG_USER_PAD_OK);						
+			WM_SendMessageNoPara(WM_GetParent(hWin), WM_USER_PAD_OK);						
 			Destructor(pMsg);
 			break;
 		}
-		case MSG_USER_PAD_CANCEL:
+		case WM_USER_PAD_CANCEL:
 		{
-			WM_SendMessageNoPara(WM_GetParent(hWin), MSG_USER_PAD_CANCEL);						
+			WM_SendMessageNoPara(WM_GetParent(hWin), WM_USER_PAD_CANCEL);						
 			Destructor(pMsg);
 			break;
 		}
@@ -574,18 +574,18 @@ static void _cbNumPad(WM_MESSAGE* pMsg)
 								memset(this->padList.basePtr, NULL, this->padList.maxLenth);
 							}
 						}
-						msg.MsgId = MSG_USER_PAD_DELETE;
+						msg.MsgId = WM_USER_PAD_DELETE;
 						isNotifyFather = true;
 						break;
 					}
 					case NUMPAD_ID_CANCEL:   
 					{		
-						WM_SendMessageNoPara(hWin, MSG_USER_PAD_CANCEL);
+						WM_SendMessageNoPara(hWin, WM_USER_PAD_CANCEL);
 						break;
 					}
 					case NUMPAD_ID_ENTER:   
 					{
-						WM_SendMessageNoPara(hWin, MSG_USER_PAD_OK);			
+						WM_SendMessageNoPara(hWin, WM_USER_PAD_OK);			
 						break;
 					}
 					case NUMPAD_ID_CLEAR:		
@@ -593,7 +593,7 @@ static void _cbNumPad(WM_MESSAGE* pMsg)
 						this->putinNums = 0;
 						ClearSeqList(&this->padList);
 						memset(this->padList.basePtr, NULL, this->padList.maxLenth);
-						msg.MsgId = MSG_USER_PAD_CLEAR;
+						msg.MsgId = WM_USER_PAD_CLEAR;
 						isNotifyFather = true;
 						break;
 					}
@@ -610,13 +610,13 @@ static void _cbNumPad(WM_MESSAGE* pMsg)
 									  PushSeqListU8_CallBack,
 									  CopySeqListU8_CallBack);
 					}
-					msg.MsgId = MSG_USER_PAD_CHANGED;
+					msg.MsgId = WM_USER_PAD_CHANGED;
 					isNotifyFather = true;
 				}
 				
 				if (isNotifyFather)
 				{
-					msg.MsgId = MSG_USER_PAD_CHANGED;
+					msg.MsgId = WM_USER_PAD_CHANGED;
 					msg.Data.p = this->padList.basePtr;
 					WM_SendToParent(hWin, &msg);	
 				}

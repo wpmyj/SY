@@ -54,6 +54,7 @@
 static LANGUAGE_TYPE_TypeDef g_languageType = LANG_CHINESE;
 extern WM_HWIN hWindowsSuper;
 
+
 /*
 *********************************************************************************************************
 *                              				Private function prototypes
@@ -342,79 +343,281 @@ WM_HWIN _CreateRadio(WM_HWIN hParent,
 
 /*
 *********************************************************************************************************
-*                              				按键重映射
+*                              				按键消息
 *********************************************************************************************************
 */
-typedef struct {
-	int MsgId;							//消息ID
-	WM_HWIN hTarget;					//目标句柄
-	struct list_head list;
-}KEY_MSG_TypeDef;
-
-//typedef struct {
-//	
-//	
-//	void (*addMsg_CallBack)(void);		//添加消息
-//	void (*deleteMsg_CallBack)(void);	//删除消息
-//	void (*sendMsg_CallBack)(void);		//发送消息	
-//	
-//	struct list_head list;
-//}KEY_MSG_TypeDef;
-
 /*
 *********************************************************************************************************
-* Function Name : CreateKeyMsg
+* Function Name : CreateKeyMsgRemap
 * Description	: 创建按键消息
 * Input			: None
 * Output		: None
 * Return		: None
 *********************************************************************************************************
 */
-KEY_MSG_TypeDef *CreateKeyMsg(void)
+KEY_MSG_REMAP_TypeDef *CreateKeyMsgRemap(void)
 {
-	KEY_MSG_TypeDef *this = new(sizeof(KEY_MSG_TypeDef));
+	KEY_MSG_REMAP_TypeDef *head = new(sizeof(KEY_MSG_REMAP_TypeDef));
 	
-	INIT_LIST_HEAD(&this->list);
+	INIT_LIST_HEAD(&head->list);
 	
-	return this;
+	return head;
 }
 
 /*
 *********************************************************************************************************
-* Function Name : AddKeyMsg
+* Function Name : AddKeyMsgRemap
 * Description	: 添加按键消息
 * Input			: None
 * Output		: None
 * Return		: None
 *********************************************************************************************************
 */
-bool AddKeyMsg(KEY_MSG_TypeDef *this, int MsgId, WM_HWIN hTarget)
+bool AddKeyMsgRemap(KEY_MSG_REMAP_TypeDef *head, int key, \
+		void (*sendKeyMsg_CallBack)(void))
 {
-	KEY_MSG_TypeDef *newNode = new(sizeof(KEY_MSG_TypeDef));
-	newNode->MsgId = MsgId;	
-	newNode->hTarget = hTarget;
+	KEY_MSG_REMAP_TypeDef *newNode = new(sizeof(KEY_MSG_REMAP_TypeDef));
+	newNode->key = key;	
+	newNode->sendKeyMsg_CallBack = sendKeyMsg_CallBack;
 	
-	list_add_tail(&newNode->list, &this->list);
+	list_add_tail(&newNode->list, &head->list);
 	
 	return true;
 }
 
 /*
 *********************************************************************************************************
-* Function Name : DeleteKeyMsg
+* Function Name : FindKeyMsgRemap
+* Description	: 查找按键消息
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+KEY_MSG_REMAP_TypeDef *FindKeyMsgRemap(KEY_MSG_REMAP_TypeDef *head, int key)
+{
+	KEY_MSG_REMAP_TypeDef *node;
+	list_for_each_entry(node, &head->list, KEY_MSG_REMAP_TypeDef, list)
+	{
+		if (node->key == key)
+		{
+			return node;
+		}
+	}
+	
+	return NULL;
+}
+
+/*
+*********************************************************************************************************
+* Function Name : DeleteKeyMsgRemap
 * Description	: 删除按键消息
 * Input			: None
 * Output		: None
 * Return		: None
 *********************************************************************************************************
 */
-bool DeleteKeyMsg(KEY_MSG_TypeDef *this, WM_HWIN hTarget)
+bool DeleteKeyMsgRemap(KEY_MSG_REMAP_TypeDef *node)
 {
-	
-	list_for_each_entry_safe()
-	{
+	if (node != NULL)
+	{	
+		list_del(&node->list);
+		delete(node);
 		
+		return true;
+	}
+	
+	return false;
+}
+
+/*
+*********************************************************************************************************
+* Function Name : IteratorKeyMsgRemap
+* Description	: 遍历按键消息映射
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+void IteratorKeyMsgRemap(KEY_MSG_REMAP_TypeDef *head, \
+		void (*iterator_CallBack)(KEY_MSG_REMAP_TypeDef *node))
+{
+	KEY_MSG_REMAP_TypeDef *node;
+	list_for_each_entry(node, &head->list, KEY_MSG_REMAP_TypeDef, list)
+	{
+		if (iterator_CallBack)
+		{
+			iterator_CallBack(node);
+		}
 	}
 }
+
+/*
+*********************************************************************************************************
+* Function Name : Register_KeyMsgRemap
+* Description	: 注册按键消息重映射
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+bool Register_KeyMsgRemap(KEY_MSG_REMAP_TypeDef *head, int key, \
+		void (*sendKeyMsg_CallBack)(void))
+{
+	KEY_MSG_REMAP_TypeDef *node;
+	list_for_each_entry(node, &head->list, KEY_MSG_REMAP_TypeDef, list)
+	{
+		if (node->key == key)
+		{
+			node->sendKeyMsg_CallBack = sendKeyMsg_CallBack;
+			
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+/*
+*********************************************************************************************************
+* Function Name : DeleteKeyMsgRemap_CallBack
+* Description	: 删除按键消息映射
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+void DeleteKeyMsgRemap_CallBack(KEY_MSG_REMAP_TypeDef *node)
+{
+	DeleteKeyMsgRemap(node);
+}
+
+/*
+*********************************************************************************************************
+* Function Name : SendKeyUpMsg_CallBack
+* Description	: 发送向上按键消息
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+void SendKeyUpMsg_CallBack(void)
+{
+	GUI_SendKeyMsg(GUI_KEY_UP, true);
+}
+
+/*
+*********************************************************************************************************
+* Function Name : SendKeyDownMsg_CallBack
+* Description	: 发送向下按键消息
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+void SendKeyDownMsg_CallBack(void)
+{
+	GUI_SendKeyMsg(GUI_KEY_DOWN, true);
+}
+
+/*
+*********************************************************************************************************
+* Function Name : SendKeyLeftMsg_CallBack
+* Description	: 发送向左按键消息
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+void SendKeyLeftMsg_CallBack(void)
+{
+	GUI_SendKeyMsg(GUI_KEY_LEFT, true);
+}
+
+/*
+*********************************************************************************************************
+* Function Name : SendKeyRightMsg_CallBack
+* Description	: 发送向右按键消息
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+void SendKeyRightMsg_CallBack(void)
+{
+	GUI_SendKeyMsg(GUI_KEY_RIGHT, true);
+}
+
+/*
+*********************************************************************************************************
+* Function Name : SendKeyEnterMsg_CallBack
+* Description	: 发送ENTER按键消息
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+void SendKeyEnterMsg_CallBack(void)
+{
+	GUI_SendKeyMsg(GUI_KEY_ENTER, true);
+}
+
+/*
+*********************************************************************************************************
+* Function Name : SendKeyEscapeMsg_CallBack
+* Description	: 发送ESCAPE按键消息
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+void SendKeyEscapeMsg_CallBack(void)
+{
+	GUI_SendKeyMsg(GUI_KEY_ESCAPE, true);
+}
+
+/*
+*********************************************************************************************************
+* Function Name : SendKeySpaceMsg_CallBack
+* Description	: 发送SPACE按键消息
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+void SendKeySpaceMsg_CallBack(void)
+{
+	GUI_SendKeyMsg(GUI_KEY_SPACE, true);
+}
+
+/*
+*********************************************************************************************************
+* Function Name : SendKeyTabMsg_CallBack
+* Description	: 发送TAB按键消息
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+void SendKeyTabMsg_CallBack(void)
+{
+	GUI_SendKeyMsg(GUI_KEY_TAB, true);
+}
+
+/*
+*********************************************************************************************************
+* Function Name : SendKeyBackTabMsg_CallBack
+* Description	: 发送BACKTAB按键消息
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+void SendKeyBackTabMsg_CallBack(void)
+{
+	GUI_SendKeyMsg(GUI_KEY_BACKTAB, true);
+}
+
+
 
 /************************ (C) COPYRIGHT STMicroelectronics **********END OF FILE*************************/

@@ -55,6 +55,7 @@
 *********************************************************************************************************
 */
 WM_HWIN hWindowsSuper;
+KEY_MSG_REMAP_TypeDef *hKeyMsgRemapHeadPtr;
 
 /*
 *********************************************************************************************************
@@ -101,6 +102,17 @@ void PrintControllerInfo(void)
 void APP_Init( void )
 {
 	ECHO(DEBUG_APP_INIT, "==================== APP ====================");
+	
+	hKeyMsgRemapHeadPtr = CreateKeyMsgRemap();
+	if (hKeyMsgRemapHeadPtr != NULL)
+	{		
+		ECHO(DEBUG_APP_INIT, "按键消息重映射初始化 .......... OK");
+	}
+	else
+	{
+		ECHO(DEBUG_APP_INIT, "按键消息重映射初始化 .......... ERR");
+		while (1);
+	}
 	
 	PrintControllerInfo();
 	
@@ -190,7 +202,7 @@ static void AppTaskCreate(void)
 *********************************************************************************************************
 */
 void MainTask(void) 
-{ 
+{
 	/* emWin 初始化 */
 	GUI_Init();  
 	
@@ -324,23 +336,85 @@ void AppTaskUserIF(void *p_arg)
 						switch ( key )		
 						{		
 							case KEY_VALUE_UP:
-								GUI_SendKeyMsg(GUI_KEY_UP, true);
+							{
+								KEY_MSG_REMAP_TypeDef *node = FindKeyMsgRemap(GetKeyMsgRemapHandle(), \
+																GUI_KEY_UP);
+								
+								if ((node != NULL) && (node->sendKeyMsg_CallBack != NULL))
+								{
+									node->sendKeyMsg_CallBack();
+								}
+								else
+								{
+									GUI_SendKeyMsg(GUI_KEY_UP, true);
+								}
 								break;
+							}
 							case KEY_VALUE_DOWN:
-								GUI_SendKeyMsg(GUI_KEY_DOWN, true);
+							{
+								KEY_MSG_REMAP_TypeDef *node = FindKeyMsgRemap(GetKeyMsgRemapHandle(), \
+																GUI_KEY_DOWN);
+								
+								if ((node != NULL) && (node->sendKeyMsg_CallBack != NULL))
+								{
+									node->sendKeyMsg_CallBack();
+								}
+								else
+								{
+									GUI_SendKeyMsg(GUI_KEY_DOWN, true);
+								}
 								break;
+							}
 							case KEY_VALUE_LEFT:
-								GUI_SendKeyMsg(GUI_KEY_LEFT, true);							
+							{
+								KEY_MSG_REMAP_TypeDef *node = FindKeyMsgRemap(GetKeyMsgRemapHandle(), \
+																GUI_KEY_LEFT);
+								
+								if ((node != NULL) && (node->sendKeyMsg_CallBack != NULL))
+								{
+									node->sendKeyMsg_CallBack();
+								}
+								else
+								{
+									GUI_SendKeyMsg(GUI_KEY_LEFT, true);
+								}
 								break;
+							}
 							case KEY_VALUE_RIGHT:
-								GUI_SendKeyMsg(GUI_KEY_RIGHT, true);
-								break;						
-							case KEY_VALUE_ENTER:
-								GUI_SendKeyMsg(GUI_KEY_ENTER, true);
+							{
+								KEY_MSG_REMAP_TypeDef *node = FindKeyMsgRemap(GetKeyMsgRemapHandle(), \
+																GUI_KEY_RIGHT);
+								
+								if ((node != NULL) && (node->sendKeyMsg_CallBack != NULL))
+								{
+									node->sendKeyMsg_CallBack();
+								}
+								else
+								{
+									GUI_SendKeyMsg(GUI_KEY_RIGHT, true);
+								}
 								break;
+							}
+							case KEY_VALUE_ENTER:
+							{
+								KEY_MSG_REMAP_TypeDef *node = FindKeyMsgRemap(GetKeyMsgRemapHandle(), \
+																GUI_KEY_ENTER);
+								
+								if ((node != NULL) && (node->sendKeyMsg_CallBack != NULL))
+								{
+									node->sendKeyMsg_CallBack();
+								}
+								else
+								{
+									GUI_SendKeyMsg(GUI_KEY_ENTER, true);
+								}
+								break;
+							}
 							case KEY_VALUE_ESC:
+							{
 								GUI_SendKeyMsg(GUI_KEY_ESCAPE, true);
 								break;
+							}
 							case KEY_VALUE_BACK:
 								GUI_SendKeyMsg(GUI_KEY_BACKSPACE, true);
 								break;	
@@ -411,5 +485,20 @@ void AppTaskUserIF(void *p_arg)
 		BSP_OS_TimeDlyMs(1);
 	}
 }
+
+/*
+*********************************************************************************************************
+* Function Name : GetKeyMsgRemapHandle
+* Description	: 获取按键消息重映射句柄
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+KEY_MSG_REMAP_TypeDef *GetKeyMsgRemapHandle(void)
+{
+	return hKeyMsgRemapHeadPtr;
+}
+
 
 /************************ (C) COPYRIGHT STMicroelectronics **********END OF FILE*************************/

@@ -318,7 +318,7 @@ static void _cbDesktop(WM_MESSAGE *pMsg)
 		case WM_PAINT:
 			_PaintFrame();
 			break;
-		case MSG_USER_ESC:
+		case WM_USER_ESC:
 		{
 			DeleteWindow(pMsg);
 			App_MenuTaskCreate();
@@ -365,6 +365,22 @@ static void DialogConstructor(WM_MESSAGE* pMsg)
 
 /*
 *********************************************************************************************************
+* Function Name : DialogDestructor
+* Description	: 析构函数
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+static void DialogDestructor(WM_MESSAGE* pMsg) 
+{
+	IteratorKeyMsgRemap(GetKeyMsgRemapHandle(), DeleteKeyMsgRemap_CallBack);
+	
+	ECHO(DEBUG_APP_WINDOWS, "[APP] 析构 <参数设置> 对话框");
+}
+
+/*
+*********************************************************************************************************
 * Function Name : _cbCallback
 * Description	: 窗口回调函数
 * Input			: None
@@ -382,6 +398,9 @@ static void _cbDialog(WM_MESSAGE* pMsg)
 			DialogConstructor(pMsg);
 			break;
 		case WM_CREATE:				
+			break;
+		case WM_DELETE:
+			DialogDestructor(pMsg);
 			break;
 		case WM_PAINT:	
 			break;
@@ -456,6 +475,41 @@ static void DialogConstructor1(WM_MESSAGE* pMsg)
 	hButton = WM_GetDialogItem(hWin, GUI_ID_BUTTON1);
 	BUTTON_SetFont(hButton, FRAME_BUTTON_FONT);
 	BUTTON_SetText(hButton, _GetLang(9));
+	
+	//添加按键重映射
+	AddKeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_UP, \
+		SendKeyBackTabMsg_CallBack);
+	AddKeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_DOWN, \
+		SendKeyTabMsg_CallBack);
+	AddKeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_LEFT, \
+		SendKeyBackTabMsg_CallBack);
+	AddKeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_RIGHT, \
+		SendKeyTabMsg_CallBack);
+	AddKeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_ENTER,\
+		SendKeySpaceMsg_CallBack);
+}
+
+/*
+*********************************************************************************************************
+* Function Name : Dialog1_RegisterDefaultKeyRemap
+* Description	: 注册默认键值映射回调函数
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+static void Dialog1_RegisterDefaultKeyRemap(void)
+{
+	AddKeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_UP, \
+		SendKeyBackTabMsg_CallBack);
+	AddKeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_DOWN, \
+		SendKeyTabMsg_CallBack);
+	AddKeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_LEFT, \
+		SendKeyBackTabMsg_CallBack);
+	AddKeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_RIGHT, \
+		SendKeyTabMsg_CallBack);
+	AddKeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_ENTER,\
+		SendKeySpaceMsg_CallBack);
 }
 
 /*
@@ -476,42 +530,74 @@ static void _cbDialog1(WM_MESSAGE* pMsg)
 		case WM_INIT_DIALOG:	
 			DialogConstructor1(pMsg);
 			break;
-		case WM_CREATE:	
-			
+		case WM_CREATE:				
+			break;
+		case WM_DELETE:	
 			break;
 		case WM_PAINT:				
 			break;
 		case WM_KEY:
 		{
-			int key = ((WM_KEY_INFO*)(pMsg->Data.p))->Key;			
+			int key = ((WM_KEY_INFO*)(pMsg->Data.p))->Key;
+			
 			switch (key)
 			{
 				case GUI_KEY_UP:
+				case GUI_KEY_DOWN:
+				case GUI_KEY_LEFT:
+				case GUI_KEY_RIGHT:
 				{
-					
-					break;				
+					if ((WM_HasFocus(WM_GetDialogItem(hWin, GUI_ID_DROPDOWN0)) == true) ||\
+					    (WM_HasFocus(WM_GetDialogItem(hWin, GUI_ID_DROPDOWN1)) == true))
+					{
+						Register_KeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_ENTER,\
+							SendKeySpaceMsg_CallBack);
+					}
+					else
+					{
+						Register_KeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_ENTER,\
+							SendKeyEnterMsg_CallBack);
+					}
+					break;
 				}
-				case GUI_KEY_DOWN:	
-				{
-									
-					break;				
-				}
-				case GUI_KEY_ESCAPE:
+				case GUI_KEY_SPACE:
 				{					
-					WM_SendMessageNoPara(WM_GetParent(hWin), MSG_USER_ESC);
+					Register_KeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_UP,\
+						SendKeyUpMsg_CallBack);
+					Register_KeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_DOWN,\
+						SendKeyDownMsg_CallBack);
+					Register_KeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_LEFT,\
+						SendKeyLeftMsg_CallBack);
+					Register_KeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_RIGHT,\
+						SendKeyRightMsg_CallBack);
+					Register_KeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_ENTER,\
+						SendKeyEnterMsg_CallBack);
 					break;
 				}
-				default:
-					
+				case GUI_KEY_ENTER:
+				{			
+					Dialog1_RegisterDefaultKeyRemap();
 					break;
+				}
+				case GUI_KEY_ESCAPE:	
+					Dialog1_RegisterDefaultKeyRemap();
+					break;			
 			}
 			break;
 		}
 		case WM_NOTIFY_PARENT:
-		{
+		{	
+			int NCode = pMsg->Data.v;
+			int Id;
+			
+			switch (NCode) 
+			{
+				case WM_NOTIFICATION_SEL_CHANGED:
 					
+					break;
+			}
 			break;
-		}
+		}	
 		default:
 			WM_DefaultProc(pMsg);
 			break;
