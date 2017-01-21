@@ -432,6 +432,20 @@ bool DeleteKeyMsgRemap(KEY_MSG_REMAP_TypeDef *node)
 
 /*
 *********************************************************************************************************
+* Function Name : DeleteAllKeyMsgRemap
+* Description	: 删除所有按键消息
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+void DeleteAllKeyMsgRemap(KEY_MSG_REMAP_TypeDef *head)
+{
+	IteratorKeyMsgRemap(head, DeleteKeyMsgRemap_CallBack);
+}
+
+/*
+*********************************************************************************************************
 * Function Name : IteratorKeyMsgRemap
 * Description	: 遍历按键消息映射
 * Input			: None

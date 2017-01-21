@@ -185,7 +185,6 @@ static void WindowsConstructor(WM_MESSAGE *pMsg)
 	WM_HWIN hWin = pMsg->hWin;
 	WM_SetFocus(hWin);
 	
-	
 	ECHO(DEBUG_APP_WINDOWS, "[APP] 构造 <时间日期> 窗口");
 }
 

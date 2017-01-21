@@ -214,7 +214,7 @@ static void _cbDesktop(WM_MESSAGE *pMsg)
 			break;
 		case WM_USER_ESC:
 		{
-			DeleteWindow(pMsg);
+//			DeleteWindow(pMsg);
 			App_MenuTaskCreate();
 			break;
 		}		

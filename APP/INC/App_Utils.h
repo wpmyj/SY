@@ -201,6 +201,7 @@ bool AddKeyMsgRemap(KEY_MSG_REMAP_TypeDef *head, int key, \
 		void (*sendKeyMsg_CallBack)(void));
 KEY_MSG_REMAP_TypeDef *FindKeyMsgRemap(KEY_MSG_REMAP_TypeDef *head, int key);
 bool DeleteKeyMsgRemap(KEY_MSG_REMAP_TypeDef *node);
+void DeleteAllKeyMsgRemap(KEY_MSG_REMAP_TypeDef *head);
 void IteratorKeyMsgRemap(KEY_MSG_REMAP_TypeDef *head, \
 		void (*iterator_CallBack)(KEY_MSG_REMAP_TypeDef *node));
 

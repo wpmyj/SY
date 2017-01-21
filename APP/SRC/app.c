@@ -230,7 +230,7 @@ void MainTask(void)
 	
 	while (1)
 	{		
-		GUI_Delay(50);
+		GUI_Delay(10);
 	}
 }
 

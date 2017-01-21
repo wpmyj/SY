@@ -263,12 +263,6 @@ static void _cbDialog(WM_MESSAGE *pMsg)
 		case WM_INIT_DIALOG:	
 			DialogConstructor(pMsg);
 			break;
-		case WM_CREATE:
-		{
-			WM_HWIN hChild = WM_GetDialogItem(hWin, GUI_ID_SPINBOX0);
-			WM_SetFocus(hChild);
-			break;
-		}
 		case WM_TIMER:
 		{
 			if (GetLanguageType() == LANG_ENGLISH)

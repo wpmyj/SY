@@ -374,7 +374,7 @@ static void DialogConstructor(WM_MESSAGE* pMsg)
 */
 static void DialogDestructor(WM_MESSAGE* pMsg) 
 {
-	IteratorKeyMsgRemap(GetKeyMsgRemapHandle(), DeleteKeyMsgRemap_CallBack);
+	DeleteAllKeyMsgRemap(GetKeyMsgRemapHandle());
 	
 	ECHO(DEBUG_APP_WINDOWS, "[APP] 析构 <参数设置> 对话框");
 }
@@ -448,7 +448,7 @@ static void DialogConstructor1(WM_MESSAGE* pMsg)
 	DROPDOWN_AddString(hDropDown, _GetLang(15));
 	DROPDOWN_AddString(hDropDown, _GetLang(16));
 	DROPDOWN_SetListHeight(hDropDown, 80);
-	DROPDOWN_SetAutoScroll(hDropDown, 1);
+//	DROPDOWN_SetAutoScroll(hDropDown, 1);	//添加会进入硬件中断
 	DROPDOWN_SetScrollbarWidth(hDropDown, 20);
 	
 	hText = WM_GetDialogItem(hWin, GUI_ID_TEXT1);
@@ -465,7 +465,7 @@ static void DialogConstructor1(WM_MESSAGE* pMsg)
 	DROPDOWN_AddString(hDropDown, _GetLang(22));
 	DROPDOWN_AddString(hDropDown, _GetLang(23));
 	DROPDOWN_SetListHeight(hDropDown, 80);
-	DROPDOWN_SetAutoScroll(hDropDown, 1);
+//	DROPDOWN_SetAutoScroll(hDropDown, 1);	//添加会进入硬件中断
 	DROPDOWN_SetScrollbarWidth(hDropDown, 20);
 	
 	WM_HWIN hButton = WM_GetDialogItem(hWin, GUI_ID_BUTTON0);
@@ -477,16 +477,11 @@ static void DialogConstructor1(WM_MESSAGE* pMsg)
 	BUTTON_SetText(hButton, _GetLang(9));
 	
 	//添加按键重映射
-	AddKeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_UP, \
-		SendKeyBackTabMsg_CallBack);
-	AddKeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_DOWN, \
-		SendKeyTabMsg_CallBack);
-	AddKeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_LEFT, \
-		SendKeyBackTabMsg_CallBack);
-	AddKeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_RIGHT, \
-		SendKeyTabMsg_CallBack);
-	AddKeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_ENTER,\
-		SendKeySpaceMsg_CallBack);
+	AddKeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_UP, NULL);
+	AddKeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_DOWN, NULL);
+	AddKeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_LEFT, NULL);
+	AddKeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_RIGHT, NULL);
+	AddKeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_ENTER, NULL);
 }
 
 /*
@@ -499,17 +494,63 @@ static void DialogConstructor1(WM_MESSAGE* pMsg)
 *********************************************************************************************************
 */
 static void Dialog1_RegisterDefaultKeyRemap(void)
-{
-	AddKeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_UP, \
+{	
+	Register_KeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_UP,\
+		SendKeyUpMsg_CallBack);
+	Register_KeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_DOWN,\
+		SendKeyDownMsg_CallBack);
+	Register_KeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_LEFT,\
+		SendKeyLeftMsg_CallBack);
+	Register_KeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_RIGHT,\
+		SendKeyRightMsg_CallBack);
+	Register_KeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_ENTER,\
+		SendKeyEnterMsg_CallBack);
+}
+
+/*
+*********************************************************************************************************
+* Function Name : Dialog1_RegisterDropDownWidgetKeyRemap
+* Description	: 注册DropDown控件键值映射回调函数
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+static void Dialog1_RegisterDropDownWidgetKeyRemap(void)
+{	
+	Register_KeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_UP,\
 		SendKeyBackTabMsg_CallBack);
-	AddKeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_DOWN, \
+	Register_KeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_DOWN,\
 		SendKeyTabMsg_CallBack);
-	AddKeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_LEFT, \
+	Register_KeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_LEFT,\
 		SendKeyBackTabMsg_CallBack);
-	AddKeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_RIGHT, \
+	Register_KeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_RIGHT,\
 		SendKeyTabMsg_CallBack);
-	AddKeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_ENTER,\
+	Register_KeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_ENTER,\
 		SendKeySpaceMsg_CallBack);
+}
+
+/*
+*********************************************************************************************************
+* Function Name : Dialog1_RegisterButtonWidgetKeyRemap
+* Description	: 注册Button控件键值映射回调函数
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+static void Dialog1_RegisterButtonWidgetKeyRemap(void)
+{	
+	Register_KeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_UP,\
+		SendKeyBackTabMsg_CallBack);
+	Register_KeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_DOWN,\
+		SendKeyTabMsg_CallBack);
+	Register_KeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_LEFT,\
+		SendKeyBackTabMsg_CallBack);
+	Register_KeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_RIGHT,\
+		SendKeyTabMsg_CallBack);
+	Register_KeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_ENTER,\
+		SendKeyEnterMsg_CallBack);
 }
 
 /*
@@ -542,45 +583,8 @@ static void _cbDialog1(WM_MESSAGE* pMsg)
 			
 			switch (key)
 			{
-				case GUI_KEY_UP:
-				case GUI_KEY_DOWN:
-				case GUI_KEY_LEFT:
-				case GUI_KEY_RIGHT:
-				{
-					if ((WM_HasFocus(WM_GetDialogItem(hWin, GUI_ID_DROPDOWN0)) == true) ||\
-					    (WM_HasFocus(WM_GetDialogItem(hWin, GUI_ID_DROPDOWN1)) == true))
-					{
-						Register_KeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_ENTER,\
-							SendKeySpaceMsg_CallBack);
-					}
-					else
-					{
-						Register_KeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_ENTER,\
-							SendKeyEnterMsg_CallBack);
-					}
-					break;
-				}
-				case GUI_KEY_SPACE:
-				{					
-					Register_KeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_UP,\
-						SendKeyUpMsg_CallBack);
-					Register_KeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_DOWN,\
-						SendKeyDownMsg_CallBack);
-					Register_KeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_LEFT,\
-						SendKeyLeftMsg_CallBack);
-					Register_KeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_RIGHT,\
-						SendKeyRightMsg_CallBack);
-					Register_KeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_ENTER,\
-						SendKeyEnterMsg_CallBack);
-					break;
-				}
-				case GUI_KEY_ENTER:
-				{			
-					Dialog1_RegisterDefaultKeyRemap();
-					break;
-				}
 				case GUI_KEY_ESCAPE:	
-					Dialog1_RegisterDefaultKeyRemap();
+					WM_SendMessageNoPara(WM_GetParent(hWin), WM_USER_ESC);
 					break;			
 			}
 			break;
@@ -588,13 +592,48 @@ static void _cbDialog1(WM_MESSAGE* pMsg)
 		case WM_NOTIFY_PARENT:
 		{	
 			int NCode = pMsg->Data.v;
-			int Id;
+			int Id = WM_GetId(pMsg->hWinSrc);
 			
 			switch (NCode) 
 			{
-				case WM_NOTIFICATION_SEL_CHANGED:
-					
+				case WM_NOTIFICATION_GOT_FOCUS:
+					switch (Id)
+					{
+						case GUI_ID_DROPDOWN0:
+						case GUI_ID_DROPDOWN1:
+							Dialog1_RegisterDropDownWidgetKeyRemap();
+							break;
+						case GUI_ID_BUTTON0:
+						case GUI_ID_BUTTON1:	
+							Dialog1_RegisterButtonWidgetKeyRemap();
+							break;
+						default:
+							Dialog1_RegisterDefaultKeyRemap();
+							break;
+					}
 					break;
+				case WM_NOTIFICATION_CLICKED:
+				{
+					switch (Id)
+					{
+						case GUI_ID_DROPDOWN0:
+							
+							break;
+						case GUI_ID_DROPDOWN1:
+							
+							break;
+						case GUI_ID_BUTTON0:
+							
+							break;
+						case GUI_ID_BUTTON1:	
+							
+							break;
+						default:
+							
+							break;
+					}
+					break;
+				}
 			}
 			break;
 		}	
@@ -602,6 +641,7 @@ static void _cbDialog1(WM_MESSAGE* pMsg)
 			WM_DefaultProc(pMsg);
 			break;
 	}
+	WM_DefaultProc(pMsg);
 }
 
 /*
