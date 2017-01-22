@@ -42,6 +42,7 @@ We appreciate your understanding and fairness.
 */
 #include "bsp.h"
 #include "gui.h"
+#include "GUI_Private.H"
 
 /*
 *********************************************************************************************************

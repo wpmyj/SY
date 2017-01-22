@@ -80,6 +80,7 @@
 */
 #define DEBUG_APP_INIT						DEBUG_ON	/* APP³õÊ¼»¯ */
 #define DEBUG_APP_WINDOWS					DEBUG_ON	/* APP´°¿Ú */
+#define DEBUG_APP_EMWIN						DEBUG_ON	/* APP emWin */
 
 
 /*

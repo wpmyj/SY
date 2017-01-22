@@ -142,90 +142,6 @@ static const char *_GetLang(uint32_t Index)
 
 /*
 *********************************************************************************************************
-* Function Name : WindowsConstructor
-* Description	: 窗口构造函数
-* Input			: None
-* Output		: None
-* Return		: None
-*********************************************************************************************************
-*/
-static void WindowsConstructor(WM_MESSAGE *pMsg) 
-{
-	WM_HWIN hWin = pMsg->hWin;
-	WM_SetFocus(hWin);
-	
-	ECHO(DEBUG_APP_WINDOWS, "[APP] 构造 <设备管理器> 窗口");
-}
-
-/*
-*********************************************************************************************************
-* Function Name : WindowsDestructor
-* Description	: 窗口析构函数
-* Input			: None
-* Output		: None
-* Return		: None
-*********************************************************************************************************
-*/
-static void WindowsDestructor( WM_MESSAGE *pMsg )
-{	
-	ECHO(DEBUG_APP_WINDOWS, "[APP] 析构 <设备管理器> 窗口");
-}
-
-/*
-*********************************************************************************************************
-* Function Name : DeleteWindow
-* Description	: 删除窗口
-* Input			: None
-* Output		: None
-* Return		: None
-*********************************************************************************************************
-*/
-static void DeleteWindow( WM_MESSAGE *pMsg )
-{
-	WM_DeleteWindow(pMsg->hWin);	
-	
-	ECHO(DEBUG_APP_WINDOWS, "[APP] 删除 <设备管理器> 窗口");
-}
-
-/*
-*********************************************************************************************************
-* Function Name : _cbDesktop
-* Description	: 桌面窗口回调函数
-* Input			: None
-* Output		: None
-* Return		: None
-*********************************************************************************************************
-*/
-static void _cbDesktop(WM_MESSAGE *pMsg) 
-{
-	WM_HWIN hWin = pMsg->hWin;
-	(void)hWin;
-	
-	switch (pMsg->MsgId) 
-	{
-		case WM_CREATE:	
-			WindowsConstructor(pMsg);
-			break;
-		case WM_DELETE:
-			WindowsDestructor(pMsg);
-			break;
-		case WM_PAINT:
-			_PaintFrame();
-			break;
-		case WM_USER_ESC:
-		{
-//			DeleteWindow(pMsg);
-			App_MenuTaskCreate();
-			break;
-		}		
-		default:
-			WM_DefaultProc(pMsg);
-			break;
-	}
-}
-
-/*
-*********************************************************************************************************
 * Function Name : GUI_UpdateSD
 * Description	: 更新SD界面
 * Input			: None
@@ -317,14 +233,14 @@ static void GUI_UpdateUSBDisk(WM_MESSAGE *pMsg)
 
 /*
 *********************************************************************************************************
-* Function Name : DialogConstructor
-* Description	: 对话框构造函数
+* Function Name : Constructor
+* Description	: 构造函数
 * Input			: None
 * Output		: None
 * Return		: None
 *********************************************************************************************************
 */
-static void DialogConstructor(WM_MESSAGE *pMsg) 
+static void Constructor(WM_MESSAGE *pMsg) 
 {
 	WM_HWIN hWin = pMsg->hWin;
 	
@@ -364,6 +280,55 @@ static void DialogConstructor(WM_MESSAGE *pMsg)
 	hChild = WM_GetDialogItem(hWin, GUI_ID_SLIDER0);	
 	SLIDER_SetRange(hChild, 0, 10);
 	SLIDER_SetValue(hChild, 10);
+	
+	ECHO(DEBUG_APP_WINDOWS, "[APP] 构造 <设备管理器> 窗口");
+}
+
+/*
+*********************************************************************************************************
+* Function Name : Destructor
+* Description	: 窗口析构函数
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+static void Destructor( WM_MESSAGE *pMsg )
+{	
+	ECHO(DEBUG_APP_WINDOWS, "[APP] 析构 <设备管理器> 窗口");
+}
+
+/*
+*********************************************************************************************************
+* Function Name : Delete
+* Description	: 删除
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+static void Delete( WM_MESSAGE *pMsg )
+{
+	LCD_SetBackLight(0xFF);
+	
+	GUI_EndDialog(pMsg->hWin, 1);
+	
+	ECHO(DEBUG_APP_WINDOWS, "[APP] 删除 <设备管理器> 窗口");
+}
+
+/*
+*********************************************************************************************************
+* Function Name : Paint
+* Description	: 绘制
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+static void Paint(void)
+{
+	GUI_SetBkColor(DIALOG_BKCOLOR);
+	GUI_Clear();
 }
 
 /*
@@ -382,12 +347,15 @@ static void _cbDialog(WM_MESSAGE *pMsg)
 	switch (pMsg->MsgId) 
 	{
 		case WM_INIT_DIALOG:	
-			DialogConstructor(pMsg);
+			Constructor(pMsg);
 			break;
 		case WM_CREATE:			
 			break;
+		case WM_PAINT:		
+			Paint();			
+			break;
 		case WM_DELETE:
-			LCD_SetBackLight(0xFF);
+			Destructor(pMsg);
 			break;
 		case WM_TIMER:
 			GUI_UpdateSD(pMsg);
@@ -414,7 +382,8 @@ static void _cbDialog(WM_MESSAGE *pMsg)
 				case GUI_KEY_ENTER:
 				case GUI_KEY_ESCAPE:
 				{									
-					WM_SendMessageNoPara(WM_GetParent(hWin), WM_USER_ESC);
+					Delete(pMsg);
+					App_MenuTaskCreate();
 					break;
 				}
 				default:				
@@ -470,8 +439,7 @@ static void _cbDialog(WM_MESSAGE *pMsg)
 */
 void App_DeviceManagerTaskCreate(void)
 {
-	WM_HWIN hWin = _CreateFrame(_cbDesktop);	
-	WM_HWIN hDialog = GUI_CreateDialogBox(_aDialogCreate, GUI_COUNTOF(_aDialogCreate), &_cbDialog, hWin, 0, 0);
+	WM_HWIN hDialog = GUI_CreateDialogBox(_aDialogCreate, GUI_COUNTOF(_aDialogCreate), &_cbDialog, hSuperWindows, 0, 0);
 	
 	WM_CreateTimer(WM_GetClientWindow(hDialog),  	/* 接受信息的窗口的句柄 */
                    0, 	                        	/* 用户定义的Id。如果不对同一窗口使用多个定时器，此值可以设置为零。 */

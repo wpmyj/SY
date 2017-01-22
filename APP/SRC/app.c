@@ -55,6 +55,7 @@
 *********************************************************************************************************
 */
 KEY_MSG_REMAP_TypeDef *hKeyMsgRemapHeadPtr;
+WM_HWIN hSuperWindows;
 
 /*
 *********************************************************************************************************
@@ -121,7 +122,7 @@ void APP_Init( void )
 /*
 *********************************************************************************************************
 *	函 数 名: _cbDesktop
-*	功能说明: 桌面窗口的回调函数 
+*	功能说明: 桌面回调函数 
 *	形    参：WM_MESSAGE * pMsg
 *	返 回 值: 无
 *********************************************************************************************************
@@ -132,6 +133,8 @@ static void _cbDesktop(WM_MESSAGE * pMsg)
 	{
 		case WM_PAINT:	
 		{
+			ECHO(DEBUG_APP_WINDOWS, "桌面创建");
+			
 			GUI_SetBkColor(MAIN_BKCOLOR);
 			GUI_SetColor(MAIN_TEXTCOLOR);
 			GUI_SetFont(MAIN_FONT);
@@ -152,6 +155,37 @@ static void _cbDesktop(WM_MESSAGE * pMsg)
 	 default:
 		WM_DefaultProc(pMsg);
 		break;
+	}
+}
+
+/*
+*********************************************************************************************************
+* Function Name : _cbWindows
+* Description	: 窗口回调函数
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+static void _cbWindows(WM_MESSAGE *pMsg) 
+{
+	WM_HWIN hWin = pMsg->hWin;
+	(void)hWin;
+	
+	switch (pMsg->MsgId) 
+	{
+		case WM_CREATE:
+			ECHO(DEBUG_APP_WINDOWS, "窗口创建");
+			break;
+		case WM_DELETE:
+			ECHO(DEBUG_APP_WINDOWS, "窗口删除");
+			break;
+		case WM_PAINT:
+			_PaintFrame();
+			break;		
+		default:
+			WM_DefaultProc(pMsg);
+			break;
 	}
 }
 
@@ -181,7 +215,8 @@ static void NotifyFlashFontProgress_CallBack( uint8_t fontSize, uint8_t progress
 static void AppTaskCreate(void)
 {
 	/* 设置桌面回调函数 */
-	WM_SetCallback(WM_HBKWIN, _cbDesktop);
+	WM_SetCallback(WM_HBKWIN, _cbDesktop);	
+	hSuperWindows = _CreateFrame(_cbWindows);
 
 	App_MenuTaskCreate();
 }

@@ -31,10 +31,11 @@
 *                              				Private define
 *********************************************************************************************************
 */
-#define ID_ICONVIEW0						(GUI_ID_USER + 0)
-#define ID_ICONVIEW1						(GUI_ID_USER + 1)
-#define ID_ICONVIEW2						(GUI_ID_USER + 2)
-#define ID_ICONVIEW3						(GUI_ID_USER + 3)
+#define GUI_ID_DIALOG0     					(GUI_ID_USER + 0)
+#define ID_ICONVIEW0						(GUI_ID_USER + 10)
+#define ID_ICONVIEW1						(GUI_ID_USER + 11)
+#define ID_ICONVIEW2						(GUI_ID_USER + 12)
+#define ID_ICONVIEW3						(GUI_ID_USER + 13)
 
 #define ICONVIEW_TBorder   					10   /* 控件ICONVIEW的上边距 */
 #define ICONVIEW_LBorder   					10   /* 控件ICONVIEW的左边距 */
@@ -60,12 +61,19 @@ typedef struct {
 *                              				Private constants
 *********************************************************************************************************
 */
+static const char * _aLang[][SUPPORT_LANGUAGE_NUMS] = {
+	{
+		"系统菜单",
+		"System Menu",
+	},	//1
+};
+
 extern GUI_CONST_STORAGE GUI_BITMAP bmPIC_SystemSet;
 extern GUI_CONST_STORAGE GUI_BITMAP bmPIC_TimeDate;
 extern GUI_CONST_STORAGE GUI_BITMAP bmPIC_LanguageSelect;
 extern GUI_CONST_STORAGE GUI_BITMAP bmPIC_DeviceManager;
 
-static const BITMAP_ITEM _aLang[][SUPPORT_LANGUAGE_NUMS] = {
+static const BITMAP_ITEM _aLangBitmap[][SUPPORT_LANGUAGE_NUMS] = {
 	{
 		{&bmPIC_SystemSet, 			"参数设置"},
 		{&bmPIC_SystemSet, 			"Parameter Set"},
@@ -82,6 +90,15 @@ static const BITMAP_ITEM _aLang[][SUPPORT_LANGUAGE_NUMS] = {
 		{&bmPIC_DeviceManager,		"设备管理器"},
 		{&bmPIC_DeviceManager,		"Device Manager"},
 	},	//4
+};
+
+static const GUI_WIDGET_CREATE_INFO _aDialogCreate[] = {
+	{ FRAMEWIN_CreateIndirect, "Framewin", GUI_ID_DIALOG0,
+		25, 25, CONST_FRAME_WIDTH-50, CONST_FRAME_HEIGHT-50, 
+		0, 0x0, 0 },
+	{ ICONVIEW_CreateIndirect, "Iconview", GUI_ID_ICONVIEW0,
+		ICONVIEW_TBorder, ICONVIEW_LBorder, CONST_FRAME_WIDTH-75, CONST_FRAME_HEIGHT-75,
+		WM_CF_SHOW | WM_CF_HASTRANS, ((ICONVIEW_Width << 16) | ICONVIEW_Height), 0 },
 };
 
 /*
@@ -111,21 +128,44 @@ static int g_CursorIndex;
 /*
 *********************************************************************************************************
 * Function Name : _GetLang
-* Description	: 获取资源
+* Description	: 获取文本资源
 * Input			: None
 * Output		: None
 * Return		: None
 *********************************************************************************************************
 */
-static const BITMAP_ITEM *_GetLang(uint32_t Index) 
+static const char *_GetLang(uint32_t Index) 
 {
-	const BITMAP_ITEM *p = NULL;
+	const char *p = LANG_EXCEPTION;
 	uint8_t languageType = GetLanguageType();
 	
 	Index--;
 	if ((Index < GUI_COUNTOF(_aLang)) && (languageType < GUI_COUNTOF(_aLang[0]))) 
 	{
-		p = &_aLang[Index][languageType];
+		p = _aLang[Index][languageType];
+	}
+	
+	return p;
+}
+
+/*
+*********************************************************************************************************
+* Function Name : _GetLangBitmap
+* Description	: 获取Bitmap资源
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+static const BITMAP_ITEM *_GetLangBitmap(uint32_t Index) 
+{
+	const BITMAP_ITEM *p = NULL;
+	uint8_t languageType = GetLanguageType();
+	
+	Index--;
+	if ((Index < GUI_COUNTOF(_aLangBitmap)) && (languageType < GUI_COUNTOF(_aLangBitmap[0]))) 
+	{
+		p = &_aLangBitmap[Index][languageType];
 	}
 	
 	return p;
@@ -143,31 +183,21 @@ static const BITMAP_ITEM *_GetLang(uint32_t Index)
 static void Constructor(WM_MESSAGE *pMsg) 
 {
 	WM_HWIN hWin = pMsg->hWin;
-
-	/* 设置ICONVIEW的显示位置 ********************************************************************/
-	uint16_t ICONVIEW_VNum = (CONST_FRAME_WIDTH - ICONVIEW_TBorder - ICONVIEW_BBorder) / ICONVIEW_Width;
-	uint16_t ICONVIEW_HNum = (CONST_FRAME_HEIGHT - ICONVIEW_LBorder - ICONVIEW_RBorder) / ICONVIEW_Height;
 	
-	/*在指定位置创建指定尺寸的ICONVIEW 小工具*/
-	ICONVIEW_Handle hIcon;
-	hIcon = ICONVIEW_CreateEx(ICONVIEW_TBorder, 				/* 小工具的最左像素（在父坐标中）*/
-							 ICONVIEW_LBorder, 					/* 小工具的最上像素（在父坐标中）*/
-							 ICONVIEW_VNum * ICONVIEW_Width + 30,  /* 小工具的水平尺寸（单位：像素）*/
-							 ICONVIEW_HNum * ICONVIEW_Height + 30, /* 小工具的垂直尺寸（单位：像素）*/
-							 hWin, 				        		/* 父窗口的句柄。如果为0 ，则新小工具将成为桌面（顶级窗口）的子窗口 */
-							 WM_CF_SHOW | WM_CF_HASTRANS,       /* 窗口创建标记。为使小工具立即可见，通常使用 WM_CF_SHOW */ 
-							 0,								 	/* 默认是0，如果不够可设置增减垂直滚动条 */
-							 GUI_ID_ICONVIEW0, 			        /* 小工具的窗口ID */
-							 ICONVIEW_Width, 				    /* 图标的水平尺寸 */
-							 ICONVIEW_Height);					/* 图标的垂直尺寸 */
-
+	/* 设置标题栏 */
+	FRAMEWIN_SetFont(hWin, FRAME_FONT);
+	FRAMEWIN_SetTitleHeight(hWin, DIALOG_TITLE_HEIGHT);
+	FRAMEWIN_SetTextAlign(hWin, GUI_TA_HCENTER | GUI_TA_VCENTER);
+	FRAMEWIN_SetText(hWin, _GetLang(1));
+			
 	/* 向ICONVIEW 小工具添加新图标 */
-	for (uint8_t i = 1; i <= GUI_COUNTOF(_aLang); i++) 
+	ICONVIEW_Handle hIcon = WM_GetDialogItem(hWin, GUI_ID_ICONVIEW0);		
+	for (uint8_t i = 1; i <= GUI_COUNTOF(_aLangBitmap); i++) 
 	{		
-		const BITMAP_ITEM *hBitmap = _GetLang(i);
+		const BITMAP_ITEM *hBitmap = _GetLangBitmap(i);
 		ICONVIEW_AddBitmapItem(hIcon, hBitmap->pBitmap, hBitmap->pText);
 	}
-	ICONVIEW_SetBkColor(hIcon, ICONVIEW_CI_SEL, GUI_LIGHTRED);
+	ICONVIEW_SetBkColor(hIcon, ICONVIEW_CI_SEL, GUI_BLUE | 0xC0000000);
 	ICONVIEW_SetFont(hIcon, FRAME_ICON_FONT);
 	ICONVIEW_SetTextColor(hIcon, ICONVIEW_CI_UNSEL, GUI_BLACK);
 	ICONVIEW_SetTextColor(hIcon, ICONVIEW_CI_SEL, GUI_WHITE);
@@ -198,19 +228,35 @@ static void Destructor(WM_MESSAGE *pMsg)
 
 /*
 *********************************************************************************************************
-* Function Name : DeleteWindow
-* Description	: 删除窗口
+* Function Name : Delete
+* Description	: 删除
 * Input			: None
 * Output		: None
 * Return		: None
 *********************************************************************************************************
 */
-static void DeleteWindow(WM_MESSAGE *pMsg) 
+static void Delete(WM_MESSAGE *pMsg) 
 {		
 	g_CursorIndex = ICONVIEW_GetSel(pMsg->hWinSrc);	
-	WM_DeleteWindow(pMsg->hWin);
+	
+	GUI_EndDialog(pMsg->hWin, 1);
 	
 	ECHO(DEBUG_APP_WINDOWS, "[APP] 删除 <菜单> 窗口");
+}
+
+/*
+*********************************************************************************************************
+* Function Name : Paint
+* Description	: 绘制
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+static void Paint(void)
+{
+	GUI_SetBkColor(DIALOG_BKCOLOR);
+	GUI_Clear();
 }
 
 /*
@@ -229,11 +275,13 @@ static void _cbCallback(WM_MESSAGE* pMsg)
 	
 	switch (pMsg->MsgId) 
 	{
-		case WM_CREATE:	
+		case WM_INIT_DIALOG:
 			Constructor(pMsg);
 			break;
+		case WM_CREATE:			
+			break;
 		case WM_PAINT:		
-			_PaintFrame();			
+			Paint();			
 			break;
 		case WM_DELETE:
 			Destructor(pMsg);
@@ -248,19 +296,19 @@ static void _cbCallback(WM_MESSAGE* pMsg)
 					switch (ICONVIEW_GetSel(pMsg->hWinSrc))
 					{
 						case 0:
-							DeleteWindow(pMsg);					
+							Delete(pMsg);					
 							App_SystemParameterTaskCreate();
 							break;
 						case 1:
-							DeleteWindow(pMsg);
-							App_TimeDateTaskCreate();		
+							Delete(pMsg);
+							App_TimeDateTaskCreate();									
 							break;
 						case 2:
-							DeleteWindow(pMsg);
+							Delete(pMsg);
 							App_LanguageTaskCreate();
 							break;
 						case 3:
-							DeleteWindow(pMsg);
+							Delete(pMsg);
 							App_DeviceManagerTaskCreate();
 							break;
 					}
@@ -301,7 +349,7 @@ void App_MenuTaskCreate(void)
 {
 	ECHO(DEBUG_APP_WINDOWS, "[emWin] 剩余内存 %ld Byte", GUI_ALLOC_GetNumFreeBytes());
 	
-	_CreateFrame(_cbCallback);
+	GUI_CreateDialogBox(_aDialogCreate, GUI_COUNTOF(_aDialogCreate), &_cbCallback, hSuperWindows, 0, 0);
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics **********END OF FILE*************************/

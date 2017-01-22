@@ -248,90 +248,6 @@ static const char *_GetLang(uint32_t Index)
 
 /*
 *********************************************************************************************************
-* Function Name : WindowsConstructor
-* Description	: 窗口构造函数
-* Input			: None
-* Output		: None
-* Return		: None
-*********************************************************************************************************
-*/
-static void WindowsConstructor(WM_MESSAGE *pMsg) 
-{
-	WM_HWIN hWin = pMsg->hWin;
-	WM_SetFocus(hWin);
-	
-	ECHO(DEBUG_APP_WINDOWS, "[APP] 构造 <参数设置> 窗口");
-}
-
-/*
-*********************************************************************************************************
-* Function Name : WindowsDestructor
-* Description	: 窗口析构函数
-* Input			: None
-* Output		: None
-* Return		: None
-*********************************************************************************************************
-*/
-static void WindowsDestructor( WM_MESSAGE *pMsg )
-{	
-	ECHO(DEBUG_APP_WINDOWS, "[APP] 析构 <参数设置> 窗口");
-}
-
-/*
-*********************************************************************************************************
-* Function Name : DeleteWindow
-* Description	: 删除窗口
-* Input			: None
-* Output		: None
-* Return		: None
-*********************************************************************************************************
-*/
-static void DeleteWindow( WM_MESSAGE *pMsg )
-{
-	WM_DeleteWindow(pMsg->hWin);	
-	
-	ECHO(DEBUG_APP_WINDOWS, "[APP] 删除 <参数设置> 窗口");
-}
-
-/*
-*********************************************************************************************************
-* Function Name : _cbDesktop
-* Description	: 桌面窗口回调函数
-* Input			: None
-* Output		: None
-* Return		: None
-*********************************************************************************************************
-*/
-static void _cbDesktop(WM_MESSAGE *pMsg) 
-{
-	WM_HWIN hWin = pMsg->hWin;
-	(void)hWin;
-	
-	switch (pMsg->MsgId) 
-	{
-		case WM_CREATE:	
-			WindowsConstructor(pMsg);
-			break;
-		case WM_DELETE:
-			WindowsDestructor(pMsg);
-			break;
-		case WM_PAINT:
-			_PaintFrame();
-			break;
-		case WM_USER_ESC:
-		{
-			DeleteWindow(pMsg);
-			App_MenuTaskCreate();
-			break;
-		}		
-		default:
-			WM_DefaultProc(pMsg);
-			break;
-	}
-}
-
-/*
-*********************************************************************************************************
 * Function Name : DialogConstructor
 * Description	: 构造函数
 * Input			: None
@@ -339,7 +255,7 @@ static void _cbDesktop(WM_MESSAGE *pMsg)
 * Return		: None
 *********************************************************************************************************
 */
-static void DialogConstructor(WM_MESSAGE* pMsg) 
+static void Constructor(WM_MESSAGE* pMsg) 
 {
 	WM_HWIN hWin = pMsg->hWin;
 	
@@ -359,6 +275,8 @@ static void DialogConstructor(WM_MESSAGE* pMsg)
 	MULTIPAGE_AddPage(hMultiPage, hDialog, _GetLang(3));
 	
 	MULTIPAGE_SelectPage(hMultiPage, 0);
+	
+	ECHO(DEBUG_APP_WINDOWS, "[APP] 构造 <参数设置> 窗口");
 }
 
 /*
@@ -370,11 +288,42 @@ static void DialogConstructor(WM_MESSAGE* pMsg)
 * Return		: None
 *********************************************************************************************************
 */
-static void DialogDestructor(WM_MESSAGE* pMsg) 
+static void Destructor(WM_MESSAGE* pMsg) 
 {
 	DeleteAllKeyMsgRemap(GetKeyMsgRemapHandle());
 	
 	ECHO(DEBUG_APP_WINDOWS, "[APP] 析构 <参数设置> 对话框");
+}
+
+/*
+*********************************************************************************************************
+* Function Name : Delete
+* Description	: 删除
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+static void Delete( WM_MESSAGE *pMsg )
+{	
+	GUI_EndDialog(pMsg->hWin, 1);
+	
+	ECHO(DEBUG_APP_WINDOWS, "[APP] 删除 <参数设置> 窗口");
+}
+
+/*
+*********************************************************************************************************
+* Function Name : Paint
+* Description	: 绘制
+* Input			: None
+* Output		: None
+* Return		: None
+*********************************************************************************************************
+*/
+static void Paint(void)
+{
+	GUI_SetBkColor(DIALOG_BKCOLOR);
+	GUI_Clear();
 }
 
 /*
@@ -393,14 +342,15 @@ static void _cbDialog(WM_MESSAGE* pMsg)
 	switch (pMsg->MsgId) 
 	{
 		case WM_INIT_DIALOG:	
-			DialogConstructor(pMsg);
+			Constructor(pMsg);
 			break;
 		case WM_CREATE:				
 			break;
 		case WM_DELETE:
-			DialogDestructor(pMsg);
+			Destructor(pMsg);
 			break;
-		case WM_PAINT:	
+		case WM_PAINT:
+			Paint();
 			break;
 		case WM_KEY:
 		{
@@ -409,7 +359,7 @@ static void _cbDialog(WM_MESSAGE* pMsg)
 			switch (key)
 			{
 				case GUI_KEY_ESCAPE:	
-					GUI_EndDialog(hWin, 1);
+					Delete(pMsg);
 					break;			
 			}
 			break;
@@ -433,7 +383,7 @@ static void _cbDialog(WM_MESSAGE* pMsg)
 * Return		: None
 *********************************************************************************************************
 */
-static void DialogConstructor1(WM_MESSAGE* pMsg) 
+static void Constructor1(WM_MESSAGE* pMsg) 
 {
 	WM_HWIN hWin = pMsg->hWin;
 	
@@ -488,6 +438,8 @@ static void DialogConstructor1(WM_MESSAGE* pMsg)
 	AddKeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_LEFT, NULL);
 	AddKeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_RIGHT, NULL);
 	AddKeyMsgRemap(GetKeyMsgRemapHandle(), GUI_KEY_ENTER, NULL);
+	
+	ECHO(DEBUG_APP_WINDOWS, "[APP] 构造 <参数设置> 窗口1");
 }
 
 /*
@@ -575,13 +527,14 @@ static void _cbDialog1(WM_MESSAGE* pMsg)
 	switch (pMsg->MsgId) 
 	{
 		case WM_INIT_DIALOG:	
-			DialogConstructor1(pMsg);
+			Constructor1(pMsg);
 			break;
 		case WM_CREATE:				
 			break;
 		case WM_DELETE:	
 			break;
-		case WM_PAINT:				
+		case WM_PAINT:	
+			Paint();
 			break;
 		case WM_NOTIFY_PARENT:
 		{	
@@ -659,7 +612,8 @@ static void _cbDialog2(WM_MESSAGE* pMsg)
 			break;
 		case WM_DELETE:	
 			break;
-		case WM_PAINT:				
+		case WM_PAINT:	
+			Paint();
 			break;
 		case WM_NOTIFY_PARENT:
 		{	
@@ -713,8 +667,7 @@ static void _cbDialog2(WM_MESSAGE* pMsg)
 */
 void App_SystemParameterTaskCreate( void )
 {
-	WM_HWIN hWin = _CreateFrame(_cbDesktop);
-	GUI_CreateDialogBox(_aDialogCreate, GUI_COUNTOF(_aDialogCreate), &_cbDialog, hWin, 0, 0);
+	GUI_CreateDialogBox(_aDialogCreate, GUI_COUNTOF(_aDialogCreate), &_cbDialog, hSuperWindows, 0, 0);
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics **********END OF FILE*************************/
