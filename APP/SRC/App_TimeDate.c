@@ -386,7 +386,7 @@ static void _cbDialog(WM_MESSAGE *pMsg)
 				}			
 				case GUI_KEY_ENTER:
 				case GUI_KEY_ESCAPE:
-				{									
+				{							
 					WM_SendMessageNoPara(WM_GetParent(hWin), WM_USER_ESC);
 					break;
 				}

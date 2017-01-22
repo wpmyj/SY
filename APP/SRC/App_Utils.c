@@ -52,7 +52,6 @@
 *********************************************************************************************************
 */
 static LANGUAGE_TYPE_TypeDef g_languageType = LANG_CHINESE;
-extern WM_HWIN hWindowsSuper;
 
 
 /*
@@ -155,7 +154,7 @@ WM_HWIN _CreateFrame(WM_CALLBACK* cb)
 	y = FRAME_BORDER + MAIN_TITLE_HEIGHT;
 	
 	WM_HWIN hFrame = WM_CreateWindowAsChild(x, y, FRAME_WIDTH, FRAME_HEIGHT, \
-				hWindowsSuper, WM_CF_SHOW, cb, 0);
+				WM_HBKWIN, WM_CF_SHOW, cb, 0);
 	
 	return hFrame;
 }
@@ -441,7 +440,13 @@ bool DeleteKeyMsgRemap(KEY_MSG_REMAP_TypeDef *node)
 */
 void DeleteAllKeyMsgRemap(KEY_MSG_REMAP_TypeDef *head)
 {
-	IteratorKeyMsgRemap(head, DeleteKeyMsgRemap_CallBack);
+	KEY_MSG_REMAP_TypeDef *thisNode, *tempNode;
+	list_for_each_entry_safe(thisNode, tempNode, &head->list, KEY_MSG_REMAP_TypeDef, list)
+	{
+		DeleteKeyMsgRemap_CallBack(thisNode);
+	}
+	
+	//IteratorKeyMsgRemap(head, DeleteKeyMsgRemap_CallBack);
 }
 
 /*

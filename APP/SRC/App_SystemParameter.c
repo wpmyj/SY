@@ -343,8 +343,6 @@ static void DialogConstructor(WM_MESSAGE* pMsg)
 {
 	WM_HWIN hWin = pMsg->hWin;
 	
-	FRAMEWIN_SetActive(hWin, 1);
-	
 	FRAMEWIN_SetFont(hWin, FRAME_FONT);
 	FRAMEWIN_SetTitleHeight(hWin, DIALOG_TITLE_HEIGHT);
 	FRAMEWIN_SetTextAlign(hWin, GUI_TA_HCENTER | GUI_TA_VCENTER);
@@ -355,10 +353,10 @@ static void DialogConstructor(WM_MESSAGE* pMsg)
 	MULTIPAGE_SetAlign(hMultiPage, MULTIPAGE_ALIGN_TOP);
 	
 	WM_HWIN hDialog = GUI_CreateDialogBox(_aDialogCreate1, GUI_COUNTOF(_aDialogCreate1), _cbDialog1, hMultiPage, 0, 0);
-	MULTIPAGE_AddEmptyPage(hMultiPage, hDialog, _GetLang(2));
+	MULTIPAGE_AddPage(hMultiPage, hDialog, _GetLang(2));
 	
 	hDialog = GUI_CreateDialogBox(_aDialogCreate2, GUI_COUNTOF(_aDialogCreate2), _cbDialog2, hMultiPage, 0, 0);
-	MULTIPAGE_AddEmptyPage(hMultiPage, hDialog, _GetLang(3));
+	MULTIPAGE_AddPage(hMultiPage, hDialog, _GetLang(3));
 	
 	MULTIPAGE_SelectPage(hMultiPage, 0);
 }
@@ -405,7 +403,15 @@ static void _cbDialog(WM_MESSAGE* pMsg)
 		case WM_PAINT:	
 			break;
 		case WM_KEY:
-		{			
+		{
+			int key = ((WM_KEY_INFO*)(pMsg->Data.p))->Key;
+			
+			switch (key)
+			{
+				case GUI_KEY_ESCAPE:	
+					GUI_EndDialog(hWin, 1);
+					break;			
+			}
 			break;
 		}
 		case WM_NOTIFY_PARENT:
@@ -577,18 +583,6 @@ static void _cbDialog1(WM_MESSAGE* pMsg)
 			break;
 		case WM_PAINT:				
 			break;
-		case WM_KEY:
-		{
-			int key = ((WM_KEY_INFO*)(pMsg->Data.p))->Key;
-			
-			switch (key)
-			{
-				case GUI_KEY_ESCAPE:	
-					WM_SendMessageNoPara(WM_GetParent(hWin), WM_USER_ESC);
-					break;			
-			}
-			break;
-		}
 		case WM_NOTIFY_PARENT:
 		{	
 			int NCode = pMsg->Data.v;
@@ -623,10 +617,10 @@ static void _cbDialog1(WM_MESSAGE* pMsg)
 							
 							break;
 						case GUI_ID_BUTTON0:
-							
+							GUI_SendKeyMsg(GUI_KEY_PGUP, true);
 							break;
 						case GUI_ID_BUTTON1:	
-							
+							GUI_SendKeyMsg(GUI_KEY_PGDOWN, true);
 							break;
 						default:
 							
@@ -641,7 +635,6 @@ static void _cbDialog1(WM_MESSAGE* pMsg)
 			WM_DefaultProc(pMsg);
 			break;
 	}
-	WM_DefaultProc(pMsg);
 }
 
 /*
@@ -655,7 +648,58 @@ static void _cbDialog1(WM_MESSAGE* pMsg)
 */
 static void _cbDialog2(WM_MESSAGE* pMsg) 
 {
-	WM_DefaultProc(pMsg);
+	WM_HWIN hWin = pMsg->hWin;
+	
+	switch (pMsg->MsgId) 
+	{
+		case WM_INIT_DIALOG:	
+			WM_SetFocus(WM_GetDialogItem(hWin, GUI_ID_BUTTON0));
+			break;
+		case WM_CREATE:				
+			break;
+		case WM_DELETE:	
+			break;
+		case WM_PAINT:				
+			break;
+		case WM_NOTIFY_PARENT:
+		{	
+			int NCode = pMsg->Data.v;
+			int Id = WM_GetId(pMsg->hWinSrc);
+			
+			switch (NCode) 
+			{
+				case WM_NOTIFICATION_GOT_FOCUS:
+
+					break;
+				case WM_NOTIFICATION_CLICKED:
+				{
+					switch (Id)
+					{
+						case GUI_ID_DROPDOWN0:
+							
+							break;
+						case GUI_ID_DROPDOWN1:
+							
+							break;
+						case GUI_ID_BUTTON0:
+							GUI_SendKeyMsg(GUI_KEY_PGUP, true);
+							break;
+						case GUI_ID_BUTTON1:	
+							GUI_SendKeyMsg(GUI_KEY_PGDOWN, true);
+							break;
+						default:
+							
+							break;
+					}
+					break;
+				}
+			}
+			break;
+		}	
+		default:
+			WM_DefaultProc(pMsg);
+			break;
+	}
 }
 
 /*
@@ -670,7 +714,7 @@ static void _cbDialog2(WM_MESSAGE* pMsg)
 void App_SystemParameterTaskCreate( void )
 {
 	WM_HWIN hWin = _CreateFrame(_cbDesktop);
-	WM_HWIN hFrameWin = GUI_CreateDialogBox(_aDialogCreate, GUI_COUNTOF(_aDialogCreate), &_cbDialog, hWin, 0, 0);
+	GUI_CreateDialogBox(_aDialogCreate, GUI_COUNTOF(_aDialogCreate), &_cbDialog, hWin, 0, 0);
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics **********END OF FILE*************************/

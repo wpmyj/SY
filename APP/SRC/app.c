@@ -54,7 +54,6 @@
 *                              				Private variables
 *********************************************************************************************************
 */
-WM_HWIN hWindowsSuper;
 KEY_MSG_REMAP_TypeDef *hKeyMsgRemapHeadPtr;
 
 /*
@@ -183,12 +182,7 @@ static void AppTaskCreate(void)
 {
 	/* 设置桌面回调函数 */
 	WM_SetCallback(WM_HBKWIN, _cbDesktop);
-	WM_Exec();
-	
-	hWindowsSuper = WM_CreateWindowAsChild(0, 0, LCD_GetXSize(), LCD_GetYSize(), \
-											WM_HBKWIN, WM_CF_SHOW, _cbDesktop, 0);
-	WM_Exec();
-	
+
 	App_MenuTaskCreate();
 }
 
@@ -230,7 +224,7 @@ void MainTask(void)
 	
 	while (1)
 	{		
-		GUI_Delay(10);
+		GUI_Delay(50);
 	}
 }
 
