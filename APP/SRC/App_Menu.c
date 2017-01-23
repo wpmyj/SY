@@ -240,7 +240,7 @@ static void Delete(WM_MESSAGE *pMsg)
 	g_CursorIndex = ICONVIEW_GetSel(pMsg->hWinSrc);	
 	
 	GUI_EndDialog(pMsg->hWin, 1);
-	
+
 	ECHO(DEBUG_APP_WINDOWS, "[APP] É¾³ý <²Ëµ¥> ´°¿Ú");
 }
 
@@ -292,23 +292,21 @@ static void _cbCallback(WM_MESSAGE* pMsg)
 			switch (key)
 			{
 				case GUI_KEY_ENTER:
-				{					
+				{		
+					Delete(pMsg);
+					
 					switch (ICONVIEW_GetSel(pMsg->hWinSrc))
 					{
-						case 0:
-							Delete(pMsg);					
+						case 0:												
 							App_SystemParameterTaskCreate();
 							break;
 						case 1:
-							Delete(pMsg);
 							App_TimeDateTaskCreate();									
 							break;
 						case 2:
-							Delete(pMsg);
 							App_LanguageTaskCreate();
 							break;
 						case 3:
-							Delete(pMsg);
 							App_DeviceManagerTaskCreate();
 							break;
 					}

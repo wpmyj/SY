@@ -877,14 +877,14 @@ void  AppTaskUserIF (void *p_arg)
 
 /*
 *********************************************************************************************************
-* Function Name : AppTaskGUIUpdate
-* Description	: GUI更新任务
+* Function Name : AppTaskUpdate
+* Description	: 更新任务
 * Input			: None
 * Output		: None
 * Return		: None
 *********************************************************************************************************
 */
-void  AppTaskGUIUpdate (void *p_arg)
+void  AppTaskUpdate (void *p_arg)
 {
 	(void)p_arg;
 	OS_MSG_SIZE msgSize;

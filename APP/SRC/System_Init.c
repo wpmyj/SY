@@ -136,14 +136,14 @@ __weak void AppObjCreate(void)
 
 /*
 *********************************************************************************************************
-* Function Name : AppTaskGUIUpdate
-* Description	: GUI更新任务
+* Function Name : AppTaskUpdate
+* Description	: 更新任务
 * Input			: None
 * Output		: None
 * Return		: None
 *********************************************************************************************************
 */
-__weak void AppTaskGUIUpdate(void *p_arg)
+__weak void AppTaskUpdate(void *p_arg)
 {
 	(void)p_arg;
 	while (1)
@@ -387,7 +387,7 @@ static void AppTaskCreate(void)
 	/**************创建UPDATE任务*********************/
 	OSTaskCreate((OS_TCB       *)&AppTaskUpdateTCB,             
                  (CPU_CHAR     *)"App Task Update",
-                 (OS_TASK_PTR   )AppTaskGUIUpdate, 
+                 (OS_TASK_PTR   )AppTaskUpdate, 
                  (void         *)0,
                  (OS_PRIO       )APP_CFG_TASK_UPDATE_PRIO,
                  (CPU_STK      *)&AppTaskUpdateStk[0],

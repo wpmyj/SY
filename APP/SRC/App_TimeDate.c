@@ -292,8 +292,8 @@ static void Destructor( WM_MESSAGE *pMsg )
 *********************************************************************************************************
 */
 static void Delete( WM_MESSAGE *pMsg )
-{
-	GUI_EndDialog(pMsg->hWin, 1);	
+{	
+	GUI_EndDialog(pMsg->hWin, 1);
 	
 	ECHO(DEBUG_APP_WINDOWS, "[APP] 删除 <时间日期> 窗口");
 }

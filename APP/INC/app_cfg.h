@@ -78,11 +78,11 @@
 *********************************************************************************************************
 */
 #define  APP_CFG_TASK_START_PRIO                           	2u
-#define  APP_CFG_TASK_UPDATE_PRIO                          	3u
-#define  APP_CFG_TASK_COM_PRIO                             	4u
-#define  APP_CFG_TASK_USER_IF_PRIO                         	5u
+#define  APP_CFG_TASK_GUI_PRIO                        		3u
+#define  APP_CFG_TASK_UPDATE_PRIO                          	4u
+#define  APP_CFG_TASK_COM_PRIO                             	5u
+#define  APP_CFG_TASK_USER_IF_PRIO                         	6u
 #define  APP_CFG_TASK_IO_PRIO                       		(OS_CFG_PRIO_MAX - 11u)
-#define  APP_CFG_TASK_GUI_PRIO                        		(OS_CFG_PRIO_MAX - 10u)
 #define  APP_CFG_TASK_GUI_REFRESH_PRIO						(OS_CFG_PRIO_MAX - 9u)
 #define  APP_CFG_TASK_SHELL_PRIO                           	(OS_CFG_PRIO_MAX - 7u)
 #define  APP_CFG_TASK_DEBUG_VIEW_PRIO                       (OS_CFG_PRIO_MAX - 6u)

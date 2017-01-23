@@ -144,42 +144,49 @@ void HAL_CRC_MspInit(CRC_HandleTypeDef* crcHandle)
 
 /*
 *********************************************************************************************************
-* Function Name : AppTaskStartUtils
-* Description	: 起始任务工具类
+* Function Name : AppTaskUpdate
+* Description	: 更新任务
 * Input			: None
 * Output		: None
 * Return		: None
 *********************************************************************************************************
 */
-void  AppTaskStartUtils (void)
+void AppTaskUpdate(void *p_arg)
 {
-	/* 按键任务 */
+	(void)p_arg;
+	
+	while (1)
 	{
-		g_KeyValue = bsp_74HC165_Read();
-		KeyScanCycleTask(g_keyPtr);		
-	}
-
-	static __IO uint32_t count = 0;
-	if (++count >= 10)
-	{
-		count = 0;	
-		
-		/* 蜂鸣器任务 */
-		RepeatExecuteTaskCycle(GetBeepHandle());
-		
-		/* USB任务 */
-		USBH_Process(&hUsbHostHS);
-		
-		/* 以太网任务 */
+		/* 按键任务 */
 		{
-			HAL_ETH_RxCpltCallback(&EthHandle);
-			sys_check_timeouts();
+			g_KeyValue = bsp_74HC165_Read();
+			KeyScanCycleTask(g_keyPtr);		
 		}
 
-		/* 以太网开关任务 */
-		SwitchTask(&g_ETH_Switch);
+		static __IO uint32_t count = 0;
+		if (++count >= 10)
+		{
+			count = 0;	
+			
+			/* 蜂鸣器任务 */
+			RepeatExecuteTaskCycle(GetBeepHandle());
+			
+			/* USB任务 */
+			USBH_Process(&hUsbHostHS);
+			
+			/* 以太网任务 */
+			{
+				HAL_ETH_RxCpltCallback(&EthHandle);
+				sys_check_timeouts();
+			}
+
+			/* 以太网开关任务 */
+			SwitchTask(&g_ETH_Switch);
+		}
+		SystemTick_Inc(1);
+		
+		BSP_OS_TimeDlyMs(1);
 	}
-	SystemTick_Inc(1);
 }
 
 /*

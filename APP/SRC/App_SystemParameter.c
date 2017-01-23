@@ -209,7 +209,6 @@ static const char * _aLang[][SUPPORT_LANGUAGE_NUMS] = {
 *********************************************************************************************************
 */
 
-
 /*
 *********************************************************************************************************
 *                              				Private function prototypes
@@ -256,7 +255,7 @@ static const char *_GetLang(uint32_t Index)
 *********************************************************************************************************
 */
 static void Constructor(WM_MESSAGE* pMsg) 
-{
+{		
 	WM_HWIN hWin = pMsg->hWin;
 	
 	FRAMEWIN_SetFont(hWin, FRAME_FONT);
@@ -277,6 +276,7 @@ static void Constructor(WM_MESSAGE* pMsg)
 	MULTIPAGE_SelectPage(hMultiPage, 0);
 	
 	ECHO(DEBUG_APP_WINDOWS, "[APP] 构造 <参数设置> 窗口");
+	
 }
 
 /*
@@ -323,7 +323,7 @@ static void Delete( WM_MESSAGE *pMsg )
 static void Paint(void)
 {
 	GUI_SetBkColor(DIALOG_BKCOLOR);
-	GUI_Clear();
+	GUI_Clear();	
 }
 
 /*
@@ -338,6 +338,7 @@ static void Paint(void)
 static void _cbDialog(WM_MESSAGE* pMsg) 
 {
 	WM_HWIN hWin = pMsg->hWin;
+	(void)hWin;
 	
 	switch (pMsg->MsgId) 
 	{
@@ -360,6 +361,7 @@ static void _cbDialog(WM_MESSAGE* pMsg)
 			{
 				case GUI_KEY_ESCAPE:	
 					Delete(pMsg);
+					App_MenuTaskCreate();
 					break;			
 			}
 			break;
@@ -523,6 +525,7 @@ static void Dialog1_RegisterButtonWidgetKeyRemap(void)
 static void _cbDialog1(WM_MESSAGE* pMsg) 
 {
 	WM_HWIN hWin = pMsg->hWin;
+	(void)hWin;
 	
 	switch (pMsg->MsgId) 
 	{
@@ -666,7 +669,7 @@ static void _cbDialog2(WM_MESSAGE* pMsg)
 *********************************************************************************************************
 */
 void App_SystemParameterTaskCreate( void )
-{
+{	
 	GUI_CreateDialogBox(_aDialogCreate, GUI_COUNTOF(_aDialogCreate), &_cbDialog, hSuperWindows, 0, 0);
 }
 
