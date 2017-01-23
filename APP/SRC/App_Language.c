@@ -271,7 +271,8 @@ static void _cbDialog(WM_MESSAGE *pMsg)
 						default:
 							return;
 					}					
-					WM_SendMessageNoPara(WM_GetParent(hWin), WM_USER_ESC);					
+					Delete(pMsg);
+					App_MenuTaskCreate();				
 					break;
 				}
 				case GUI_KEY_ESCAPE:

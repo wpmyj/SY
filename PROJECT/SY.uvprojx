@@ -335,7 +335,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER, STM32F407xx,</Define>
               <Undefine></Undefine>
-              <IncludePath>..\APP\INC;..\BSP\INC;..\UTILS\INC;..\KERNEL\INC;..\FWLIB\STM32F4xx_HAL_Driver\Inc;..\FWLIB\CMSIS\Device\ST\STM32F4xx\Include;..\FWLIB\CMSIS\Include;..\USER\INC;..\FWLIB\FatFs-0.12b\src;..\FWLIB\FatFs-0.12b\drivers;..\FWLIB\STM32_USB_Host_Library\Drivers;..\FWLIB\lwip-1.4.1\src\include;..\FWLIB\lwip-1.4.1\system;..\FWLIB\lwip-1.4.1\usr\INC;..\FWLIB\STM32_USB_Host_Library\Class\MSC\Inc;..\FWLIB\STM32_USB_Host_Library\Core\Inc;..\FWLIB\STM32_USB_Host_Library\Usr;..\FWLIB\STemWinLibrary532\inc;..\FWLIB\STemWinLibrary532\Usr;..\FWLIB\uCosIII-3.04.05\uC-BSP;..\FWLIB\uCosIII-3.04.05\uC-CPU;..\FWLIB\uCosIII-3.04.05\uC-CPU\ARM-Cortex-M4\RealView;..\FWLIB\uCosIII-3.04.05\uC-LIB;..\FWLIB\uCosIII-3.04.05\uC-LIB\Ports\ARM-Cortex-M4\RealView;..\FWLIB\uCosIII-3.04.05\uCOS-III\Ports\ARM-Cortex-M4\Generic\RealView;..\FWLIB\uCosIII-3.04.05\uCOS-III\Source;..\FWLIB\uCosIII-3.04.05\uC-Usr;..\FWLIB\DSP_LIB\Include;..\FWLIB\STM32_USB_Host_Library\Class\HID\Inc;..\FWLIB\RTT_Implementation_141217\RTT</IncludePath>
+              <IncludePath>..\APP\INC;..\BSP\INC;..\UTILS\INC;..\KERNEL\INC;..\FWLIB\STM32F4xx_HAL_Driver\Inc;..\FWLIB\CMSIS\Device\ST\STM32F4xx\Include;..\FWLIB\CMSIS\Include;..\USER\INC;..\FWLIB\FatFs-0.12b\src;..\FWLIB\FatFs-0.12b\drivers;..\FWLIB\STM32_USB_Host_Library\Drivers;..\FWLIB\lwip-1.4.1\src\include;..\FWLIB\lwip-1.4.1\system;..\FWLIB\lwip-1.4.1\usr\INC;..\FWLIB\STM32_USB_Host_Library\Class\MSC\Inc;..\FWLIB\STM32_USB_Host_Library\Core\Inc;..\FWLIB\STM32_USB_Host_Library\Usr;..\FWLIB\STemWinLibrary532\inc;..\FWLIB\STemWinLibrary532\Usr;..\FWLIB\uCosIII-3.05.00\uC-BSP;..\FWLIB\uCosIII-3.05.00\uC-CPU;..\FWLIB\uCosIII-3.05.00\uC-CPU\ARM-Cortex-M4\RealView;..\FWLIB\uCosIII-3.05.00\uC-LIB;..\FWLIB\uCosIII-3.05.00\uC-LIB\Ports\ARM-Cortex-M4\RealView;..\FWLIB\uCosIII-3.05.00\uCOS-III\Ports\ARM-Cortex-M4\Generic\RealView;..\FWLIB\uCosIII-3.05.00\uCOS-III\Source;..\FWLIB\uCosIII-3.05.00\uC-Usr;..\FWLIB\DSP_LIB\Include;..\FWLIB\STM32_USB_Host_Library\Class\HID\Inc;..\FWLIB\RTT_Implementation_141217\RTT</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -445,9 +445,29 @@
               <FilePath>..\UTILS\INC\list.h</FilePath>
             </File>
             <File>
+              <FileName>os_cfg.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uC-Usr\os_cfg.h</FilePath>
+            </File>
+            <File>
+              <FileName>os_cfg_app.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uC-Usr\os_cfg_app.h</FilePath>
+            </File>
+            <File>
               <FileName>os_inc.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uC-Usr\os_inc.h</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uC-Usr\os_inc.h</FilePath>
+            </File>
+            <File>
+              <FileName>cpu_cfg.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uC-Usr\cpu_cfg.h</FilePath>
+            </File>
+            <File>
+              <FileName>lib_cfg.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uC-Usr\lib_cfg.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -1238,6 +1258,25 @@
               <FileName>STemWin532_CM4_OS_Keil.lib</FileName>
               <FileType>4</FileType>
               <FilePath>..\FWLIB\STemWinLibrary532\Lib\STemWin532_CM4_OS_Keil.lib</FilePath>
+              <FileOption>
+                <CommonProperty>
+                  <UseCPPCompiler>2</UseCPPCompiler>
+                  <RVCTCodeConst>0</RVCTCodeConst>
+                  <RVCTZI>0</RVCTZI>
+                  <RVCTOtherData>0</RVCTOtherData>
+                  <ModuleSelection>0</ModuleSelection>
+                  <IncludeInBuild>1</IncludeInBuild>
+                  <AlwaysBuild>2</AlwaysBuild>
+                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
+                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
+                  <PublicsOnly>2</PublicsOnly>
+                  <StopOnExitCode>11</StopOnExitCode>
+                  <CustomArgument></CustomArgument>
+                  <IncludeLibraryModules></IncludeLibraryModules>
+                  <ComprImg>1</ComprImg>
+                </CommonProperty>
+                <FileArmAds/>
+              </FileOption>
             </File>
           </Files>
         </Group>
@@ -1495,34 +1534,39 @@
           <GroupName>uC/OS-III Usr</GroupName>
           <Files>
             <File>
-              <FileName>os_app_hooks.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uC-Usr\os_app_hooks.c</FilePath>
-            </File>
-            <File>
-              <FileName>os_app_hooks.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uC-Usr\os_app_hooks.h</FilePath>
-            </File>
-            <File>
-              <FileName>os_cfg.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uC-Usr\os_cfg.h</FilePath>
-            </File>
-            <File>
-              <FileName>os_cfg_app.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uC-Usr\os_cfg_app.h</FilePath>
-            </File>
-            <File>
               <FileName>cpu_cfg.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uC-Usr\cpu_cfg.h</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uC-Usr\cpu_cfg.h</FilePath>
             </File>
             <File>
               <FileName>lib_cfg.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uC-Usr\lib_cfg.h</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uC-Usr\lib_cfg.h</FilePath>
+            </File>
+            <File>
+              <FileName>os_app_hooks.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uC-Usr\os_app_hooks.c</FilePath>
+            </File>
+            <File>
+              <FileName>os_app_hooks.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uC-Usr\os_app_hooks.h</FilePath>
+            </File>
+            <File>
+              <FileName>os_cfg.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uC-Usr\os_cfg.h</FilePath>
+            </File>
+            <File>
+              <FileName>os_cfg_app.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uC-Usr\os_cfg_app.h</FilePath>
+            </File>
+            <File>
+              <FileName>os_inc.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uC-Usr\os_inc.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -1532,17 +1576,17 @@
             <File>
               <FileName>bsp_os.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uC-BSP\bsp_os.c</FilePath>
-            </File>
-            <File>
-              <FileName>cpu_bsp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uC-BSP\cpu_bsp.c</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uC-BSP\bsp_os.c</FilePath>
             </File>
             <File>
               <FileName>bsp_os.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uC-BSP\bsp_os.h</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uC-BSP\bsp_os.h</FilePath>
+            </File>
+            <File>
+              <FileName>cpu_bsp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uC-BSP\cpu_bsp.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1550,34 +1594,39 @@
           <GroupName>uC/OS-III CPU</GroupName>
           <Files>
             <File>
+              <FileName>cpu_cache.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uC-CPU\cpu_cache.h</FilePath>
+            </File>
+            <File>
               <FileName>cpu_core.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uC-CPU\cpu_core.c</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uC-CPU\cpu_core.c</FilePath>
             </File>
             <File>
               <FileName>cpu_core.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uC-CPU\cpu_core.h</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uC-CPU\cpu_core.h</FilePath>
             </File>
             <File>
               <FileName>cpu_def.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uC-CPU\cpu_def.h</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uC-CPU\cpu_def.h</FilePath>
             </File>
             <File>
               <FileName>cpu.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uC-CPU\ARM-Cortex-M4\RealView\cpu.h</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uC-CPU\ARM-Cortex-M4\RealView\cpu.h</FilePath>
             </File>
             <File>
               <FileName>cpu_a.asm</FileName>
               <FileType>2</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uC-CPU\ARM-Cortex-M4\RealView\cpu_a.asm</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uC-CPU\ARM-Cortex-M4\RealView\cpu_a.asm</FilePath>
             </File>
             <File>
               <FileName>cpu_c.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uC-CPU\ARM-Cortex-M4\RealView\cpu_c.c</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uC-CPU\ARM-Cortex-M4\RealView\cpu_c.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1587,52 +1636,52 @@
             <File>
               <FileName>lib_ascii.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uC-LIB\lib_ascii.c</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uC-LIB\lib_ascii.c</FilePath>
             </File>
             <File>
               <FileName>lib_ascii.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uC-LIB\lib_ascii.h</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uC-LIB\lib_ascii.h</FilePath>
             </File>
             <File>
               <FileName>lib_def.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uC-LIB\lib_def.h</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uC-LIB\lib_def.h</FilePath>
             </File>
             <File>
               <FileName>lib_math.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uC-LIB\lib_math.c</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uC-LIB\lib_math.c</FilePath>
             </File>
             <File>
               <FileName>lib_math.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uC-LIB\lib_math.h</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uC-LIB\lib_math.h</FilePath>
             </File>
             <File>
               <FileName>lib_mem.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uC-LIB\lib_mem.c</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uC-LIB\lib_mem.c</FilePath>
             </File>
             <File>
               <FileName>lib_mem.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uC-LIB\lib_mem.h</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uC-LIB\lib_mem.h</FilePath>
             </File>
             <File>
               <FileName>lib_str.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uC-LIB\lib_str.c</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uC-LIB\lib_str.c</FilePath>
             </File>
             <File>
               <FileName>lib_str.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uC-LIB\lib_str.h</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uC-LIB\lib_str.h</FilePath>
             </File>
             <File>
               <FileName>lib_mem_a.asm</FileName>
               <FileType>2</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uC-LIB\Ports\ARM-Cortex-M4\RealView\lib_mem_a.asm</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uC-LIB\Ports\ARM-Cortex-M4\RealView\lib_mem_a.asm</FilePath>
             </File>
           </Files>
         </Group>
@@ -1642,102 +1691,107 @@
             <File>
               <FileName>os.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uCOS-III\Source\os.h</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uCOS-III\Source\os.h</FilePath>
             </File>
             <File>
               <FileName>os_cfg_app.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uCOS-III\Source\os_cfg_app.c</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uCOS-III\Source\os_cfg_app.c</FilePath>
             </File>
             <File>
               <FileName>os_core.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uCOS-III\Source\os_core.c</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uCOS-III\Source\os_core.c</FilePath>
             </File>
             <File>
               <FileName>os_dbg.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uCOS-III\Source\os_dbg.c</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uCOS-III\Source\os_dbg.c</FilePath>
             </File>
             <File>
               <FileName>os_flag.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uCOS-III\Source\os_flag.c</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uCOS-III\Source\os_flag.c</FilePath>
             </File>
             <File>
               <FileName>os_int.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uCOS-III\Source\os_int.c</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uCOS-III\Source\os_int.c</FilePath>
             </File>
             <File>
               <FileName>os_mem.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uCOS-III\Source\os_mem.c</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uCOS-III\Source\os_mem.c</FilePath>
+            </File>
+            <File>
+              <FileName>os_mon.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uCOS-III\Source\os_mon.c</FilePath>
             </File>
             <File>
               <FileName>os_msg.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uCOS-III\Source\os_msg.c</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uCOS-III\Source\os_msg.c</FilePath>
             </File>
             <File>
               <FileName>os_mutex.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uCOS-III\Source\os_mutex.c</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uCOS-III\Source\os_mutex.c</FilePath>
             </File>
             <File>
               <FileName>os_pend_multi.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uCOS-III\Source\os_pend_multi.c</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uCOS-III\Source\os_pend_multi.c</FilePath>
             </File>
             <File>
               <FileName>os_prio.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uCOS-III\Source\os_prio.c</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uCOS-III\Source\os_prio.c</FilePath>
             </File>
             <File>
               <FileName>os_q.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uCOS-III\Source\os_q.c</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uCOS-III\Source\os_q.c</FilePath>
             </File>
             <File>
               <FileName>os_sem.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uCOS-III\Source\os_sem.c</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uCOS-III\Source\os_sem.c</FilePath>
             </File>
             <File>
               <FileName>os_stat.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uCOS-III\Source\os_stat.c</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uCOS-III\Source\os_stat.c</FilePath>
             </File>
             <File>
               <FileName>os_task.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uCOS-III\Source\os_task.c</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uCOS-III\Source\os_task.c</FilePath>
             </File>
             <File>
               <FileName>os_tick.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uCOS-III\Source\os_tick.c</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uCOS-III\Source\os_tick.c</FilePath>
             </File>
             <File>
               <FileName>os_time.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uCOS-III\Source\os_time.c</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uCOS-III\Source\os_time.c</FilePath>
             </File>
             <File>
               <FileName>os_tmr.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uCOS-III\Source\os_tmr.c</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uCOS-III\Source\os_tmr.c</FilePath>
             </File>
             <File>
               <FileName>os_type.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uCOS-III\Source\os_type.h</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uCOS-III\Source\os_type.h</FilePath>
             </File>
             <File>
               <FileName>os_var.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uCOS-III\Source\os_var.c</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uCOS-III\Source\os_var.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1747,17 +1801,17 @@
             <File>
               <FileName>os_cpu.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uCOS-III\Ports\ARM-Cortex-M4\Generic\RealView\os_cpu.h</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uCOS-III\Ports\ARM-Cortex-M4\Generic\RealView\os_cpu.h</FilePath>
             </File>
             <File>
               <FileName>os_cpu_a.asm</FileName>
               <FileType>2</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uCOS-III\Ports\ARM-Cortex-M4\Generic\RealView\os_cpu_a.asm</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uCOS-III\Ports\ARM-Cortex-M4\Generic\RealView\os_cpu_a.asm</FilePath>
             </File>
             <File>
               <FileName>os_cpu_c.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\FWLIB\uCosIII-3.04.05\uCOS-III\Ports\ARM-Cortex-M4\Generic\RealView\os_cpu_c.c</FilePath>
+              <FilePath>..\FWLIB\uCosIII-3.05.00\uCOS-III\Ports\ARM-Cortex-M4\Generic\RealView\os_cpu_c.c</FilePath>
             </File>
           </Files>
         </Group>

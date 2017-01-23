@@ -258,7 +258,7 @@ void MainTask(void)
 	AppTaskCreate();
 	
 	while (1)
-	{		
+	{			
 		GUI_Delay(50);
 	}
 }
